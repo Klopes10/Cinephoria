@@ -33,10 +33,17 @@ class Salle
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'salle')]
     private Collection $seances;
 
+    /**
+     * @var Collection<int, Incident>
+     */
+    #[ORM\OneToMany(targetEntity: Incident::class, mappedBy: 'Salle')]
+    private Collection $incidents;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
+        $this->incidents = new ArrayCollection();
     }
     
     public function getId(): ?int
@@ -116,6 +123,36 @@ class Salle
             // set the owning side to null (unless already changed)
             if ($seance->getSalle() === $this) {
                 $seance->setSalle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Incident>
+     */
+    public function getIncidents(): Collection
+    {
+        return $this->incidents;
+    }
+
+    public function addIncident(Incident $incident): static
+    {
+        if (!$this->incidents->contains($incident)) {
+            $this->incidents->add($incident);
+            $incident->setSalle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIncident(Incident $incident): static
+    {
+        if ($this->incidents->removeElement($incident)) {
+            // set the owning side to null (unless already changed)
+            if ($incident->getSalle() === $this) {
+                $incident->setSalle(null);
             }
         }
 
