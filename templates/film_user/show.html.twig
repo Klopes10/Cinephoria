@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ film.titre }}{% endblock %}
+
+{% block body %}
+<h1>{{ film.titre }}</h1>
+
+<p>{{ film.synopsis }}</p>
+
+{% if film.affiche %}
+    <img src="{{ film.affiche }}" alt="{{ film.titre }}" width="200">
+{% endif %}
+
+<h2>Séances</h2>
+<h2>Séances à venir</h2>
+
+{% if film.seances is not empty %}
+    <ul>
+        {% for seance in film.seances %}
+            <li>
+                <strong>Début :</strong> {{ seance.dateHeureDebut|date('d/m/Y H:i') }}<br>
+                <strong>Fin :</strong> {{ seance.dateHeureFin|date('d/m/Y H:i') }}<br>
+                <strong>Salle :</strong> {{ seance.salle.nom }}<br>
+                <strong>Qualité :</strong> {{ seance.qualite }}<br>
+                <strong>Places dispo :</strong> {{ seance.placesDisponible }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Aucune séance prévue pour ce film.</p>
+{% endif %}
+
+
+<h2>Avis</h2>
+<p>A venir</p>
+
+<p><a href="{{ path('app_films') }}">← Retour à la liste</a></p>
+{% endblock %}

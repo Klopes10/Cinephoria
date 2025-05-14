@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des films{% endblock %}
+
+{% block body %}
+<h1>Liste des films</h1>
+
+<ul>
+    {% for film in films %}
+        <li style="margin-bottom: 30px;">
+            <h3>{{ film.titre }}</h3>
+            <p>{{ film.synopsis }}</p>
+
+            {% if film.affiche %}
+                <img src="{{ film.affiche }}" alt="{{ film.titre }}" width="200">
+            {% endif %}
+
+            <p>
+                <a href="{{ path('app_films_show', { id: film.id }) }}">Voir les détails</a>
+            </p>
+        </li>
+    {% else %}
+        <li>Aucun film disponible pour le moment.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
