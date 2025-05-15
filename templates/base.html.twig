@@ -11,14 +11,22 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}
-        {% if app.user %}
-        Bonjour {{ app.user.email }} | <a href="{{ path('app_logout') }}">Déconnexion</a>
-        {% else %}
-            <a href="{{ path('app_auth') }}">Connexion / Inscription</a>
-        {% endif %}
+    <nav>
+    <a href="{{ path('app_home') }}">Accueil</a>
+    <a href="{{ path('app_films') }}">Films</a>
+    <a href="{{ path('app_contact') }}">Contact</a>
 
-        <a href="{{ path('app_contact') }}">Contact</a>
+    {% if app.user %}
+        Bonjour {{ app.user.username }} |
+        <a href="{{ path('app_logout') }}">Déconnexion</a>
+    {% else %}
+        <a href="{{ path('app_auth') }}">Connexion / Inscription</a>
+    {% endif %}
+</nav>
+<hr>
+
+        {% block body %}
+
 
         {% endblock %}
     </body>

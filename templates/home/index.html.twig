@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - Cinéphoria{% endblock %}
+
+{% block body %}
+<h1>Bienvenue sur Cinéphoria</h1>
+
+<p>Explorez notre catalogue de films, réservez vos séances, laissez des avis, et profitez du cinéma autrement.</p>
+
+<a href="{{ path('app_films') }}">Voir les films</a>
+{% endblock %}
