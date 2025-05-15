@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte{% endblock %}
+
+{% block body %}
+<h1>Mes réservations</h1>
+
+<ul>
+    {% for reservation in reservations %}
+        <li>
+            🎬 {{ reservation.seance.film.titre }}<br>
+            📅 {{ reservation.seance.dateHeureDebut|date('d/m/Y H:i') }}<br>
+            🎟️ {{ reservation.nombrePlaces }} place(s)
+        </li>
+    {% else %}
+        <p>Vous n’avez pas encore réservé de séance.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

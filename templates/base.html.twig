@@ -1,8 +1,10 @@
-<!DOCTYPE html>
+
 <html>
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+        <script src="{{ asset('js/scripts.js') }}"></script>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
         {% endblock %}
@@ -17,11 +19,18 @@
     <a href="{{ path('app_contact') }}">Contact</a>
 
     {% if app.user %}
-        Bonjour {{ app.user.username }} |
-        <a href="{{ path('app_logout') }}">Déconnexion</a>
+   <div class="dropdown" id="userDropdown">
+        <span class="menu-username" onclick="toggleDropdown()">Bonjour {{ app.user.username }}</span>
+        <ul class="dropdown-content" id="dropdownMenu">
+            <li><a href="{{ path('app_account') }}">Mes réservations</a></li>
+            <li><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+        </ul>
+    </div>
+
     {% else %}
         <a href="{{ path('app_auth') }}">Connexion / Inscription</a>
     {% endif %}
+
 </nav>
 <hr>
 

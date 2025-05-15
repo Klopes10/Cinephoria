@@ -11,6 +11,7 @@ use App\Entity\Film;
 use App\Entity\Avis;
 use App\Form\AvisTypeForm;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class FilmUserController extends AbstractController
 {
@@ -24,7 +25,9 @@ final class FilmUserController extends AbstractController
         ]);
     }
 
+    
     #[Route('/films/{id}', name: "app_films_show")]
+    #[IsGranted('ROLE_USER')]
     public function show(
         Film $film,
         Request $request,
@@ -34,9 +37,9 @@ final class FilmUserController extends AbstractController
         $avis->setFilm($film);
         $avis->setCreatedAt(new \DateTimeImmutable());
     
-        // if ($this->getUser()) {
-        //     $avis->setUser($this->getUser());
-        // }
+        if ($this->getUser()) {
+            $avis->setUser($this->getUser());
+        }
     
         $form = $this->createForm(AvisTypeForm::class, $avis);
         $form->handleRequest($request);
