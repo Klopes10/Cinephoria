@@ -12,7 +12,7 @@
             <p>{{ film.synopsis }}</p>
 
             {% if film.affiche %}
-                <img src="{{ film.affiche }}" alt="{{ film.titre }}" width="200">
+                <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}" width="200">
             {% endif %}
 
             <p>
