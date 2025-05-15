@@ -27,7 +27,7 @@ class Avis
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $User = null;
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
