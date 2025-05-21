@@ -44,6 +44,9 @@ class Seance
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'Seance')]
     private Collection $reservations;
 
+    #[ORM\Column]
+    private ?float $prix = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -165,6 +168,18 @@ class Seance
                 $reservation->setSeance(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPrix(): ?float
+    {
+        return $this->prix;
+    }
+
+    public function setPrix(float $prix): static
+    {
+        $this->prix = $prix;
 
         return $this;
     }

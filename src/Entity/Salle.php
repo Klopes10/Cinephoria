@@ -43,11 +43,18 @@ class Salle
     #[ORM\JoinColumn(nullable: true)]
     private ?Cinema $cinema = null;
 
+    /**
+     * @var Collection<int, Siege>
+     */
+    #[ORM\OneToMany(targetEntity: Siege::class, mappedBy: 'salle')]
+    private Collection $sieges;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
         $this->incidents = new ArrayCollection();
+        $this->sieges = new ArrayCollection();
     }
     
     public function getId(): ?int
@@ -171,6 +178,36 @@ class Salle
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Siege>
+     */
+    public function getSieges(): Collection
+    {
+        return $this->sieges;
+    }
+
+    public function addSiege(Siege $siege): static
+    {
+        if (!$this->sieges->contains($siege)) {
+            $this->sieges->add($siege);
+            $siege->setSalle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSiege(Siege $siege): static
+    {
+        if ($this->sieges->removeElement($siege)) {
+            // set the owning side to null (unless already changed)
+            if ($siege->getSalle() === $this) {
+                $siege->setSalle(null);
+            }
+        }
 
         return $this;
     }

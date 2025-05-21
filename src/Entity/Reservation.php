@@ -30,6 +30,9 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private ?Seance $Seance = null;
 
+    #[ORM\Column]
+    private ?float $prixTotal = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -96,6 +99,18 @@ class Reservation
     public function setSeance(?Seance $Seance): static
     {
         $this->Seance = $Seance;
+
+        return $this;
+    }
+
+    public function getPrixTotal(): ?float
+    {
+        return $this->prixTotal;
+    }
+
+    public function setPrixTotal(float $prixTotal): static
+    {
+        $this->prixTotal = $prixTotal;
 
         return $this;
     }
