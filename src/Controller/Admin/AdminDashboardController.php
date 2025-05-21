@@ -10,6 +10,7 @@ use App\Entity\Avis;
 use App\Entity\Contact;
 use App\Entity\Incident;
 use App\Entity\User;
+use App\Entity\Cinema;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -47,6 +48,7 @@ class AdminDashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
+        yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
 

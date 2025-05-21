@@ -39,6 +39,10 @@ class Salle
     #[ORM\OneToMany(targetEntity: Incident::class, mappedBy: 'Salle')]
     private Collection $incidents;
 
+    #[ORM\ManyToOne(inversedBy: 'salles')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Cinema $cinema = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -155,6 +159,18 @@ class Salle
                 $incident->setSalle(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }
