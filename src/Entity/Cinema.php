@@ -36,9 +36,16 @@ class Cinema
     #[ORM\OneToMany(targetEntity: Salle::class, mappedBy: 'cinema')]
     private Collection $salles;
 
+    /**
+     * @var Collection<int, Seance>
+     */
+    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'cinema')]
+    private Collection $seances;
+
     public function __construct()
     {
         $this->salles = new ArrayCollection();
+        $this->seances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -139,5 +146,35 @@ class Cinema
     public function __toString()
     {
         return $this->nom . ' - ' . $this->ville;
+    }
+
+    /**
+     * @return Collection<int, Seance>
+     */
+    public function getSeances(): Collection
+    {
+        return $this->seances;
+    }
+
+    public function addSeance(Seance $seance): static
+    {
+        if (!$this->seances->contains($seance)) {
+            $this->seances->add($seance);
+            $seance->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeance(Seance $seance): static
+    {
+        if ($this->seances->removeElement($seance)) {
+            // set the owning side to null (unless already changed)
+            if ($seance->getCinema() === $this) {
+                $seance->setCinema(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -6,6 +6,7 @@ use App\Repository\ReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Reservation
 {
     #[ORM\Id]
@@ -16,7 +17,7 @@ class Reservation
     #[ORM\Column]
     private ?int $nombrePlaces = null;
 
-    #[ORM\Column(nullable: true, length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $placesAttribuees = null;
 
     #[ORM\Column]
@@ -28,16 +29,32 @@ class Reservation
 
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Seance $Seance = null;
+    private ?Seance $seance = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'float')]
     private ?float $prixTotal = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
     }
-    
+
+    #[ORM\PrePersist]
+    public function updateSeanceAndTotal(): void
+    {
+        if ($this->seance !== null && $this->nombrePlaces !== null) {
+            $placesRestantes = $this->seance->getPlacesDisponible();
+            $placesDemandées = $this->nombrePlaces;
+
+            if ($placesRestantes < $placesDemandées) {
+                throw new \Exception("Il ne reste que {$placesRestantes} places disponibles pour cette séance.");
+            }
+
+            $this->seance->setPlacesDisponible($placesRestantes - $placesDemandées);
+            $this->prixTotal = $this->seance->getPrix() * $placesDemandées;
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -51,7 +68,6 @@ class Reservation
     public function setNombrePlaces(int $nombrePlaces): static
     {
         $this->nombrePlaces = $nombrePlaces;
-
         return $this;
     }
 
@@ -60,10 +76,9 @@ class Reservation
         return $this->placesAttribuees;
     }
 
-    public function setPlacesAttribuees(string $placesAttribuees): static
+    public function setPlacesAttribuees(?string $placesAttribuees): static
     {
         $this->placesAttribuees = $placesAttribuees;
-
         return $this;
     }
 
@@ -75,7 +90,6 @@ class Reservation
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -87,19 +101,17 @@ class Reservation
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
     public function getSeance(): ?Seance
     {
-        return $this->Seance;
+        return $this->seance;
     }
 
-    public function setSeance(?Seance $Seance): static
+    public function setSeance(?Seance $seance): static
     {
-        $this->Seance = $Seance;
-
+        $this->seance = $seance;
         return $this;
     }
 
@@ -111,7 +123,6 @@ class Reservation
     public function setPrixTotal(float $prixTotal): static
     {
         $this->prixTotal = $prixTotal;
-
         return $this;
     }
 }

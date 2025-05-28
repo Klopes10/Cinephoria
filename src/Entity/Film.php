@@ -31,7 +31,7 @@ class Film
     #[ORM\Column]
     private ?bool $coupDeCoeur = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $noteMoyenne = null;
 
     #[ORM\Column]
@@ -40,13 +40,13 @@ class Film
     /**
      * @var Collection<int, Seance>
      */
-    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'film')]
+    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'film', orphanRemoval: true, cascade: ['persist'])]
     private Collection $seances;
 
     /**
      * @var Collection<int, Avis>
      */
-    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'Film')]
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'film', orphanRemoval: true, cascade: ['persist'])]
     private Collection $avis;
 
     public function __construct()
@@ -69,7 +69,6 @@ class Film
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
-
         return $this;
     }
 
@@ -81,7 +80,6 @@ class Film
     public function setSynopsis(string $synopsis): static
     {
         $this->synopsis = $synopsis;
-
         return $this;
     }
 
@@ -93,7 +91,6 @@ class Film
     public function setAgeMinimum(int $ageMinimum): static
     {
         $this->ageMinimum = $ageMinimum;
-
         return $this;
     }
 
@@ -105,7 +102,6 @@ class Film
     public function setAffiche(string $affiche): static
     {
         $this->affiche = $affiche;
-
         return $this;
     }
 
@@ -117,7 +113,6 @@ class Film
     public function setCoupDeCoeur(bool $coupDeCoeur): static
     {
         $this->coupDeCoeur = $coupDeCoeur;
-
         return $this;
     }
 
@@ -129,7 +124,6 @@ class Film
     public function setNoteMoyenne(?float $noteMoyenne): static
     {
         $this->noteMoyenne = $noteMoyenne;
-
         return $this;
     }
 
@@ -141,7 +135,6 @@ class Film
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -159,19 +152,16 @@ class Film
             $this->seances->add($seance);
             $seance->setFilm($this);
         }
-
         return $this;
     }
 
     public function removeSeance(Seance $seance): static
     {
         if ($this->seances->removeElement($seance)) {
-            // set the owning side to null (unless already changed)
             if ($seance->getFilm() === $this) {
                 $seance->setFilm(null);
             }
         }
-
         return $this;
     }
 
@@ -189,19 +179,21 @@ class Film
             $this->avis->add($avi);
             $avi->setFilm($this);
         }
-
         return $this;
     }
 
     public function removeAvi(Avis $avi): static
     {
         if ($this->avis->removeElement($avi)) {
-            // set the owning side to null (unless already changed)
             if ($avi->getFilm() === $this) {
                 $avi->setFilm(null);
             }
         }
-
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->titre;
     }
 }

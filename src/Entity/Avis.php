@@ -28,11 +28,11 @@ class Avis
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $User = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Film $Film = null;
+    private ?Film $film = null;
 
     public function __construct()
     {
@@ -52,7 +52,6 @@ class Avis
     public function setNoteSur5(int $noteSur5): static
     {
         $this->noteSur5 = $noteSur5;
-
         return $this;
     }
 
@@ -64,7 +63,6 @@ class Avis
     public function setCommentaire(?string $commentaire): static
     {
         $this->commentaire = $commentaire;
-
         return $this;
     }
 
@@ -76,7 +74,6 @@ class Avis
     public function setValide(bool $valide): static
     {
         $this->valide = $valide;
-
         return $this;
     }
 
@@ -88,31 +85,28 @@ class Avis
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
-    public function setUser(?User $User): static
+    public function setUser(?User $user): static
     {
-        $this->User = $User;
-
+        $this->user = $user;
         return $this;
     }
 
     public function getFilm(): ?Film
     {
-        return $this->Film;
+        return $this->film;
     }
 
-    public function setFilm(?Film $Film): static
+    public function setFilm(?Film $film): static
     {
-        $this->Film = $Film;
-
+        $this->film = $film;
         return $this;
     }
 }

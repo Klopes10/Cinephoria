@@ -11,6 +11,7 @@ use App\Entity\Contact;
 use App\Entity\Incident;
 use App\Entity\User;
 use App\Entity\Cinema;
+use App\Entity\Siege;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -19,8 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use App\Controller\Admin\FilmCrudController;
-
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -28,11 +27,11 @@ class AdminDashboardController extends AbstractDashboardController
 {
     public function index(): Response
     {
-    $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
+        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
 
         return $this->redirect(
-        $adminUrlGenerator->setController(FilmCrudController::class)->generateUrl()
-    );
+            $adminUrlGenerator->setController(FilmCrudController::class)->generateUrl()
+        );
     }
 
     public function configureDashboard(): Dashboard
@@ -42,8 +41,7 @@ class AdminDashboardController extends AbstractDashboardController
     }
 
     public function configureMenuItems(): iterable
-    {   
-       
+    {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 
         yield MenuItem::section('Gestion du contenu');
@@ -51,6 +49,7 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
+        yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
 
         yield MenuItem::section('Modération & Activité');
         yield MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class);

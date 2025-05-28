@@ -14,24 +14,24 @@ class Siege
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $numero = null;
+    private int $numero;
 
-    #[ORM\Column]
-    private ?bool $isPMR = null;
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isPMR = false;
+
+    #[ORM\Column(options: ["default" => false])]
+    private bool $isReserved = false;
 
     #[ORM\ManyToOne(inversedBy: 'sieges')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Salle $salle = null;
-
-    #[ORM\Column]
-    private ?bool $isReserved = null;
+    private ?Seance $seance = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNumero(): ?int
+    public function getNumero(): int
     {
         return $this->numero;
     }
@@ -39,11 +39,10 @@ class Siege
     public function setNumero(int $numero): static
     {
         $this->numero = $numero;
-
         return $this;
     }
 
-    public function isPMR(): ?bool
+    public function isPMR(): bool
     {
         return $this->isPMR;
     }
@@ -51,23 +50,10 @@ class Siege
     public function setIsPMR(bool $isPMR): static
     {
         $this->isPMR = $isPMR;
-
         return $this;
     }
 
-    public function getSalle(): ?Salle
-    {
-        return $this->salle;
-    }
-
-    public function setSalle(?Salle $salle): static
-    {
-        $this->salle = $salle;
-
-        return $this;
-    }
-
-    public function isReserved(): ?bool
+    public function isReserved(): bool
     {
         return $this->isReserved;
     }
@@ -75,7 +61,17 @@ class Siege
     public function setIsReserved(bool $isReserved): static
     {
         $this->isReserved = $isReserved;
+        return $this;
+    }
 
+    public function getSeance(): ?Seance
+    {
+        return $this->seance;
+    }
+
+    public function setSeance(?Seance $seance): static
+    {
+        $this->seance = $seance;
         return $this;
     }
 }

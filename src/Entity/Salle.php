@@ -43,20 +43,13 @@ class Salle
     #[ORM\JoinColumn(nullable: true)]
     private ?Cinema $cinema = null;
 
-    /**
-     * @var Collection<int, Siege>
-     */
-    #[ORM\OneToMany(targetEntity: Siege::class, mappedBy: 'salle')]
-    private Collection $sieges;
-
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
         $this->incidents = new ArrayCollection();
-        $this->sieges = new ArrayCollection();
     }
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,7 +63,6 @@ class Salle
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -82,7 +74,6 @@ class Salle
     public function setNombrePlaces(int $nombrePlaces): static
     {
         $this->nombrePlaces = $nombrePlaces;
-
         return $this;
     }
 
@@ -94,7 +85,6 @@ class Salle
     public function setQualite(string $qualite): static
     {
         $this->qualite = $qualite;
-
         return $this;
     }
 
@@ -106,7 +96,6 @@ class Salle
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -124,19 +113,16 @@ class Salle
             $this->seances->add($seance);
             $seance->setSalle($this);
         }
-
         return $this;
     }
 
     public function removeSeance(Seance $seance): static
     {
         if ($this->seances->removeElement($seance)) {
-            // set the owning side to null (unless already changed)
             if ($seance->getSalle() === $this) {
                 $seance->setSalle(null);
             }
         }
-
         return $this;
     }
 
@@ -154,19 +140,16 @@ class Salle
             $this->incidents->add($incident);
             $incident->setSalle($this);
         }
-
         return $this;
     }
 
     public function removeIncident(Incident $incident): static
     {
         if ($this->incidents->removeElement($incident)) {
-            // set the owning side to null (unless already changed)
             if ($incident->getSalle() === $this) {
                 $incident->setSalle(null);
             }
         }
-
         return $this;
     }
 
@@ -178,37 +161,11 @@ class Salle
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Siege>
-     */
-    public function getSieges(): Collection
+    public function __toString(): string
     {
-        return $this->sieges;
-    }
-
-    public function addSiege(Siege $siege): static
-    {
-        if (!$this->sieges->contains($siege)) {
-            $this->sieges->add($siege);
-            $siege->setSalle($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSiege(Siege $siege): static
-    {
-        if ($this->sieges->removeElement($siege)) {
-            // set the owning side to null (unless already changed)
-            if ($siege->getSalle() === $this) {
-                $siege->setSalle(null);
-            }
-        }
-
-        return $this;
+        return $this->getNom();
     }
 }

@@ -20,8 +20,8 @@ class SiegeCrudController extends AbstractCrudController
         return [
             IntegerField::new('numero', 'Numéro de siège'),
             BooleanField::new('isPMR', 'Place PMR'),
-            BooleanField::new('estReserve', 'Réservé'),
-            AssociationField::new('salle'),
+            BooleanField::new('IsReserved', 'Réservé'),
+            AssociationField::new('seance'),
         ];
     }
 }
