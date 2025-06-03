@@ -2,8 +2,13 @@
 
 namespace App\Entity;
 
+use App\Entity\Siege;
 use App\Repository\ReservationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -16,9 +21,6 @@ class Reservation
 
     #[ORM\Column]
     private ?int $nombrePlaces = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $placesAttribuees = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -34,9 +36,14 @@ class Reservation
     #[ORM\Column(type: 'float')]
     private ?float $prixTotal = null;
 
+    #[ORM\ManyToMany(targetEntity: Siege::class)]
+    #[ORM\JoinTable(name: 'reservation_siege')]
+    private Collection $sieges;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->sieges = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -53,6 +60,21 @@ class Reservation
             $this->seance->setPlacesDisponible($placesRestantes - $placesDemandées);
             $this->prixTotal = $this->seance->getPrix() * $placesDemandées;
         }
+
+        // Marquer les sièges comme réservés
+        foreach ($this->getSieges() as $siege) {
+            $siege->setReserve(true);
+        }
+    }
+
+    #[Assert\Callback]
+    public function validateSiegesCount(ExecutionContextInterface $context, $payload): void
+    {
+        if ($this->nombrePlaces !== null && count($this->sieges) !== $this->nombrePlaces) {
+            $context->buildViolation('Le nombre de sièges sélectionnés doit correspondre au nombre de places.')
+                ->atPath('sieges')
+                ->addViolation();
+        }
     }
 
     public function getId(): ?int
@@ -68,17 +90,6 @@ class Reservation
     public function setNombrePlaces(int $nombrePlaces): static
     {
         $this->nombrePlaces = $nombrePlaces;
-        return $this;
-    }
-
-    public function getPlacesAttribuees(): ?string
-    {
-        return $this->placesAttribuees;
-    }
-
-    public function setPlacesAttribuees(?string $placesAttribuees): static
-    {
-        $this->placesAttribuees = $placesAttribuees;
         return $this;
     }
 
@@ -124,5 +135,30 @@ class Reservation
     {
         $this->prixTotal = $prixTotal;
         return $this;
+    }
+
+    public function getSieges(): Collection
+    {
+        return $this->sieges;
+    }
+
+    public function addSiege(Siege $siege): static
+    {
+        if (!$this->sieges->contains($siege)) {
+            $this->sieges[] = $siege;
+        }
+
+        return $this;
+    }
+
+    public function removeSiege(Siege $siege): static
+    {
+        $this->sieges->removeElement($siege);
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return 'Réservation #' . $this->id;
     }
 }

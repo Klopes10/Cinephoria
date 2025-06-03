@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Reservation;
 use App\Entity\Seance;
-use App\Form\ReservationTypeForm;
+use App\Form\ReservationType;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +33,7 @@ class ReservationUserController extends AbstractController
             $reservation->setUser($this->getUser());
         }
 
-        $form = $this->createForm(ReservationTypeForm::class, $reservation);
+        $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
