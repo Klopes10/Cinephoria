@@ -4,9 +4,12 @@ namespace App\Controller\Admin;
 
 use App\Entity\Incident;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 class IncidentCrudController extends AbstractCrudController
 {
@@ -15,14 +18,31 @@ class IncidentCrudController extends AbstractCrudController
         return Incident::class;
     }
 
-    /*
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Incident')
+            ->setEntityLabelInPlural('Incidents');
+    }
+
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
+            AssociationField::new('salle')->setLabel('Salle'),
+
+            TextField::new('cinemaName', 'Cinéma')
+                ->onlyOnIndex()
+                ->setSortable(false),
+
+            TextareaField::new('description')
+                ->setLabel('Description'),
+
+            DateTimeField::new('createdAt')
+                ->setLabel('Signalé le'),
+
+            BooleanField::new('resolu')
+                ->setLabel('Résolu ?')
+                ->renderAsSwitch(true), // ✅ toggle activable
         ];
     }
-    */
 }

@@ -28,12 +28,12 @@ class Incident
 
     #[ORM\ManyToOne(inversedBy: 'incidents')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Salle $Salle = null;
+    private ?Salle $salle = null;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable() ;
-        $this->resolu = false;  
+        $this->createdAt = new \DateTimeImmutable();
+        $this->resolu = false;
     }
 
     public function getId(): ?int
@@ -49,7 +49,6 @@ class Incident
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -61,7 +60,6 @@ class Incident
     public function setDateSignalement(\DateTimeImmutable $dateSignalement): static
     {
         $this->dateSignalement = $dateSignalement;
-
         return $this;
     }
 
@@ -73,7 +71,6 @@ class Incident
     public function setResolu(bool $resolu): static
     {
         $this->resolu = $resolu;
-
         return $this;
     }
 
@@ -85,19 +82,24 @@ class Incident
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
     public function getSalle(): ?Salle
     {
-        return $this->Salle;
+        return $this->salle;
     }
 
-    public function setSalle(?Salle $Salle): static
+    public function setSalle(?Salle $salle): static
     {
-        $this->Salle = $Salle;
-
+        $this->salle = $salle;
         return $this;
     }
+
+    // Dans Incident.php
+public function getCinemaName(): ?string
+{
+    return $this->getSalle()?->getCinema()?->getNom();
+}
+
 }

@@ -40,7 +40,7 @@ class Salle
     private Collection $incidents;
 
     #[ORM\ManyToOne(inversedBy: 'salles')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
     public function __construct()
