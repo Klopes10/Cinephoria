@@ -20,8 +20,8 @@ class Avis
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;
 
-    #[ORM\Column]
-    private ?bool $valide = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $valide = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -37,6 +37,7 @@ class Avis
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->valide = false;
     }
 
     public function getId(): ?int
@@ -66,7 +67,7 @@ class Avis
         return $this;
     }
 
-    public function isValide(): ?bool
+    public function isValide(): bool
     {
         return $this->valide;
     }
@@ -108,5 +109,10 @@ class Avis
     {
         $this->film = $film;
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return 'Avis de ' . ($this->user?->getEmail() ?? 'Inconnu');
     }
 }
