@@ -1,0 +1,38 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📊 Statistiques des réservations (7 derniers jours)</h1>
+
+    {% if stats is empty %}
+        <div class="alert alert-warning">Aucune donnée disponible dans MongoDB.</div>
+    {% else %}
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>🎬 Film</th>
+                    <th>🎟️ Réservations</th>
+                    <th>📅 Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                    <tr>
+                        <td>{{ stat.film_title ?? 'Non défini' }}</td>
+                        <td>{{ stat.reservations_count ?? '—' }}</td>
+                        <td>
+                            {% if stat.date is iterable %}
+                                {{ stat.date.toDateTime().format('d/m/Y') }}
+                            {% elseif stat.date is not null %}
+                                {{ stat.date|date('d/m/Y') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

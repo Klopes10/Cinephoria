@@ -16,15 +16,16 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class AdminDashboardController extends AbstractDashboardController
 {
+    #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -32,6 +33,30 @@ class AdminDashboardController extends AbstractDashboardController
         return $this->redirect(
             $adminUrlGenerator->setController(FilmCrudController::class)->generateUrl()
         );
+    }
+
+    #[Route('/admin/stats-mongodb', name: 'admin_mongo_stats')]
+    public function mongoStats(): Response
+    {
+        $client = new \MongoDB\Client('mongodb://localhost:27017');
+        $db = $client->selectDatabase('Cinephoria');
+        $collection = $db->reservations_stats;
+
+        $sevenDaysAgo = new \DateTime('-7 days');
+
+        $cursor = $collection->find([
+            'date' => [
+                '$gte' => new \MongoDB\BSON\UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
+            ]
+        ], [
+            'sort' => ['date' => -1]
+        ]);
+
+        $stats = iterator_to_array($cursor);
+
+        return $this->render('admin/mongo_stats.html.twig', [
+            'stats' => $stats,
+        ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -43,6 +68,7 @@ class AdminDashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
 
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);

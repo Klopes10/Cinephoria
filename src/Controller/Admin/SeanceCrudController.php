@@ -7,9 +7,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 
 class SeanceCrudController extends AbstractCrudController
 {
@@ -31,17 +33,20 @@ class SeanceCrudController extends AbstractCrudController
         return $actions;
     }
 
-  public function configureFields(string $pageName): iterable
-{
-    yield DateTimeField::new('dateHeureDebut', 'Date et heure de début');
-    yield DateTimeField::new('dateHeureFin', 'Date et heure de fin');
-    yield MoneyField::new('prix', 'Prix')->setCurrency('EUR');
-    yield AssociationField::new('cinema', 'Cinéma');
-    yield AssociationField::new('film', 'Film');
-    yield AssociationField::new('salle', 'Salle');
-    
-    // Champs personnalisés
-    yield IntegerField::new('nombrePlacesSalle', 'Places totales')->onlyOnIndex();
-    yield IntegerField::new('placesDisponible', 'Places restantes')->onlyOnIndex();
-}
+    public function configureFields(string $pageName): iterable
+    {
+        yield DateField::new('date', '📅 Date de la séance');
+        yield TimeField::new('heureDebut', '🕐 Heure de début');
+        yield TimeField::new('heureFin', '🕑 Heure de fin');
+
+        yield MoneyField::new('prix', '💰 Prix')->setCurrency('EUR');
+        yield AssociationField::new('cinema', '🎦 Cinéma');
+        yield AssociationField::new('film', '🎬 Film');
+        yield AssociationField::new('salle', '🏛️ Salle');
+
+        yield IntegerField::new('nombrePlacesSalle', '🪑 Places totales')->onlyOnIndex();
+        yield IntegerField::new('placesDisponible', '🎟️ Places restantes')->onlyOnIndex();
+
+        yield Field::new('qualite', '🎞️ Qualité')->onlyOnDetail();
+    }
 }

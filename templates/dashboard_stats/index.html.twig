@@ -1,14 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block title %}Statistiques des réservations{% endblock %}
-
-{% block body %}
-    <h1>Statistiques des réservations (7 derniers jours)</h1>
+{% block content %}
+    <h1>📊 Statistiques des réservations (7 derniers jours)</h1>
 
     {% if stats is empty %}
         <p>Aucune donnée disponible.</p>
     {% else %}
-        <table>
+        <table class="table">
             <thead>
                 <tr>
                     <th>Film</th>
@@ -27,11 +25,4 @@
             </tbody>
         </table>
     {% endif %}
-
-    <h3>Collections MongoDB disponibles :</h3>
-    <ul>
-        {% for name in collections %}
-            <li>{{ name }}</li>
-        {% endfor %}
-    </ul>
 {% endblock %}
