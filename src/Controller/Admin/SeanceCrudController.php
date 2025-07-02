@@ -13,6 +13,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 
+
+
 class SeanceCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -35,9 +37,19 @@ class SeanceCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield DateField::new('date', '📅 Date de la séance');
-        yield TimeField::new('heureDebut', '🕐 Heure de début');
-        yield TimeField::new('heureFin', '🕑 Heure de fin');
+        yield  DateField::new('date', '📅 Date de la séance')
+    ->setFormat('dd/MM/yyyy');
+        yield TimeField::new('heureDebut', '🕒 Heure de début')
+    ->setFormat('HH:mm');
+        yield TimeField::new('heureFin', '🕕 Heure de fin')
+    ->setFormat('HH:mm');
+
+       
+
+
+
+
+
 
         yield MoneyField::new('prix', '💰 Prix')->setCurrency('EUR');
         yield AssociationField::new('cinema', '🎦 Cinéma');

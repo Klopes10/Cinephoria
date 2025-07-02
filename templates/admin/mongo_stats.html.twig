@@ -22,7 +22,7 @@
                         <td>{{ stat.reservations_count ?? '—' }}</td>
                         <td>
                             {% if stat.date is iterable %}
-                                {{ stat.date.toDateTime().format('d/m/Y') }}
+                                {{ stat.date|date('d/m/Y') }}
                             {% elseif stat.date is not null %}
                                 {{ stat.date|date('d/m/Y') }}
                             {% else %}

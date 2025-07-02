@@ -20,6 +20,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use MongoDB\BSON\UTCDateTime;
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -42,7 +43,7 @@ class AdminDashboardController extends AbstractDashboardController
         $db = $client->selectDatabase('Cinephoria');
         $collection = $db->reservations_stats;
 
-        $sevenDaysAgo = new \DateTime('-7 days');
+        $sevenDaysAgo = new \DateTimeImmutable('-7 days');
 
         $cursor = $collection->find([
             'date' => [
@@ -54,10 +55,18 @@ class AdminDashboardController extends AbstractDashboardController
 
         $stats = iterator_to_array($cursor);
 
+        // ✅ Conversion des dates MongoDB en DateTime PHP
+        foreach ($stats as &$stat) {
+            if (isset($stat['date']) && $stat['date'] instanceof \MongoDB\BSON\UTCDateTime) {
+                $stat['date'] = $stat['date']->toDateTime(); // objet DateTime PHP
+            }
+        }
+
         return $this->render('admin/mongo_stats.html.twig', [
             'stats' => $stats,
         ]);
     }
+
 
     public function configureDashboard(): Dashboard
     {
@@ -67,7 +76,7 @@ class AdminDashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
         yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
 
         yield MenuItem::section('Gestion du contenu');
