@@ -1,0 +1,28 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content %}
+    <h1>📊 Statistiques des réservations (7 derniers jours)</h1>
+
+    {% if stats is empty %}
+        <p>Aucune donnée disponible.</p>
+    {% else %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Film</th>
+                    <th>Nombre de réservations</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                    <tr>
+                        <td>{{ stat.film_title }}</td>
+                        <td>{{ stat.reservations_count }}</td>
+                        <td>{{ stat.date.toDateTime().format('Y-m-d') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
