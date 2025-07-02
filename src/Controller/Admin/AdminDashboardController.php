@@ -41,27 +41,32 @@ class AdminDashboardController extends AbstractDashboardController
     }
 
     public function configureMenuItems(): iterable
-    {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+{
+    yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+    yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
 
-        yield MenuItem::section('Gestion du contenu');
-        yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
-        yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
-        yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
-        yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
-        yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
+    yield MenuItem::section('Gestion du contenu');
+    yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
+    yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
+    yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
+    yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
+    yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
 
-        yield MenuItem::section('Modération & Activité');
-        yield MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class);
-        yield MenuItem::linkToCrud('Réservations', 'fas fa-ticket-alt', Reservation::class);
-        yield MenuItem::linkToCrud('Incidents', 'fas fa-exclamation-triangle', Incident::class);
-        yield MenuItem::linkToCrud('Contacts', 'fas fa-envelope', Contact::class);
+    yield MenuItem::section('Modération & Activité');
+    yield MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class);
+    yield MenuItem::linkToCrud('Réservations', 'fas fa-ticket-alt', Reservation::class);
+    yield MenuItem::linkToCrud('Incidents', 'fas fa-exclamation-triangle', Incident::class);
+    yield MenuItem::linkToCrud('Contacts', 'fas fa-envelope', Contact::class);
 
+   
+
+    // 🔐 Afficher ce lien uniquement pour les SUPER_ADMIN
+    if ($this->isGranted('ROLE_SUPER_ADMIN')) { 
         yield MenuItem::section('Utilisateurs');
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
-        
+    }
 
-        yield MenuItem::section();
-        yield MenuItem::linkToUrl('Retour au site', 'fas fa-arrow-left', $this->generateUrl('app_home'));
+    yield MenuItem::section();
+    yield MenuItem::linkToUrl('Retour au site', 'fas fa-arrow-left', $this->generateUrl('app_home'));
     }
 }

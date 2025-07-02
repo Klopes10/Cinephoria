@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -24,7 +23,8 @@ class UserCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Utilisateur')
             ->setEntityLabelInPlural('Utilisateurs')
             ->setPageTitle(Crud::PAGE_INDEX, '👤 Liste des utilisateurs')
-            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier un utilisateur');
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier un utilisateur')
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouvel utilisateur');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -34,19 +34,21 @@ class UserCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
+        
+        yield TextField::new('username', "Nom d’utilisateur");
+        yield TextField::new('name', 'Nom');
+        yield TextField::new('forname', 'Prénom');
         yield EmailField::new('email', 'Email');
-        yield TextField::new('username', 'Nom d’utilisateur');
-        yield TextField::new('name', 'Nom')->onlyOnForms();
-        yield TextField::new('forname', 'Prénom')->onlyOnForms();
-
-        yield ChoiceField::new('roles', 'Rôle')
-            ->allowMultipleChoices(false)
-            ->autocomplete()
+        // Champ virtuel pour sélectionner un seul rôle proprement
+        yield ChoiceField::new('singleRole', 'Rôle')
             ->setChoices([
                 'Client' => 'ROLE_USER',
                 'Employé' => 'ROLE_ADMIN',
-            ]);
+                'Administrateur' => 'ROLE_SUPER_ADMIN',
+            ])
+            ->setRequired(true)
+            ->renderExpanded(false)
+            ->renderAsNativeWidget();
 
-        yield ArrayField::new('roles', 'Rôles')->onlyOnIndex();
     }
 }

@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -48,15 +48,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
 
-    /**
-     * @var Collection<int, Reservation>
-     */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user')]
     private Collection $reservations;
 
-    /**
-     * @var Collection<int, Avis>
-     */
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'User')]
     private Collection $avis;
 
@@ -90,13 +84,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
+        $roles[] = 'ROLE_USER'; // garantit un rôle minimum
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+        return $this;
+    }
+
+    // Nouveau champ virtuel utilisé dans EasyAdmin
+    private ?string $singleRole = null;
+
+    public function getSingleRole(): ?string
+    {
+        return $this->roles[0] ?? null;
+    }
+
+    public function setSingleRole(?string $role): self
+    {
+        $this->roles = [$role ?? 'ROLE_USER'];
         return $this;
     }
 
@@ -113,7 +121,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // Clear any temporary data here if needed
+        // Optionnel : vider des champs sensibles
     }
 
     public function getName(): ?string
@@ -212,6 +220,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
         return $this;
+    }
+
+    public function getAffichageRole(): string
+    {
+        if (in_array('ROLE_SUPER_ADMIN', $this->roles, true)) {
+            return 'Administrateur';
+        }
+
+        if (in_array('ROLE_ADMIN', $this->roles, true)) {
+            return 'Employé';
+        }
+
+        return 'Client';
     }
 
     public function __toString(): string
