@@ -63,7 +63,7 @@ class Reservation
 
         // Marquer les sièges comme réservés
         foreach ($this->getSieges() as $siege) {
-            $siege->setReserve(true);
+            $siege->setIsReserved(true);
         }
     }
 
@@ -156,6 +156,12 @@ class Reservation
         $this->sieges->removeElement($siege);
         return $this;
     }
+
+    public function getSiegesString(): string
+    {
+        return implode(', ', $this->getSieges()->map(fn(Siege $s) => $s->getNumero())->toArray());
+    }
+
 
     public function __toString(): string
     {

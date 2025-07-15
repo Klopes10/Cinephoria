@@ -17,10 +17,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use MongoDB\BSON\UTCDateTime;
+use MongoDB\Client;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use MongoDB\BSON\UTCDateTime;
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -37,39 +38,63 @@ class AdminDashboardController extends AbstractDashboardController
     }
 
     #[Route('/admin/stats-mongodb', name: 'admin_mongo_stats')]
-    public function mongoStats(): Response
-    {
-        $client = new \MongoDB\Client('mongodb://localhost:27017');
-        $db = $client->selectDatabase('Cinephoria');
-        $collection = $db->reservations_stats;
+public function mongoStats(): Response
+{
+    $client = new Client($_ENV['MONGODB_URI']);
+    $collection = $client
+        ->selectDatabase('Cinephoria')
+        ->selectCollection('reservations_stats');
 
-        $sevenDaysAgo = new \DateTimeImmutable('-7 days');
+    $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
 
-        $cursor = $collection->find([
-            'date' => [
-                '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
-            ]
-        ], [
-            'sort' => ['date' => -1]
-        ]);
+    $cursor = $collection->find([
+        'jour' => [
+            '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
+        ]
+    ]);
 
-        $stats = iterator_to_array($cursor);
+    // Regrouper par film
+    $totaux = [];
 
-        foreach ($stats as &$stat) {
-            if (isset($stat['date']) && $stat['date'] instanceof UTCDateTime) {
-                $stat['date'] = $stat['date']->toDateTime();
-            }
+    foreach ($cursor as $doc) {
+        $titre = $doc['film_titre'] ?? 'Inconnu';
+        $nb = $doc['total_places'] ?? 0;
+
+        if (!isset($totaux[$titre])) {
+            $totaux[$titre] = 0;
         }
 
-        return $this->render('admin/mongo_stats.html.twig', [
-            'stats' => $stats,
-        ]);
+        $totaux[$titre] += $nb;
+    }
+
+    return $this->render('dashboard_stats/index.html.twig', [
+        'stats' => $totaux,
+    ]);
+}
+
+
+    #[Route('/admin/test-mongo', name: 'admin_test_mongo')]
+    public function testMongoInsert(): Response
+    {
+        $client = new Client($_ENV['MONGODB_URI']);
+        $collection = $client
+            ->selectDatabase('Cinephoria')
+            ->selectCollection('reservations_stats');
+
+        $document = [
+            'film_titre' => 'Test Film',
+            'nb_places' => 3,
+            'date' => new UTCDateTime((new \DateTimeImmutable())->getTimestamp() * 1000),
+        ];
+
+        $result = $collection->insertOne($document);
+
+        return new Response("Insertion test MongoDB réussie. ID : " . $result->getInsertedId());
     }
 
     public function configureDashboard(): Dashboard
     {
-        return Dashboard::new()
-            ->setTitle('Cinéphoria');
+        return Dashboard::new()->setTitle('Cinéphoria');
     }
 
     public function configureMenuItems(): iterable
