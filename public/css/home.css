@@ -1,0 +1,180 @@
+.banner {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-image: url('../images/lilo&stitch.jpg'); /* Remplace par ton image réelle */
+    background-size: cover;
+    background-position: top;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.banner-overlay {
+    background: linear-gradient(rgba(10, 6, 2, 0.4), transparent);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 283px;
+}
+.title-banner{ 
+    margin-top:0;
+    margin-bottom:50px;
+}
+
+.banner-content {
+    color: #0A0602;
+}
+
+.banner-content h1 {
+    font-size: 100px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.banner-btn {
+    position: relative;
+    display: inline-block;
+    background-color: #EE8B1B;
+    color: #0A0602;
+    padding: 10px 100px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 30px;
+    overflow: hidden;
+    transition: color 0.3s ease;
+    z-index: 1;
+}
+
+.banner-btn:hover {
+    color: #EE8B1B;
+}
+
+.banner-btn svg {
+    transition: stroke 0.3s ease;
+}
+
+.banner-btn:hover svg path {
+    stroke: #EE8B1B;
+}
+
+.banner-btn::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0A0602;
+    z-index: -1;
+    transition: top 0.3s ease;
+}
+.banner-btn:hover::before {
+    top: 0;
+}
+
+
+
+.new-release {
+    background-color: #0A0602;
+    padding: 150px 170px;
+}
+
+.section-title {
+    color: #EEE8E2;
+    font-size: 47px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    position: relative;
+    text-transform: uppercase;
+}
+
+.section-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -5px;
+    width: 56px;
+    height: 3px;
+    background-color: #EE8B1B;
+}
+
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(266px, 1fr));
+    grid-auto-rows: auto;
+    gap: 30px;
+    justify-content: center;
+    
+}
+
+.movie-card {
+    width: 266px;
+    text-align: left;
+    color: #EEE8E2;
+    position: relative;
+}
+
+.movie-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 30px); /* pour ne pas couvrir le texte */
+    background-color: rgba(238, 139, 27, 0.4); /* orange avec opacité */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    border-radius: 4px;
+}
+.movie-card:hover::before {
+    opacity: 1;
+}
+
+.movie-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 0;
+}
+
+.movie-card p {
+    margin-top: 10px;
+    font-size: 14px;
+    text-align: left;
+    position: relative;
+    display: inline-block;
+    z-index: 2;
+}
+
+/* Trait orange sous le titre */
+.movie-card:hover p::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 2px;
+    width: 100%;
+    background-color: #EE8B1B;
+}
+
+.badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #EE8B1B;
+    color: #0A0602;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 5px;
+    z-index: 2;
+}

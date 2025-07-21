@@ -3,9 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
+        
+        <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
         <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
         <script src="{{ asset('js/scripts.js') }}"></script>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         {% block stylesheets %}
         {% endblock %}
 
@@ -13,38 +15,78 @@
         {% endblock %}
     </head>
     <body>
-    <nav>
-    <a href="{{ path('app_home') }}">Accueil</a>
-    <a href="{{ path('app_films') }}">Films</a>
-    <a href="{{ path('app_contact') }}">Contact</a>
-
+        <header class="main-navbar">
+    <div class="navbar-container">
+        <div class="logo">
+            <a href="{{ path('app_home') }}">Cinéphoria</a>
+        </div>
+        <nav class="nav-links">
+            <a href="">Réservation</a>
+            <a href="{{ path('app_films') }}">Films</a>
+            <a href="{{ path('app_contact') }}">Contact</a>
+        </nav>
+        <div class="user-section">
     {% if app.user %}
-   <div class="dropdown" id="userDropdown">
-        <span class="menu-username" onclick="toggleDropdown()">Bonjour {{ app.user.username }}</span>
+    <div class="dropdown" id="userDropdown">
+        <div class="user-display">
+            <span class="menu-username">Bonjour {{ app.user.username }}</span>
+            <img src="{{ asset('images/icons/user.svg') }}" alt="Compte utilisateur" class="dropdown-icon" onclick="toggleDropdown()" />
+        </div>
         <ul class="dropdown-content" id="dropdownMenu">
-            <li><a href="{{ path('app_account') }}">Mes réservations</a></li>
-            
-            {% if is_granted('ROLE_ADMIN') %}
-            <li><a href="{{ path('admin') }}">Administration</a></li>
-                
-            {% elseif is_granted('ROLE_SUPER_ADMIN') %}
+            <li><a href="{{ path('app_account') }}">Mon espace personnel</a></li>
+
+            {% if is_granted('ROLE_SUPER_ADMIN') %}
                 <li><a href="{{ path('admin') }}">Intranet</a></li>
+            {% elseif is_granted('ROLE_ADMIN') %}
+                <li><a href="{{ path('admin') }}">Administration</a></li>
             {% endif %}
-            
+
             <li><a href="{{ path('app_logout') }}">Déconnexion</a></li>
         </ul>
     </div>
 {% else %}
-    <a href="{{ path('app_auth') }}">Connexion / Inscription</a>
+    <a class="login-icon" href="{{ path('app_auth') }}">
+        <img src="{{ asset('images/icons/user.svg') }}" alt="Connexion" />
+    </a>
 {% endif %}
 
 
-</nav>
-<hr>
+</div>
 
+    </div>
+</header>
         {% block body %}
 
 
         {% endblock %}
+        <footer>
+            <div class="footer-main">
+                <div class="footer-section">
+                    <div class="footer-icon-title">
+                        <img src="{{ asset('images/icons/horloge.svg') }}" width="24px"height="24px"  alt="Horaires" />
+                        <p class="footer-title">Horaires</p>
+                    </div>
+                    <p>Lundi - Vendredi : 9h - 23h<br>Samedi - Dimanche : 10h - 22h</p>
+                </div>
+                <div class="footer-section">
+                    <div class="footer-icon-title">
+                        <img src="{{ asset('images/icons/coordonnees.svg') }}" width="22px"height="30px" alt="Coordonnées" />
+                        <p class="footer-title">Coordonnées</p>
+                    </div>
+                    <p>10 rue de la paix, 33000 Bordeaux<br>04 01 02 03 05</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#">Réservations</a>
+                    <a href="{{ path('app_films') }}">Films</a>
+                    <a href="{{ path('app_contact') }}">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <a href="#">Mentions légales</a>
+                <p>© 2025 Cinéphoria</p>
+            </div>
+        </footer>
+
     </body>
+    
 </html>

@@ -1,0 +1,67 @@
+/* Haut du footer */
+.footer-main {
+    background-color: #EE8B1B;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 44px 100px;
+    color: #0A0602;
+    flex-wrap: wrap;
+    gap: 30px;
+    font-size:18px;
+    font-weight: 400;
+}
+
+/* Sections de gauche */
+.footer-section {
+    max-width: 300px;
+    flex-shrink: 0;
+}
+.footer-title{
+    text-transform: uppercase;
+    margin:0;
+}
+
+/* Appliquer 60px de marge gauche UNIQUEMENT au 2e bloc */
+.footer-section:nth-of-type(2) {
+    margin-left: 60px;
+}
+
+.footer-icon-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* Liens de droite */
+.footer-links {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.footer-links a {
+    color: #0A0602;
+    text-decoration: none;
+}
+
+/* Bas du footer */
+.footer-bottom {
+    background-color: #1F1F1F;
+    color: #EEE8E2;
+   
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 100px;
+}
+
+.footer-bottom a {
+    color: #EEE8E2;
+    text-decoration: none; 
+    padding-right:270px;
+}
