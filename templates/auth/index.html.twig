@@ -1,44 +1,88 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <script src="{{ asset('js/auth.js') }}"></script>
+{% endblock %}
+
 {% block title %}Connexion / Inscription{% endblock %}
 
 {% block body %}
-<h1>Mon compte</h1>
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <h1 id="tab-login" class="tab active">CONNEXION</h1>
+            <h1 id="tab-register" class="tab">INSCRIPTION</h1>
+        </div>
 
-<div style="display: flex; gap: 50px;">
-    <div style="flex: 1;">
-        <h2>Connexion</h2>
-        {% if login_error %}
-            <div style="color: red;">Identifiants invalides</div>
-        {% endif %}
+        <div class="auth-forms">
+            <div id="login-form" class="auth-form-section">
+                {% if login_error %}
+                    <div class="error">Identifiants invalides</div>
+                {% endif %}
 
-        <form method="post" action="{{ path('app_login') }}">
-            <label for="email">Email</label>
-            <input type="text" id="email" name="_username" value="{{ last_username }}" required />
+                <form method="post" action="{{ path('app_login') }}" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" id="email" name="_username" value="{{ last_username }}" required>
+                    </div>
 
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" name="_password" required />
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="_password" required>
+                    </div>
 
-            <input type="hidden" name="_csrf_token"
-                value="{{ csrf_token('authenticate') }}"
-            >
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <button type="submit">Connexion</button>
-        </form>
-    </div>
+                    <button type="submit">Connexion</button>
 
-    <div style="flex: 1;">
-        <h2>Inscription</h2>
+                    <div class="forgot-password">
+                        <a href="#">Mot de passe oublié</a>
+                    </div>
+                </form>
+            </div>
 
-        {{ form_start(registration_form) }}
-            {{ form_row(registration_form.email) }}
-            {{ form_row(registration_form.plainPassword.first) }}
-            {{ form_row(registration_form.plainPassword.second) }}
-            {{ form_row(registration_form.username) }}
-            {{ form_row(registration_form.name) }}
-            {{ form_row(registration_form.forname) }}
-            <button type="submit">Créer un compte</button>
-        {{ form_end(registration_form) }}
+            <div id="register-form" class="auth-form-section" style="display: none;">
+                {{ form_start(registration_form, {'attr': {'class': 'auth-form'}}) }}
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(registration_form.forname) }}
+                            {{ form_widget(registration_form.forname) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(registration_form.name) }}
+                            {{ form_widget(registration_form.name) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(registration_form.username) }}
+                        {{ form_widget(registration_form.username) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(registration_form.email) }}
+                        {{ form_widget(registration_form.email) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(registration_form.plainPassword.first) }}
+                        {{ form_widget(registration_form.plainPassword.first) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(registration_form.plainPassword.second) }}
+                        {{ form_widget(registration_form.plainPassword.second) }}
+                    </div>
+
+                    <button type="submit">Inscription</button>
+
+                {{ form_end(registration_form) }}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
