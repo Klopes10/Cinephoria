@@ -1,0 +1,175 @@
+body {
+    background-color: #0A0602;
+    color: #EEE8E2;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.films-section {
+    padding: 150px 177px;
+}
+
+.films-title {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.films-title h1 {
+    font-size: 28px;
+    font-weight: 600;
+    position: relative;
+    margin: 0;
+}
+
+span.underline {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background-color: #ee8b1b;
+}
+
+.film-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 60px;
+}
+
+.film-horizontal-card {
+    flex: 0 0 calc((100% - 120px) / 3); /* 3 cartes par ligne, 60px entre elles */
+    display: flex;
+    gap: 30px;
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 10px 0;
+    align-items: flex-start;
+}
+
+.film-horizontal-card img {
+    width: 176px;
+    height: auto;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.film-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    color: #EEE8E2;
+}
+
+.film-info h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.film-info .public {
+    font-size: 15px;
+    color: #aaa;
+    padding: 10px 0;
+}
+
+.film-info .desc {
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: left;
+    max-width: 100%;
+    margin: 0;
+}
+
+.film-info .note {
+    font-size: 16px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.film-info .note .star {
+    color: #EE8B1B;
+    font-size: 18px;
+}
+
+.film-info .note .star.empty {
+    color: #444;
+}
+
+/* Pagination */
+
+.pagination {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pagination a,
+.pagination span {
+    color: #EEE8E2;
+    border: 1px solid #EEE8E2;
+    padding: 8px 14px;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #ee8b1b;
+    color: #0A0602;
+    border-color: #ee8b1b;
+}
+
+.pagination .current,
+.pagination .active {
+    background-color: #ee8b1b;
+    color: #0A0602;
+    font-weight: bold;
+    border-color: #ee8b1b;
+}
+
+/* FILTRE GLOBAL */
+
+.filter-bar {
+    display: flex;
+    background-color: transparent;
+    border: 1px solid #EEE8E2;
+    opacity: 0.5;
+    border-radius: 6px;
+    overflow: hidden;
+    max-width: 880px;
+    height: 45px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
+}
+
+.filter-bar select {
+    flex: 1;
+    background-color: transparent;
+    color: #EEE8E2;
+    border: none;
+    padding: 0 20px;
+    font-size: 14px;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    height: 100%;
+    font-family: inherit;
+    position: relative;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+}
+
+/* Séparateurs entre selects */
+.filter-bar select:not(:last-child) {
+    border-right: 1px solid #EEE8E2;
+}
+

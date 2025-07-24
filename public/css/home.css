@@ -84,14 +84,7 @@
     padding: 150px 170px;
 }
 
-.section-title {
-    color: #EEE8E2;
-    font-size: 47px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    position: relative;
-    text-transform: uppercase;
-}
+
 
 .section-title::before {
     content: "";
