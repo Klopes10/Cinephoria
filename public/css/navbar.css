@@ -1,0 +1,131 @@
+.main-navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 35px 100px;
+    display: flex;
+    justify-content:center;
+    background: linear-gradient(#0A0602, transparent);
+    z-index: 100;
+
+}
+
+.navbar-container {
+    width: 100%;
+    display: flex;
+    
+    align-items: center;
+}
+
+.logo a {
+    font-size: 20px;
+    font-weight: 600;
+    color: #EEE8E2;
+    text-decoration: none;
+}
+
+.nav-links{
+    padding-left:135px;
+    font-size:18px;
+}
+
+.nav-links a {
+    margin: 0 20px;
+    color: #EEE8E2;
+    text-decoration: none;
+    font-weight: 400;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background: #EE8B1B;
+    bottom: -5px;
+    left: 0;
+    transition: width 0.3s;
+}
+
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+.user-section {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.menu-username {
+    margin-right: 50px;
+    font-weight: 500;
+    color: #EEE8E2;
+    cursor:auto;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #EEE8E2;
+    color: #0A0602;
+    right: 60px;
+    margin-top: 10px;
+    list-style: none;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.dropdown-content li {
+    padding: 5px 10px;
+}
+
+.dropdown-content li a {
+    text-decoration: none;
+    color: #0A0602;
+}
+
+.dropdown-content li a:hover {
+    color: #EE8B1B;
+}
+
+.dropdown.open .dropdown-content {
+    display: block;
+}
+
+.login-icon {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+.login-icon img {
+    height: 32px;
+    width: 36px;
+    
+}
+.login-icon:hover img {
+    filter: brightness(0) saturate(100%) invert(60%) sepia(68%) saturate(388%) hue-rotate(2deg) brightness(102%) contrast(100%);
+}
+
+.user-display {
+    display: flex;
+    align-items: center;
+    cursor: auto;
+}
+.dropdown-icon {
+    height: 32px;
+    width: 36px;
+    filter: brightness(1.2) sepia(1) hue-rotate(-20deg) saturate(2);
+    transition: filter 0.3s ease;
+    cursor:pointer
+}
+
+.dropdown-icon:hover {
+    filter: brightness(0) saturate(100%) invert(60%) sepia(68%) saturate(388%) hue-rotate(2deg) brightness(102%) contrast(95%);
+
+}

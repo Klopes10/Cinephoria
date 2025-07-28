@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver une séance{% endblock %}
+
+{% block body %}
+<h1>Réservation pour {{ seance.film.titre }}</h1>
+
+<p>
+    Date : {{ seance.dateHeureDebut|date('d/m/Y H:i') }} <br>
+    Salle : {{ seance.salle.nom }} <br>
+    Place restantes : {{seance.placesDisponible}}
+</p>
+
+{{ form_start(form) }}
+    {{ form_row(form.nombrePlaces) }}
+    <button type="submit">Réserver</button>
+{{ form_end(form) }}
+
+<p><a href="{{ path('app_films_show', {id: seance.film.id}) }}">← Retour au film</a></p>
+{% endblock %}

@@ -31,7 +31,7 @@ class Film
     #[ORM\Column]
     private ?bool $coupDeCoeur = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?float $noteMoyenne = null;
 
     #[ORM\Column]
@@ -41,10 +41,16 @@ class Film
     #[ORM\JoinColumn(nullable: false)]
     private ?Genre $genre = null;
 
-    #[ORM\OneToMany(mappedBy: 'film', targetEntity: Seance::class)]
+    /**
+     * @var Collection<int, Seance>
+     */
+    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'film', orphanRemoval: true, cascade: ['persist'])]
     private Collection $seances;
 
-    #[ORM\OneToMany(mappedBy: 'film', targetEntity: Avis::class)]
+    /**
+     * @var Collection<int, Avis>
+     */
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'film', orphanRemoval: true, cascade: ['persist'])]
     private Collection $avis;
 
     public function __construct()
@@ -199,5 +205,10 @@ class Film
             }
         }
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->titre;
     }
 }

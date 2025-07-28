@@ -1,0 +1,192 @@
+body {
+    background-color: #0A0602;
+}
+
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 20px;
+    min-height: 80vh;
+    background-color: #0A0602;
+}
+
+.auth-container {
+    max-width: 1000px;
+    width: 100%;
+    background-color: #0A0602;
+    color: #EEE8E2;
+}
+
+.auth-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 70px;
+    margin-top: 150px;
+}
+
+.auth-tabs .tab {
+    margin: 0;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #EEE8E2;
+    cursor: pointer;
+    position: relative;
+    opacity: 0.5;
+}
+
+.auth-tabs .tab.active {
+    color: #EEE8E2;
+    opacity: 1;
+}
+
+.auth-tabs .tab.active::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background-color: #ee8b1b;
+}
+
+.auth-forms {
+    display: flex;
+    gap: 80px;
+    flex-wrap: wrap;
+    
+}
+.form-group{
+    margin-bottom:30px;
+}
+
+.auth-form-section {
+    flex: 1;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+}
+
+.auth-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form label {
+    font-size: 16px;
+    color: #EEE8E2;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+     font-family: "Poppins", sans-serif;
+}
+
+.auth-form .form-group:focus-within label {
+    opacity: 1;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="email"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #777;
+    color: #EEE8E2;
+    padding:15px 0;
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.3s;
+   
+
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-bottom: 1px solid #EE8B1B;
+    border-color: #EEE8E2;
+}
+
+/* --- Boutons avec effet animé vers le haut --- */
+
+.auth-form button {
+    position: relative;
+    font-family: "Poppins", sans-serif;
+    margin-top: 10px;
+    background-color: #ee8b1b;
+    color: #0A0602;
+    font-weight: 500;
+    border: none;
+    padding: 12px 20px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.4s ease;
+    z-index: 1;
+}
+
+.auth-form button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 0%;
+    width: 100%;
+    background-color: #0A0602;
+    z-index: -1;
+    transition: height 0.4s ease;
+    border-radius: 4px;
+}
+
+.auth-form button:hover::before {
+    height: 100%;
+    border: 1px solid #EE8B1B;
+}
+
+
+.auth-form button:hover {
+    color: #EE8B1B;
+}
+
+.form-row {
+    display: flex;
+    gap: 30px;
+}
+
+.form-row .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row .form-group:first-child {
+    width: 319px;
+}
+
+.form-row .form-group:last-child {
+    width: 100%;
+}
+
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.forgot-password a {
+    color: #EEE8E2;
+    font-size: 16px;
+    text-decoration: none;
+    opacity: 0.5;
+    font-weight: 400;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.error {
+    color: red;
+    margin-bottom: 10px;
+}

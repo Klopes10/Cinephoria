@@ -1,0 +1,28 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    🎬 Réservations par film (7 derniers jours)
+{% endblock %}
+
+{% block main %}
+    {% if stats is empty %}
+        <p>Aucune réservation enregistrée cette semaine.</p>
+    {% else %}
+        <table class="table table-bordered table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>🎬 Film</th>
+                    <th>🎟️ Total des places réservées</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for film, total in stats %}
+                    <tr>
+                        <td>{{ film }}</td>
+                        <td>{{ total }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

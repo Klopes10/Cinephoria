@@ -6,12 +6,14 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -25,7 +27,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var list<string> The user roles
      */
-    #[ORM\Column]
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $roles = [];
 
     /**
@@ -38,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Forname = null;
+    private ?string $forname = null;
 
     #[ORM\Column(length: 255)]
     private ?string $username = null;
@@ -46,15 +48,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
 
-    /**
-     * @var Collection<int, Reservation>
-     */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user')]
     private Collection $reservations;
 
-    /**
-     * @var Collection<int, Avis>
-     */
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'User')]
     private Collection $avis;
 
@@ -77,45 +73,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
+        $roles[] = 'ROLE_USER'; // garantit un rôle minimum
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    // Nouveau champ virtuel utilisé dans EasyAdmin
+    private ?string $singleRole = null;
+
+    public function getSingleRole(): ?string
+    {
+        return $this->roles[0] ?? null;
+    }
+
+    public function setSingleRole(?string $role): self
+    {
+        $this->roles = [$role ?? 'ROLE_USER'];
+        return $this;
+    }
+
     public function getPassword(): ?string
     {
         return $this->password;
@@ -124,17 +116,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        // Optionnel : vider des champs sensibles
     }
 
     public function getName(): ?string
@@ -145,19 +132,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
     public function getForname(): ?string
     {
-        return $this->Forname;
+        return $this->forname;
     }
 
-    public function setForname(string $Forname): static
+    public function setForname(string $forname): static
     {
-        $this->Forname = $Forname;
-
+        $this->forname = $forname;
         return $this;
     }
 
@@ -169,7 +154,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -181,7 +165,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreateAt(\DateTimeImmutable $createAt): static
     {
         $this->createAt = $createAt;
-
         return $this;
     }
 
@@ -199,19 +182,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->reservations->add($reservation);
             $reservation->setUser($this);
         }
-
         return $this;
     }
 
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
             if ($reservation->getUser() === $this) {
                 $reservation->setUser(null);
             }
         }
-
         return $this;
     }
 
@@ -229,19 +209,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->avis->add($avi);
             $avi->setUser($this);
         }
-
         return $this;
     }
 
     public function removeAvi(Avis $avi): static
     {
         if ($this->avis->removeElement($avi)) {
-            // set the owning side to null (unless already changed)
             if ($avi->getUser() === $this) {
                 $avi->setUser(null);
             }
         }
-
         return $this;
+    }
+
+    public function getAffichageRole(): string
+    {
+        if (in_array('ROLE_SUPER_ADMIN', $this->roles, true)) {
+            return 'Administrateur';
+        }
+
+        if (in_array('ROLE_ADMIN', $this->roles, true)) {
+            return 'Employé';
+        }
+
+        return 'Client';
+    }
+
+    public function __toString(): string
+    {
+        return $this->forname . ' ' . $this->name;
     }
 }

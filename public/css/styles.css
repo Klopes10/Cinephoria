@@ -1,0 +1,19 @@
+*{
+    box-sizing: border-box;
+}
+
+body {
+      font-family: "Poppins", sans-serif;
+      margin:0
+}
+h1{font-size:47px}
+
+.section-title {
+    color: #EEE8E2;
+    font-size: 47px;
+    font-weight: 400;
+    margin-bottom: 20px;
+    position: relative;
+    text-transform: uppercase;
+}
+

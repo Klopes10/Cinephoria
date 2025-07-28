@@ -39,13 +39,17 @@ class Salle
     #[ORM\OneToMany(targetEntity: Incident::class, mappedBy: 'Salle')]
     private Collection $incidents;
 
+    #[ORM\ManyToOne(inversedBy: 'salles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cinema $cinema = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
         $this->incidents = new ArrayCollection();
     }
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,7 +63,6 @@ class Salle
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -71,7 +74,6 @@ class Salle
     public function setNombrePlaces(int $nombrePlaces): static
     {
         $this->nombrePlaces = $nombrePlaces;
-
         return $this;
     }
 
@@ -83,7 +85,6 @@ class Salle
     public function setQualite(string $qualite): static
     {
         $this->qualite = $qualite;
-
         return $this;
     }
 
@@ -95,7 +96,6 @@ class Salle
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -113,19 +113,16 @@ class Salle
             $this->seances->add($seance);
             $seance->setSalle($this);
         }
-
         return $this;
     }
 
     public function removeSeance(Seance $seance): static
     {
         if ($this->seances->removeElement($seance)) {
-            // set the owning side to null (unless already changed)
             if ($seance->getSalle() === $this) {
                 $seance->setSalle(null);
             }
         }
-
         return $this;
     }
 
@@ -143,19 +140,32 @@ class Salle
             $this->incidents->add($incident);
             $incident->setSalle($this);
         }
-
         return $this;
     }
 
     public function removeIncident(Incident $incident): static
     {
         if ($this->incidents->removeElement($incident)) {
-            // set the owning side to null (unless already changed)
             if ($incident->getSalle() === $this) {
                 $incident->setSalle(null);
             }
         }
-
         return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getNom();
     }
 }

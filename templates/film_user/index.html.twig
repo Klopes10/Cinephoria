@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/films.css') }}">
+{% endblock %}
+
+{% block title %}Films{% endblock %}
+
+{% block body %}
+<section class="films-section">
+    <h1 class="films-title section-title"><span class="underline"></span>FILMS</h1>
+
+  <div class="filter-bar">
+    <select>
+        <option selected disabled>Choisir un cinéma</option>
+        <!-- autres options -->
+    </select>
+    <select>
+        <option selected disabled>Genre du film</option>
+        <!-- autres options -->
+    </select>
+    <select>
+        <option selected disabled>Jour</option>
+        <!-- autres options -->
+    </select>
+</div>
+
+<div class="film-grid">
+    {% for film in films %}
+        <div class="film-horizontal-card">
+            <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
+            <div class="film-info">
+                <h2>{{ film.titre }}</h2>
+                <p class="public">Tout public</p>
+                <p class="desc">
+                    {{ film.synopsis|slice(0, 156) ~ '...' }}
+                </p>
+                <p class="note">Note :
+                    {% for i in 1..5 %}
+                        {% if i <= film.noteMoyenne %}
+                            <span class="star">★</span>
+                        {% else %}
+                            <span class="star empty">★</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+
+    <div class="pagination">
+        <span>«</span>
+        <span class="active">1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>»</span>
+    </div>
+</section>
+{% endblock %}

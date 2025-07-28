@@ -20,23 +20,24 @@ class Avis
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;
 
-    #[ORM\Column]
-    private ?bool $valide = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $valide = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $User = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'avis')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Film $Film = null;
+    private ?Film $film = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->valide = false;
     }
 
     public function getId(): ?int
@@ -52,7 +53,6 @@ class Avis
     public function setNoteSur5(int $noteSur5): static
     {
         $this->noteSur5 = $noteSur5;
-
         return $this;
     }
 
@@ -64,11 +64,10 @@ class Avis
     public function setCommentaire(?string $commentaire): static
     {
         $this->commentaire = $commentaire;
-
         return $this;
     }
 
-    public function isValide(): ?bool
+    public function isValide(): bool
     {
         return $this->valide;
     }
@@ -76,7 +75,6 @@ class Avis
     public function setValide(bool $valide): static
     {
         $this->valide = $valide;
-
         return $this;
     }
 
@@ -88,31 +86,33 @@ class Avis
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
-    public function setUser(?User $User): static
+    public function setUser(?User $user): static
     {
-        $this->User = $User;
-
+        $this->user = $user;
         return $this;
     }
 
     public function getFilm(): ?Film
     {
-        return $this->Film;
+        return $this->film;
     }
 
-    public function setFilm(?Film $Film): static
+    public function setFilm(?Film $film): static
     {
-        $this->Film = $Film;
-
+        $this->film = $film;
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return 'Avis de ' . ($this->user?->getEmail() ?? 'Inconnu');
     }
 }

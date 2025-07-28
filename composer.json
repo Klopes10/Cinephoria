@@ -11,6 +11,9 @@
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
+        "easycorp/easyadmin-bundle": "^4.24",
+        "mongodb/mongodb": "^1.15",
+        "symfony/asset": "7.2.*",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
@@ -23,7 +26,9 @@
         "symfony/yaml": "7.2.*"
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.63"
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "symfony/maker-bundle": "^1.63",
+        "symfony/web-profiler-bundle": "7.2.*"
     },
     "config": {
         "allow-plugins": {

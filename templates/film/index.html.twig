@@ -1,47 +1,57 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Film index{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/films.css') }}">
+{% endblock %}
+
+{% block title %}Films{% endblock %}
 
 {% block body %}
-    <h1>Film index</h1>
+<section class="films-section">
+    <h1 class="films-title"><span class="underline"></span>FILMS</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Synopsis</th>
-                <th>AgeMinimum</th>
-                <th>Affiche</th>
-                <th>CoupDeCoeur</th>
-                <th>NoteMoyenne</th>
-                <th>CreatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="film-filters">
+        <select>
+            <option selected disabled>Choisir un cinéma</option>
+        </select>
+        <select>
+            <option selected disabled>Genre du film</option>
+        </select>
+        <select>
+            <option selected disabled>Jour</option>
+        </select>
+    </div>
+
+    <div class="film-grid">
         {% for film in films %}
-            <tr>
-                <td>{{ film.id }}</td>
-                <td>{{ film.titre }}</td>
-                <td>{{ film.synopsis }}</td>
-                <td>{{ film.ageMinimum }}</td>
-                <td>{{ film.affiche }}</td>
-                <td>{{ film.coupDeCoeur ? 'Yes' : 'No' }}</td>
-                <td>{{ film.noteMoyenne }}</td>
-                <td>{{ film.createdAt ? film.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_film_show', {'id': film.id}) }}">show</a>
-                    <a href="{{ path('app_film_edit', {'id': film.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
-            </tr>
+            <div class="film-card">
+                <img src="{{ asset('images/posters/' ~ film.image) }}" alt="{{ film.title }}">
+                <div class="film-content">
+                    <h2>{{ film.title }}</h2>
+                    <p class="public">Tout public</p>
+                    <p class="desc">{{ film.description|slice(0, 160) ~ '...' }}</p>
+                    <p class="note">Note :
+                        {% for i in 1..5 %}
+                            {% if i <= film.note %}
+                                ⭐
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 
-    <a href="{{ path('app_film_new') }}">Create new</a>
+    <div class="pagination">
+        <span>«</span>
+        <span class="active">1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>»</span>
+    </div>
+</section>
 {% endblock %}
