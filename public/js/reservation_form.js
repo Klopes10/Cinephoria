@@ -1,6 +1,5 @@
 // public/js/admin/reservation_form.js
 
-alert("Form chargé");
 document.addEventListener('DOMContentLoaded', function () {
     const cinemaSelect = document.querySelector('select[name="cinema"]');
     const filmSelect = document.querySelector('select[name="film"]');

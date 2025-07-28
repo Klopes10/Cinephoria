@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 
 class FilmCrudController extends AbstractCrudController
 {
@@ -38,6 +39,9 @@ class FilmCrudController extends AbstractCrudController
             IntegerField::new('ageMinimum', 'Âge minimum'),
             BooleanField::new('coupDeCoeur', 'Coup de cœur'),
 
+            AssociationField::new('genre', 'Genre')
+                ->setRequired(true),
+
             ImageField::new('affiche', 'Affiche')
                 ->setUploadDir('public/uploads/affiches/')
                 ->setBasePath('uploads/affiches')
@@ -45,5 +49,4 @@ class FilmCrudController extends AbstractCrudController
                 ->setRequired(false),
         ];
     }
-
 }

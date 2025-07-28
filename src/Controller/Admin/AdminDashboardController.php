@@ -12,6 +12,7 @@ use App\Entity\Incident;
 use App\Entity\User;
 use App\Entity\Cinema;
 use App\Entity\Siege;
+use App\Entity\Genre;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -23,8 +24,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
-
-
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -39,7 +38,7 @@ class AdminDashboardController extends AbstractDashboardController
             $adminUrlGenerator->setController(FilmCrudController::class)->generateUrl()
         );
     }
-    
+
     public function configureAssets(): Assets
     {
         return Assets::new()
@@ -48,40 +47,38 @@ class AdminDashboardController extends AbstractDashboardController
     }
 
     #[Route('/admin/stats-mongodb', name: 'admin_mongo_stats')]
-public function mongoStats(): Response
-{
-    $client = new Client($_ENV['MONGODB_URI']);
-    $collection = $client
-        ->selectDatabase('Cinephoria')
-        ->selectCollection('reservations_stats');
+    public function mongoStats(): Response
+    {
+        $client = new Client($_ENV['MONGODB_URI']);
+        $collection = $client
+            ->selectDatabase('Cinephoria')
+            ->selectCollection('reservations_stats');
 
-    $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
+        $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
 
-    $cursor = $collection->find([
-        'jour' => [
-            '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
-        ]
-    ]);
+        $cursor = $collection->find([
+            'jour' => [
+                '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
+            ]
+        ]);
 
-    // Regrouper par film
-    $totaux = [];
+        $totaux = [];
 
-    foreach ($cursor as $doc) {
-        $titre = $doc['film_titre'] ?? 'Inconnu';
-        $nb = $doc['total_places'] ?? 0;
+        foreach ($cursor as $doc) {
+            $titre = $doc['film_titre'] ?? 'Inconnu';
+            $nb = $doc['total_places'] ?? 0;
 
-        if (!isset($totaux[$titre])) {
-            $totaux[$titre] = 0;
+            if (!isset($totaux[$titre])) {
+                $totaux[$titre] = 0;
+            }
+
+            $totaux[$titre] += $nb;
         }
 
-        $totaux[$titre] += $nb;
+        return $this->render('dashboard_stats/index.html.twig', [
+            'stats' => $totaux,
+        ]);
     }
-
-    return $this->render('dashboard_stats/index.html.twig', [
-        'stats' => $totaux,
-    ]);
-}
-
 
     #[Route('/admin/test-mongo', name: 'admin_test_mongo')]
     public function testMongoInsert(): Response
@@ -114,6 +111,7 @@ public function mongoStats(): Response
 
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
+        yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class); 
         yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);

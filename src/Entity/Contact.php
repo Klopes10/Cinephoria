@@ -26,6 +26,10 @@ class Contact
     #[ORM\Column]
     private ?\DateTimeImmutable $dateEnvoi = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $debugField = null;
+
+
     public function __construct()
     {
         $this->dateEnvoi = new \DateTimeImmutable();

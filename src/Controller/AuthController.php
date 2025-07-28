@@ -44,7 +44,7 @@ public function index(
         $em->persist($user);
         $em->flush();
 
-        return $this->redirectToRoute('app_login'); // ou 'app_auth'
+        return $this->redirectToRoute('app_auth'); // ou 'app_auth'
     }
 
     return $this->render('auth/index.html.twig', [

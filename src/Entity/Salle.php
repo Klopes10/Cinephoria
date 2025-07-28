@@ -36,8 +36,9 @@ class Salle
     /**
      * @var Collection<int, Incident>
      */
-    #[ORM\OneToMany(targetEntity: Incident::class, mappedBy: 'Salle')]
+    #[ORM\OneToMany(targetEntity: Incident::class, mappedBy: 'salle')]
     private Collection $incidents;
+
 
     #[ORM\ManyToOne(inversedBy: 'salles')]
     #[ORM\JoinColumn(nullable: false)]

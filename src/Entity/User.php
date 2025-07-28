@@ -51,8 +51,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user')]
     private Collection $reservations;
 
-    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'User')]
+   #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'user')]
     private Collection $avis;
+
 
     public function __construct()
     {

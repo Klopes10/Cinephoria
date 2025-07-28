@@ -1,5 +1,3 @@
-alert("Dynamic chargé");
-
 document.addEventListener('DOMContentLoaded', function () {
     const cinemaField = document.querySelector('#Reservation_cinema');
     const filmField = document.querySelector('#Reservation_film');
