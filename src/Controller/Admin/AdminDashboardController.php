@@ -22,6 +22,9 @@ use MongoDB\Client;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+
+
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -35,6 +38,13 @@ class AdminDashboardController extends AbstractDashboardController
         return $this->redirect(
             $adminUrlGenerator->setController(FilmCrudController::class)->generateUrl()
         );
+    }
+    
+    public function configureAssets(): Assets
+    {
+        return Assets::new()
+            ->addJsFile('js/reservation_dynamic.js')
+            ->addJsFile('js/reservation_form.js');
     }
 
     #[Route('/admin/stats-mongodb', name: 'admin_mongo_stats')]

@@ -4,24 +4,31 @@ namespace App\Controller\Admin;
 
 use App\Entity\Reservation;
 use App\Entity\Siege;
+use App\Entity\Cinema;
+use App\Entity\Film;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use MongoDB\Client;
 
 class ReservationCrudController extends AbstractCrudController
 {
     private Client $mongoClient;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(Client $mongoClient)
+    public function __construct(Client $mongoClient, EntityManagerInterface $entityManager)
     {
         $this->mongoClient = $mongoClient;
+        $this->entityManager = $entityManager;
     }
 
     public static function getEntityFqcn(): string
@@ -31,7 +38,53 @@ class ReservationCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield TextField::new('user.username', 'Utilisateur')->onlyOnIndex();
+        yield FormField::addPanel('Informations réservation');
+
+        yield AssociationField::new('user', 'Utilisateur');
+
+        // Champ cinéma (non mappé)
+        yield ChoiceField::new('cinema', 'Cinéma')
+            ->setChoices(fn () => $this->entityManager
+                ->getRepository(Cinema::class)
+                ->createQueryBuilder('c')
+                ->orderBy('c.nom', 'ASC')
+                ->getQuery()
+                ->getResult()
+            )
+            ->setFormTypeOption('choice_label', fn (Cinema $cinema) => $cinema->getNom())
+            ->setFormTypeOption('choice_value', 'id')
+            ->setFormTypeOption('mapped', false)
+            ->setFormTypeOption('required', true)
+            ->setFormTypeOption('placeholder', 'Choisissez un cinéma')
+            ->onlyOnForms();
+
+
+        // Champ film (non mappé, rempli dynamiquement via JS)
+        yield ChoiceField::new('film', 'Film')
+            ->setChoices([]) // vide au chargement
+            ->setFormType(ChoiceType::class)
+            ->setFormTypeOption('mapped', false)
+            ->setFormTypeOption('required', true)
+            ->setFormTypeOption('placeholder', 'Sélectionnez un film')
+            ->onlyOnForms();
+
+        // Champ séance réel
+        yield AssociationField::new('seance');
+
+        yield IntegerField::new('nombrePlaces', 'Nombre de places');
+
+        yield CollectionField::new('sieges', 'Sièges')
+            ->setEntryType(EntityType::class)
+            ->setFormTypeOption('entry_options', [
+                'class' => Siege::class,
+                'choice_label' => fn(Siege $siege) => $siege->getNumero(),
+                'query_builder' => fn($er) => $er->createQueryBuilder('s')
+                    ->where('s.isReserved = false'),
+            ]);
+
+        yield DateTimeField::new('createdAt', "Réservé le : ")->hideOnForm();
+
+        // Colonnes d'index
         yield TextField::new('user.email', 'Email')->onlyOnIndex();
         yield TextField::new('seance.cinema.nom', 'Cinéma')->onlyOnIndex();
         yield TextField::new('seance.film.titre', 'Film')->onlyOnIndex();
@@ -47,20 +100,6 @@ class ReservationCrudController extends AbstractCrudController
         yield IntegerField::new('nombrePlaces', 'Places')->onlyOnIndex();
         yield TextField::new('siegesString', 'Sièges')->onlyOnIndex();
         yield MoneyField::new('prixTotal', 'Prix total')->setCurrency('EUR')->onlyOnIndex();
-
-        yield AssociationField::new('user')->onlyOnForms();
-        yield AssociationField::new('seance')->onlyOnForms();
-        yield IntegerField::new('nombrePlaces', 'Nombre de places')->onlyOnForms();
-        yield CollectionField::new('sieges', 'Sièges')
-            ->setEntryType(EntityType::class)
-            ->setFormTypeOption('entry_options', [
-                'class' => Siege::class,
-                'choice_label' => fn(Siege $siege) => $siege->getNumero(),
-                'query_builder' => fn($er) => $er->createQueryBuilder('s')->where('s.isReserved = false'),
-            ])
-            ->onlyOnForms();
-
-        yield DateTimeField::new('createdAt', "Réservé le : ")->hideOnForm();
     }
 
     public function createEntity(string $entityFqcn)
@@ -77,7 +116,6 @@ class ReservationCrudController extends AbstractCrudController
         $this->calculerPrixEtPlaces($entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
 
-        // Recharge les relations pour éviter le null sur getFilm()
         $entityManager->refresh($entityInstance);
 
         $this->enregistrerDansMongo($entityInstance);
@@ -105,28 +143,27 @@ class ReservationCrudController extends AbstractCrudController
         }
     }
 
-   private function enregistrerDansMongo(Reservation $reservation): void
-{
-    $seance = $reservation->getSeance();
-    $film = $seance?->getFilm();
-    if (!$film) return;
+    private function enregistrerDansMongo(Reservation $reservation): void
+    {
+        $seance = $reservation->getSeance();
+        $film = $seance?->getFilm();
+        if (!$film) return;
 
-    $today = (new \DateTimeImmutable())->setTime(0, 0); // date du jour sans heure
+        $today = (new \DateTimeImmutable())->setTime(0, 0);
 
-    $collection = $this->mongoClient
-        ->selectDatabase('Cinephoria')
-        ->selectCollection('reservations_stats');
+        $collection = $this->mongoClient
+            ->selectDatabase('Cinephoria')
+            ->selectCollection('reservations_stats');
 
-    $collection->updateOne(
-        [
-            'film_titre' => $film->getTitre(),
-            'jour' => new \MongoDB\BSON\UTCDateTime($today->getTimestamp() * 1000),
-        ],
-        [
-            '$inc' => ['total_places' => $reservation->getNombrePlaces()]
-        ],
-        ['upsert' => true]
-    );
+        $collection->updateOne(
+            [
+                'film_titre' => $film->getTitre(),
+                'jour' => new \MongoDB\BSON\UTCDateTime($today->getTimestamp() * 1000),
+            ],
+            [
+                '$inc' => ['total_places' => $reservation->getNombrePlaces()]
+            ],
+            ['upsert' => true]
+        );
+    }
 }
-}
-
