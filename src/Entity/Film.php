@@ -22,7 +22,8 @@ class Film
     #[ORM\Column(type: Types::TEXT)]
     private ?string $synopsis = null;
 
-    #[ORM\Column]
+    
+    #[ORM\Column(nullable: true)]
     private ?int $ageMinimum = null;
 
     #[ORM\Column(length: 255)]

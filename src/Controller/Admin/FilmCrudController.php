@@ -32,11 +32,16 @@ class FilmCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id')->onlyOnIndex(),
+            
 
             TextField::new('titre', 'Titre')->setRequired(true),
             TextareaField::new('synopsis', 'Synopsis')->hideOnIndex(),
-            IntegerField::new('ageMinimum', 'Âge minimum'),
+            IntegerField::new('ageMinimum', 'Âge minimum')
+                ->setRequired(false)
+                ->formatValue(function ($value, $entity) {
+                    return $value === null ? 'Tout public' : $value . ' ans';
+                }),
+
             BooleanField::new('coupDeCoeur', 'Coup de cœur'),
 
             AssociationField::new('genre', 'Genre')

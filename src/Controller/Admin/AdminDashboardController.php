@@ -112,7 +112,7 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
         yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class); 
-        yield MenuItem::linkToCrud('Cinema', 'fas fa-building', Cinema::class);
+        yield MenuItem::linkToCrud('Cinémas', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
         yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);

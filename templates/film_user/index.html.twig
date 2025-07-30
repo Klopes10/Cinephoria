@@ -32,7 +32,10 @@
             <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
             <div class="film-info">
                 <h2>{{ film.titre }}</h2>
-                <p class="public">Tout public</p>
+                <p class="public">
+                    {{ film.ageMinimum is not null ? ' Déconseillé au moins de '~ film.ageMinimum ~ ' ans' : 'Tout public' }}
+                </p>
+
                 <p class="desc">
                     {{ film.synopsis|slice(0, 156) ~ '...' }}
                 </p>
