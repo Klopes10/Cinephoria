@@ -16,28 +16,36 @@ class FilmRepository extends ServiceEntityRepository
         parent::__construct($registry, Film::class);
     }
 
-    //    /**
-    //     * @return Film[] Returns an array of Film objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('f.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+   public function findFilmsFiltered(?string $ville, ?string $genre, ?string $jour): array
+{
+    $qb = $this->createQueryBuilder('f')
+        ->distinct()
+        ->leftJoin('f.genre', 'g')
+        ->leftJoin('f.seances', 's')
+        ->leftJoin('s.salle', 'sa')
+        ->leftJoin('sa.cinema', 'c');
 
-    //    public function findOneBySomeField($value): ?Film
-    //    {
-    //        return $this->createQueryBuilder('f')
-    //            ->andWhere('f.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    if ($ville) {
+        $qb->andWhere('c.ville = :ville')
+           ->setParameter('ville', $ville);
+    }
+
+    if ($genre) {
+        $qb->andWhere('g.id = :genre')
+           ->setParameter('genre', $genre);
+    }
+
+    if ($jour) {
+        $date = \DateTime::createFromFormat('Y-m-d', $jour);
+        if ($date) {
+            $start = (clone $date)->setTime(0, 0, 0);
+            $end = (clone $date)->setTime(23, 59, 59);
+            $qb->andWhere('s.date BETWEEN :start AND :end')
+               ->setParameter('start', $start)
+               ->setParameter('end', $end);
+        }
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }

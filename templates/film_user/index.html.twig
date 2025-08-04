@@ -11,48 +11,32 @@
 <section class="films-section">
     <h1 class="films-title section-title"><span class="underline"></span>FILMS</h1>
 
-  <div class="filter-bar">
-    <select>
-        <option selected disabled>Choisir un cinéma</option>
-        <!-- autres options -->
-    </select>
-    <select>
-        <option selected disabled>Genre du film</option>
-        <!-- autres options -->
-    </select>
-    <select>
-        <option selected disabled>Jour</option>
-        <!-- autres options -->
-    </select>
-</div>
+    <div class="filter-bar">
+       <select id="ville" class="form-select">
+    <option value="">Toutes les villes</option>
+    <optgroup label="France">
+        {% for ville in villes.france %}
+            <option value="{{ ville }}">{{ ville }}</option>
+        {% endfor %}
+    </optgroup>
+    <optgroup label="Belgique">
+        {% for ville in villes.belgique %}
+            <option value="{{ ville }}">{{ ville }}</option>
+        {% endfor %}
+    </optgroup>
+</select>
 
-<div class="film-grid">
-    {% for film in films %}
-        <div class="film-horizontal-card">
-            <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
-            <div class="film-info">
-                <h2>{{ film.titre }}</h2>
-                <p class="public">
-                    {{ film.ageMinimum is not null ? ' Déconseillé au moins de '~ film.ageMinimum ~ ' ans' : 'Tout public' }}
-                </p>
+        <select disabled>
+            <option selected disabled>Genre du film</option>
+        </select>
+        <select disabled>
+            <option selected disabled>Jour</option>
+        </select>
+    </div>
 
-                <p class="desc">
-                    {{ film.synopsis|slice(0, 156) ~ '...' }}
-                </p>
-                <p class="note">Note :
-                    {% for i in 1..5 %}
-                        {% if i <= film.noteMoyenne %}
-                            <span class="star">★</span>
-                        {% else %}
-                            <span class="star empty">★</span>
-                        {% endif %}
-                    {% endfor %}
-                </p>
-            </div>
-        </div>
-    {% endfor %}
-</div>
-
+    <div id="films-container" class="film-grid">
+        {% include 'film_user/_films_list.html.twig' with { films: films } %}
+    </div>
 
     <div class="pagination">
         <span>«</span>
@@ -63,4 +47,9 @@
         <span>»</span>
     </div>
 </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/film_filtre.js') }}"></script>
 {% endblock %}
