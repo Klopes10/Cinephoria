@@ -29,7 +29,7 @@ services:
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: app
-      POSTGRES_PASSWORD: "!ChangeMe!"
+      POSTGRES_PASSWORD: "docker compose exec php php bin/console doctrine:fixtures:load"
     volumes:
       - database_data:/var/lib/postgresql/data
 
