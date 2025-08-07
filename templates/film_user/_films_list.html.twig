@@ -1,13 +1,28 @@
-{% if films is not empty %}
+
+
+<div class="film-grid">
     {% for film in films %}
-        <div class="movie-card">
+        <div class="film-horizontal-card">
             <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
-            <p class="film-title">{{ film.titre }}</p>
-            <p class="film-synopsis">
-                {{ film.synopsis|length > 100 ? film.synopsis|slice(0, 100) ~ '...' : film.synopsis }}
-            </p>
+            <div class="film-info">
+                <h2>{{ film.titre }}</h2>
+                <p class="public">
+                    {{ film.ageMinimum is not null ? ' Déconseillé au moins de '~ film.ageMinimum ~ ' ans' : 'Tout public' }}
+                </p>
+
+                <p class="desc">
+                    {{ film.synopsis|slice(0, 156) ~ '...' }}
+                </p>
+                <p class="note">Note :
+                    {% for i in 1..5 %}
+                        {% if i <= film.noteMoyenne %}
+                            <span class="star">★</span>
+                        {% else %}
+                            <span class="star empty">★</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
         </div>
     {% endfor %}
-{% else %}
-    <p class="no-films">Aucun film trouvé pour cette ville.</p>
-{% endif %}
+</div>

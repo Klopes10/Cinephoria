@@ -143,33 +143,74 @@ span.underline {
     opacity: 0.5;
     border-radius: 6px;
     overflow: hidden;
-    max-width: 880px;
-    height: 45px;
-    margin-bottom: 40px;
+    width: 1020px;
+    height: 50px;
+     gap: 16px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
 }
 
+
 .filter-bar select {
-    flex: 1;
-    background-color: transparent;
-    color: #EEE8E2;
-    border: none;
-    padding: 0 20px;
-    font-size: 14px;
     appearance: none;
-    outline: none;
+    background-color: #0e0a07;
+    color: #EEE8E2;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border 0.3s, box-shadow 0.3s;
     cursor: pointer;
-    height: 100%;
-    font-family: inherit;
+    outline: none;
     position: relative;
+    height: 100%;
+    min-width: 200px;
+
+    /* Flèche personnalisée */
     background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
     background-repeat: no-repeat;
     background-position: right 15px center;
     background-size: 12px;
 }
 
-/* Séparateurs entre selects */
-.filter-bar select:not(:last-child) {
-    border-right: 1px solid #EEE8E2;
+/* Icône flèche personnalisée */
+.filter-bar select::-ms-expand {
+    display: none;
 }
+
+
+/* optgroup */
+.filter-bar optgroup {
+    color: #f5a623;
+    font-weight: 400;
+    font-size: 14px;
+    text-transform: uppercase;
+    padding: 0.5rem 0;
+    
+}
+
+/* options normales */
+.filter-bar option {
+    color: #ffffff;
+    background-color: #0e0a07;
+    padding: 0.5rem 1rem;
+    text-transform: capitalize;
+    font-size:18px;
+    font-weight: 400;
+}
+
+#ville {
+    width: 465px;
+}
+
+#genre {
+    width: 320px;
+}
+
+#jour {
+    width: 105px;
+}
+
 

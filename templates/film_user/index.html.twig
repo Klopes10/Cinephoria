@@ -11,30 +11,37 @@
 <section class="films-section">
     <h1 class="films-title section-title"><span class="underline"></span>FILMS</h1>
 
-    <div class="filter-bar">
-       <select id="ville" class="form-select">
-    <option value="">Toutes les villes</option>
-    <optgroup label="France">
-        {% for ville in villes.france %}
-            <option value="{{ ville }}">{{ ville }}</option>
-        {% endfor %}
-    </optgroup>
-    <optgroup label="Belgique">
-        {% for ville in villes.belgique %}
-            <option value="{{ ville }}">{{ ville }}</option>
-        {% endfor %}
-    </optgroup>
-</select>
-
-        <select disabled>
-            <option selected disabled>Genre du film</option>
+    <form id="film-filter-form" class="filter-bar">
+        <select id="ville" class="form-select">
+            <option value="">Choisir une ville</option>
+            <optgroup label="France">
+                {% for ville in villes.france %}
+                    <option value="{{ ville }}">{{ ville }}</option>
+                {% endfor %}
+            </optgroup>
+            <optgroup label="Belgique">
+                {% for ville in villes.belgique %}
+                    <option value="{{ ville }}">{{ ville }}</option>
+                {% endfor %}
+            </optgroup>
         </select>
-        <select disabled>
-            <option selected disabled>Jour</option>
-        </select>
-    </div>
 
-    <div id="films-container" class="film-grid">
+        <select name="genre" id="genre">
+            <option value="">Choisir un genre</option>
+            {% for genre in genres %}
+                <option value="{{ genre.nom }}">{{ genre.nom }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="jour" id="jour">
+            <option value="">Jour</option>
+            {% for jour in ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+                <option value="{{ jour }}">{{ jour }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <div id="films-container">
         {% include 'film_user/_films_list.html.twig' with { films: films } %}
     </div>
 

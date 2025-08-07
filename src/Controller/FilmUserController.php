@@ -7,6 +7,7 @@ use App\Entity\Film;
 use App\Form\AvisTypeForm;
 use App\Repository\CinemaRepository;
 use App\Repository\FilmRepository;
+use App\Repository\GenreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,23 +20,21 @@ final class FilmUserController extends AbstractController
     #[Route('/films', name: 'app_films')]
     public function index(
         FilmRepository $filmRepository,
-        CinemaRepository $cinemaRepository
+        CinemaRepository $cinemaRepository,
+        GenreRepository $genreRepository
     ): Response {
         $films = $filmRepository->findAll();
         $cinemas = $cinemaRepository->findAll();
+        $genres = $genreRepository->findAll();
 
         $villes = ['france' => [], 'belgique' => []];
-
         foreach ($cinemas as $cinema) {
             $pays = strtolower($cinema->getPays());
             $ville = $cinema->getVille();
-
             if (isset($villes[$pays]) && !in_array($ville, $villes[$pays])) {
                 $villes[$pays][] = $ville;
             }
         }
-
-        // Tri alphabétique des villes
         foreach ($villes as &$liste) {
             sort($liste);
         }
@@ -43,10 +42,11 @@ final class FilmUserController extends AbstractController
         return $this->render('film_user/index.html.twig', [
             'films' => $films,
             'villes' => $villes,
+            'genres' => $genres,
         ]);
     }
 
-    #[Route('/films/{id}', name: 'app_films_show')]
+    #[Route('/films/{id<\d+>}', name: 'app_films_show')]
     #[IsGranted('ROLE_USER')]
     public function show(
         Film $film,
@@ -65,7 +65,7 @@ final class FilmUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $avis->setValide(true); // À modifier selon la politique de modération
+            $avis->setValide(true); // À adapter selon ta logique de validation
             $em->persist($avis);
             $em->flush();
 
@@ -79,25 +79,19 @@ final class FilmUserController extends AbstractController
         ]);
     }
 
-    #[Route('/films/par-ville', name: 'films_par_ville', methods: ['GET'])]
-    public function filmsParVille(Request $request, FilmRepository $filmRepository): Response
+    #[Route('/films/filter', name: 'films_filtered', methods: ['GET'])]
+    public function filmsFiltered(Request $request, FilmRepository $filmRepository): Response
     {
+        $start = microtime(true);
+
         $ville = $request->query->get('ville');
+        $genre = $request->query->get('genre');
+        $jour = $request->query->get('jour');
 
-        if (!$ville) {
-            return new Response('<p>Ville non définie.</p>', 400);
-        }
+        $films = $filmRepository->findFiltered($ville, $genre, $jour);
 
-        // Récupération des films diffusés dans cette ville
-        $films = $filmRepository->createQueryBuilder('f')
-            ->distinct()
-            ->join('f.seances', 's')
-            ->join('s.salle', 'sa')
-            ->join('sa.cinema', 'c')
-            ->where('c.ville = :ville')
-            ->setParameter('ville', $ville)
-            ->getQuery()
-            ->getResult();
+        $duration = round(microtime(true) - $start, 2);
+        dump("Temps d'exécution : " . $duration . "s");
 
         return $this->render('film_user/_films_list.html.twig', [
             'films' => $films,
