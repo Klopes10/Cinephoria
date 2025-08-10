@@ -1,0 +1,170 @@
+/* public/css/film_show.css */
+body {background-color: #0A0602;}/* ====== Page ====== */
+.show-section {
+ 
+  color: #e9e3dc;
+  padding: 24px 0;
+  margin:150px 177px;
+}
+
+.section-title {
+  font-size: 26px;
+  letter-spacing: .5px;
+  margin: 0 0 18px 0;
+  color: #d9d3cc;
+}
+
+/* ====== Onglets (villes / jours) ====== */
+.tabs {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 8px 0 14px;
+  
+}
+
+.tabs.cities { margin-bottom: 8px; }
+.tabs.days   { margin-bottom: 18px; }
+
+.tab,
+.separator {
+  text-decoration: none;
+  color: #9b938a;
+  padding: 6px 0;
+  position: relative;
+  display: inline-block;
+}
+
+.separator { opacity: .6; padding: 0 2px; }
+
+.tab.active { color: #e9e3dc; }
+
+/* Jour actif: trait orange pleine largeur */
+.tabs.days .tab { padding-bottom: 6px; }
+.tabs.days .tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -13px;
+  height: 2px;
+  background: #ee8b1b;
+  border-radius: 2px;
+}
+
+/* Indicateur (dot) sous les jours qui ont des séances */
+.tabs.days .tab .dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -11px;
+  width: 6px; height: 6px;
+  background: #ee8b1b;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: .9;
+}
+
+/* ====== Bloc film ====== */
+.film-block {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.poster img {
+  width: 190px;
+  border-radius: 5px;
+  
+}
+
+.details h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+ 
+  margin: 6px 0 10px;
+  font-weight: 600;
+}
+
+.synopsis {
+  color: #c9c3bd;
+  line-height: 1.55;
+  margin: 10px 0 18px;
+}
+
+/* ====== Grille & cartes séances ====== */
+.sessions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Style de la puce de séance (comme la maquette) */
+.session-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 180px;                    /* ajuste si besoin */
+  padding: 12px 14px;
+  border: 1px solid #423a33;
+  border-radius: 12px;
+  background: #0A0602;
+  color: #e8e1d9;
+  text-decoration: none;
+  transition: transform .12s ease,
+              border-color .12s ease,
+              background-color .12s ease;
+}
+.session-chip:hover {
+  transform: translateY(-1px);
+  border-color: #4e463e;
+  background: #12100e;
+}
+
+/* "vostfr" / version en haut */
+.chip-top { min-height: 18px; }
+.chip-version {
+  font-size: 12px;
+  text-transform: lowercase;
+  color: #bcb4ad;
+  letter-spacing: .2px;
+}
+
+/* Heure XXL */
+.chip-time {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: .4px;
+}
+
+/* "fin à 13:11" */
+.chip-end {
+  font-size: 16px;
+  color: #9b938c;
+  margin-top: -2px;
+}
+
+/* Bas: icônes à gauche, salle à droite */
+.chip-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.chip-icons { display: flex; gap: 10px; color: #bcb4ad; opacity: .95; }
+.icon svg { display: block; width: 18px; height: 18px; }
+
+.chip-room {
+  font-size: 14px;
+  color: #d6cec6;
+}
+
+/* Message "aucune séance" */
+.no-session { color: #b7b1aa; margin-top: 8px; }

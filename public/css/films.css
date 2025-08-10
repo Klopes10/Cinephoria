@@ -183,7 +183,7 @@ span.underline {
 
 /* optgroup */
 .filter-bar optgroup {
-    color: #f5a623;
+    color: #ee8b1b;
     font-weight: 400;
     font-size: 14px;
     text-transform: uppercase;
@@ -214,3 +214,101 @@ span.underline {
 }
 
 
+/* Carte de film horizontale */
+.film-horizontal-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: transparent;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    position: relative;
+  }
+  
+  /* Image du film - avec overlay */
+  .film-horizontal-card img {
+    width: 150px;
+    height: auto;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Overlay orange */
+  .film-horizontal-card::before {
+    content: "";
+    position: absolute;
+    left: 16px; /* même padding que la carte */
+    top: 16px;
+    width: 150px;
+    height: calc(100% - 32px); /* hauteur ajustée selon padding */
+    border-radius: 6px;
+    background-color: rgba(238, 139, 27, 0); /* invisible par défaut */
+    z-index: 2;
+    transition: background-color 0.3s ease;
+  }
+  
+  .film-horizontal-card:hover::before {
+    background-color: rgba(238, 139, 27, 0.4); /* overlay orange semi-transparent */
+  }
+  .film-horizontal-card img{
+    height: 100%;
+  }
+  /* Infos */
+  .film-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* Titre */
+  .film-info h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    position: relative;
+  }
+  
+  /* Petite barre orange sous le titre (par défaut transparente) */
+  .film-horizontal-card h2::after {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Quand on survole la carte → trait orange */
+  .film-horizontal-card:hover h2::after {
+    background-color: #ee8b1b;
+  }
+  
+  /* Public / desc / note */
+  .film-info .public {
+    font-size: 0.9rem;
+    margin: 4px 0;
+  }
+  
+  .film-info .desc {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin: 8px 0;
+  }
+  
+  .film-info .note {
+    margin-top: auto;
+  }
+  
+  .star {
+    color: #ff9d00;
+    font-size: 1rem;
+  }
+  
+  .star.empty {
+    color: #555;
+  }
+  

@@ -1,28 +1,30 @@
-
-
+{# templates/film_user/_films_list.html.twig #}
 <div class="film-grid">
-    {% for film in films %}
-        <div class="film-horizontal-card">
-            <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
-            <div class="film-info">
-                <h2>{{ film.titre }}</h2>
-                <p class="public">
-                    {{ film.ageMinimum is not null ? ' Déconseillé au moins de '~ film.ageMinimum ~ ' ans' : 'Tout public' }}
-                </p>
+  {% for film in films %}
+     <a class="film-horizontal-card" href="{{ path('app_films_show', { id: film.id }) }}">
+      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
+      <div class="film-info">
+        <h2>{{ film.titre }}</h2>
 
-                <p class="desc">
-                    {{ film.synopsis|slice(0, 156) ~ '...' }}
-                </p>
-                <p class="note">Note :
-                    {% for i in 1..5 %}
-                        {% if i <= film.noteMoyenne %}
-                            <span class="star">★</span>
-                        {% else %}
-                            <span class="star empty">★</span>
-                        {% endif %}
-                    {% endfor %}
-                </p>
-            </div>
-        </div>
-    {% endfor %}
+        <p class="public">
+          {{ film.ageMinimum is not null ? 'Déconseillé aux moins de ' ~ film.ageMinimum ~ ' ans' : 'Tout public' }}
+        </p>
+
+        <p class="desc">
+          {{ film.synopsis|slice(0, 156) ~ '…' }}
+        </p>
+
+        <p class="note">Note :
+          {% set note = film.noteMoyenne ?? 0 %}
+          {% for i in 1..5 %}
+            {% if i <= note %}
+              <span class="star">★</span>
+            {% else %}
+              <span class="star empty">★</span>
+            {% endif %}
+          {% endfor %}
+        </p>
+      </div>
+    </a>
+  {% endfor %}
 </div>

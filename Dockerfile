@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable mongodb \
     && docker-php-ext-install pdo pdo_pgsql
 
+RUN docker-php-ext-install intl
+
 # Corrige Git
 RUN git config --global --add safe.directory /var/www/html
 
