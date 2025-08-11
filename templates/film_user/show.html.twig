@@ -8,8 +8,14 @@
 {% endblock %}
 
 {% block body %}
-<section class="show-section">
-  <h1 class="section-title">SÉANCES DISPONIBLES</h1>
+<section class="show-section"
+         id="film-show"
+         data-film-id="{{ film.id }}"
+         data-active-ville="{{ activeVille }}"
+         data-active-date="{{ activeDate }}"
+         data-reserve-pattern="{{ path('app_reservation_new', { seanceId: 'ID' }) }}">
+
+  <h2 class="films-title section-title"><span class="underline"></span>SÉANCES DISPONIBLES</h2>
 
   {# Villes #}
   {% if villes is not empty %}
@@ -19,7 +25,8 @@
           <span class="separator" aria-hidden="true">|</span>
         {% else %}
           <a class="tab {{ ville == activeVille ? 'active' : '' }}"
-             href="{{ path('app_films_show', { id: film.id, ville: ville, date: activeDate }) }}">
+             href="{{ path('app_films_show', { id: film.id, ville: ville, date: activeDate }) }}"
+             data-ville="{{ ville }}">
             {{ ville }}
           </a>
         {% endif %}
@@ -35,6 +42,7 @@
         {% set count = counts[ymd]|default(0) %}
         <a class="tab {{ ymd == activeDate ? 'active' : '' }} {{ count > 0 ? 'has-sessions' : '' }}"
            href="{{ path('app_films_show', { id: film.id, ville: activeVille, date: ymd }) }}"
+           data-date="{{ ymd }}"
            title="{{ count > 0 ? count ~ ' séance(s) disponible(s)' : 'Aucune séance' }}">
           {{ label }}
           {% if count > 0 and ymd != activeDate %}
@@ -47,71 +55,68 @@
 
   <div class="film-block">
     <div class="poster">
-      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
+      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}" >
     </div>
 
     <div class="details">
-      <h2>{{ film.titre }}</h2>
+      <h3>{{ film.titre }}</h3>
 
       <div class="meta">
-        <span>
+        <span class="age">
           {{ film.ageMinimum is not null
             ? 'Déconseillé aux moins de ' ~ film.ageMinimum ~ ' ans'
             : 'Tout public'
           }}
         </span>
+        <span> | </span>
         {% if film.genre is defined and film.genre %}
-          <span> | {{ film.genre.nom }}</span>
+          <span>{{ film.genre.nom }}</span>
         {% endif %}
       </div>
-
-      {% set sessions = grouped[activeVille][activeDate] ?? [] %}
 
       {% if film.synopsis %}
         <p class="synopsis">{{ film.synopsis }}</p>
       {% endif %}
 
-      {% if sessions is not empty %}
-        <div class="sessions-grid">
-          {% for s in sessions %}
-            <a class="session-chip" href="{{ path('app_reservation_new', { seanceId: s.id }) }}">
-              <div class="chip-top">
-                {% if s.format %}<span class="chip-version">{{ s.format|lower }}</span>{% endif %}
-              </div>
+      {% if noteMoy is not null %}
+  <div class="rating-block">
+    <span class="rating-label">Note :</span>
 
-              <div class="chip-time">{{ s.date|date('H:i') }}</div>
+    {% set full = noteMoy|round(0, 'floor') %}
+    {% set half = (noteMoy - full) >= 0.5 ? 1 : 0 %}
+    {% set empty = 5 - full - half %}
 
-              {% if s.fin is defined and s.fin %}
-                <div class="chip-end">fin à {{ s.fin|date('H:i') }}</div>
-              {% endif %}
+    <span class="stars">
+      {% for i in 1..full %}
+        <span class="star">
+          <img src="{{ asset('images/icons/etoile_pleine.svg') }}">
+        </span>
+      {% endfor %}
+      {% if half %}<span class="star half"><img src="{{ asset('images/icons/Star-Half.svg') }}"></span>{% endif %}
+      {% for i in 1..empty %}<span class="star empty"><img src="{{ asset('images/icons/etoile_vide.svg') }}"></span>
+      {% endfor %}
+      
+    </span>
 
-              <div class="chip-bottom">
-                <div class="chip-icons">
-                  <span class="icon" aria-label="Accès fauteuil">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-                      <path d="M7 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4ZM5 22a4 4 0 1 1 2.31-7.29l1.14-2.29H7a2 2 0 0 1-2-2V7h2v3h3.38l1.34-2.68a2 2 0 0 1 1.79-1.12H16v2h-2.49L12.6 10H15a2 2 0 0 1 1.94 1.55L18 16h-2l-.7-3H12l-1.7 3.41A4 4 0 0 1 5 22Z"/>
-                    </svg>
-                  </span>
-                  <span class="icon" aria-label="Accessibilité visuelle">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-                      <path d="M2.1 3.51 20.49 21.9l-1.41 1.41-3.02-3.02A10.7 10.7 0 0 1 12 21C6.5 21 2.27 17.36 1 12c.5-1.92 1.54-3.62 2.95-4.97L.69 4.92 2.1 3.5ZM12 7a5 5 0 0 1 5 5c0 .66-.13 1.3-.36 1.87l-6.51-6.5c.58-.24 1.22-.37 1.87-.37Zm0-4c5.5 0 9.73 3.64 11 9-.33 1.26-.85 2.43-1.54 3.46l-1.43-1.43c.46-.76.83-1.6 1.07-2.5C20.23 7.64 16 4 10.5 4c-1.13 0-2.2.17-3.2.47L5.7 2.87A12.9 12.9 0 0 1 12 3Z"/>
-                    </svg>
-                  </span>
-                </div>
+  
+  </div>
+{% endif %}
 
-                {% if s.salle %}
-                  <div class="chip-room">Salle {{ s.salle.nom }}</div>
-                {% endif %}
-              </div>
-            </a>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="no-session">
-          Aucune séance pour ce jour{% if activeVille and activeVille != '|' %} à {{ activeVille }}{% endif %}.
-        </p>
-      {% endif %}
+      <div id="sessions-container">
+        {% set sessions = grouped[activeVille][activeDate] ?? [] %}
+        {% include 'film_user/_sessions_grid.html.twig' with { sessions: sessions, activeVille: activeVille } %}
+      </div>
     </div>
   </div>
 </section>
+
+{# Données préchargées pour interaction instantanée (ville -> jour -> séances) #}
+<script id="sessions-data" type="application/json">
+  {{ sessionsMap|default({})|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+</script>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/film_show.js') }}"></script>
 {% endblock %}

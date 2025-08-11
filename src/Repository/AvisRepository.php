@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+
 use App\Entity\Avis;
+use App\Entity\Film;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,15 @@ class AvisRepository extends ServiceEntityRepository
         parent::__construct($registry, Avis::class);
     }
 
-    //    /**
-    //     * @return Avis[] Returns an array of Avis objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getAverageNoteForFilm(Film $film): ?float
+{
+    $avg = $this->createQueryBuilder('a')
+        ->select('AVG(a.noteSur5) AS avgNote')   // champ entité: noteSur5
+        ->andWhere('a.film = :film')
+        ->setParameter('film', $film)
+        ->getQuery()
+        ->getSingleScalarResult();
 
-    //    public function findOneBySomeField($value): ?Avis
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    return $avg !== null ? round((float)$avg, 1) : null; // ex: 3.7
+}
 }

@@ -1,81 +1,71 @@
-/* public/css/film_show.css */
-body {background-color: #0A0602;}/* ====== Page ====== */
+/* ===================== */
+/*   Page / Layout       */
+/* ===================== */
+
+body { background-color: #0A0602; }
+
 .show-section {
- 
   color: #e9e3dc;
   padding: 24px 0;
-  margin:150px 177px;
+  margin: 150px 177px;
 }
 
-.section-title {
-  font-size: 26px;
-  letter-spacing: .5px;
-  margin: 0 0 18px 0;
-  color: #d9d3cc;
-}
 
-/* ====== Onglets (villes / jours) ====== */
+
+
+/* ===================== */
+/*   Onglets (villes/jours)
+ * ===================== */
+
 .tabs {
   display: flex;
   gap: 18px;
   align-items: center;
-  padding: 8px 0 14px;
   
 }
 
-.tabs.cities { margin-bottom: 8px; }
-.tabs.days   { margin-bottom: 18px; }
+.tabs.cities { margin: 70px 0 30px 0; }
+.tabs.days   { margin-bottom: 60px; }
 
 .tab,
 .separator {
   text-decoration: none;
   color: #9b938a;
-  padding: 6px 0;
+
   position: relative;
   display: inline-block;
 }
 
 .separator { opacity: .6; padding: 0 2px; }
-
 .tab.active { color: #e9e3dc; }
 
-/* Jour actif: trait orange pleine largeur */
+/* Jour actif : trait orange pleine largeur */
 .tabs.days .tab { padding-bottom: 6px; }
 .tabs.days .tab.active::after {
   content: "";
   position: absolute;
   left: 0; right: 0;
-  bottom: -13px;
-  height: 2px;
+  bottom: -2px;
+  height: 1px;
   background: #ee8b1b;
   border-radius: 2px;
 }
 
-/* Indicateur (dot) sous les jours qui ont des séances */
-.tabs.days .tab .dot {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -11px;
-  width: 6px; height: 6px;
-  background: #ee8b1b;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: .9;
-}
 
-/* ====== Bloc film ====== */
+/* ===================== */
+/*   Bloc film           */
+/* ===================== */
+
 .film-block {
   display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 20px;
+  grid-template-columns: 267px 1fr;
+  gap: 30px;
   margin-top: 8px;
 }
 
 .poster img {
-  width: 190px;
+  width: 267px;
   border-radius: 5px;
-  
 }
 
 .details h2 {
@@ -86,53 +76,89 @@ body {background-color: #0A0602;}/* ====== Page ====== */
 .meta {
   display: flex;
   gap: 10px;
- 
-  margin: 6px 0 10px;
-  font-weight: 600;
+  margin-top:10px;
+  margin-bottom: 30px;
+  
 }
-
+span.age{font-weight: 600;}
 .synopsis {
-  color: #c9c3bd;
+  
+  font-weight: 400;
+  color: #EEE8E2;
   line-height: 1.55;
-  margin: 10px 0 18px;
+  margin: 10px 0 30px;
 }
 
-/* ====== Grille & cartes séances ====== */
+.rating-block{
+  margin-bottom:30px;
+}
+.star img { width:19px ;height:20px;}
+span.stars{ margin-left:18px;}
+span.star{ height:20px; width:19px; display:contents}
+
+/* ===================== */
+/*   Grille / Sessions   */
+/* ===================== */
+
 .sessions-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-/* Style de la puce de séance (comme la maquette) */
+/* Carte d’une séance */
 .session-chip {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 180px;                    /* ajuste si besoin */
+  width: 180px;
   padding: 12px 14px;
   border: 1px solid #423a33;
-  border-radius: 12px;
+  border-radius: 5px;
   background: #0A0602;
   color: #e8e1d9;
   text-decoration: none;
-  transition: transform .12s ease,
-              border-color .12s ease,
-              background-color .12s ease;
-}
-.session-chip:hover {
-  transform: translateY(-1px);
-  border-color: #4e463e;
-  background: #12100e;
+  transition: transform .12s ease, border-color .12s ease, background-color .12s ease;
 }
 
-/* "vostfr" / version en haut */
-.chip-top { min-height: 18px; }
+.session-chip:hover {
+  border-color: #ee8b1b;
+  background: #0A0602; /* on garde le même fond, juste le contour devient orange */
+}
+
+/* Format (ex: vostfr / imax) — trait orange UNIQUEMENT au hover de la carte */
+.chip-top { min-height: 18px; margin-bottom: 4px; }
+
 .chip-version {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 6px;
   font-size: 12px;
   text-transform: lowercase;
   color: #bcb4ad;
   letter-spacing: .2px;
+}
+
+/* masqué par défaut */
+.chip-version::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 22px;
+  height: 2px;
+  background: #ee8b1b;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+/* n’apparaît qu’au survol de .session-chip */
+.session-chip:hover .chip-version::after {
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 /* Heure XXL */
@@ -150,7 +176,7 @@ body {background-color: #0A0602;}/* ====== Page ====== */
   margin-top: -2px;
 }
 
-/* Bas: icônes à gauche, salle à droite */
+/* Bas de la carte : icônes à gauche, salle à droite */
 .chip-bottom {
   display: flex;
   align-items: center;
@@ -158,13 +184,10 @@ body {background-color: #0A0602;}/* ====== Page ====== */
   margin-top: 4px;
 }
 
-.chip-icons { display: flex; gap: 10px; color: #bcb4ad; opacity: .95; }
-.icon svg { display: block; width: 18px; height: 18px; }
+.chip-icons { display: flex; gap: 10px; color: #A19D9A; opacity: 1; }
+.icon svg   { display: block; width: 18px; height: 18px; }
 
-.chip-room {
-  font-size: 14px;
-  color: #d6cec6;
-}
+.chip-room { font-size: 14px; color: #d6cec6; }
 
 /* Message "aucune séance" */
 .no-session { color: #b7b1aa; margin-top: 8px; }
