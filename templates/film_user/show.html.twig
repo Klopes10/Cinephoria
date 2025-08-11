@@ -13,7 +13,8 @@
          data-film-id="{{ film.id }}"
          data-active-ville="{{ activeVille }}"
          data-active-date="{{ activeDate }}"
-         data-reserve-pattern="{{ path('app_reservation_new', { seanceId: 'ID' }) }}">
+         data-reserve-pattern="{{ path('app_reservation_new', { seanceId: 'ID' }) }}"
+         data-reviews-pattern="{{ path('app_films_reviews', { id: 'ID' }) }}">
 
   <h2 class="films-title section-title"><span class="underline"></span>SÉANCES DISPONIBLES</h2>
 
@@ -55,7 +56,7 @@
 
   <div class="film-block">
     <div class="poster">
-      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}" >
+      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
     </div>
 
     <div class="details">
@@ -78,30 +79,42 @@
         <p class="synopsis">{{ film.synopsis }}</p>
       {% endif %}
 
+      {# Note moyenne #}
       {% if noteMoy is not null %}
-  <div class="rating-block">
-    <span class="rating-label">Note :</span>
+        <div class="rating-block">
+          <span class="rating-label">Note :</span>
 
-    {% set full = noteMoy|round(0, 'floor') %}
-    {% set half = (noteMoy - full) >= 0.5 ? 1 : 0 %}
-    {% set empty = 5 - full - half %}
+          {% set full = noteMoy|round(0, 'floor') %}
+          {% set half = (noteMoy - full) >= 0.5 ? 1 : 0 %}
+          {% set empty = 5 - full - half %}
 
-    <span class="stars">
-      {% for i in 1..full %}
-        <span class="star">
-          <img src="{{ asset('images/icons/etoile_pleine.svg') }}">
-        </span>
-      {% endfor %}
-      {% if half %}<span class="star half"><img src="{{ asset('images/icons/Star-Half.svg') }}"></span>{% endif %}
-      {% for i in 1..empty %}<span class="star empty"><img src="{{ asset('images/icons/etoile_vide.svg') }}"></span>
-      {% endfor %}
-      
-    </span>
+          <span class="stars">
+            {% for i in 1..full %}
+              <span class="star">
+                <img src="{{ asset('images/icons/etoile_pleine.svg') }}" alt="★">
+              </span>
+            {% endfor %}
+            {% if half %}
+              <span class="star half">
+                <img src="{{ asset('images/icons/Star-Half.svg') }}" alt="☆">
+              </span>
+            {% endif %}
+            {% for i in 1..empty %}
+              <span class="star empty">
+                <img src="{{ asset('images/icons/etoile_vide.svg') }}" alt="☆">
+              </span>
+            {% endfor %}
+          </span>
 
-  
-  </div>
-{% endif %}
+          {% if nbAvis is defined and nbAvis > 0 %}
+            <a class="reviews-link" data-film="{{ film.id }}">
+              Lire les {{ nbAvis }} avis
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
 
+      {# Séances (rendu initial, remplacé instantanément par JS) #}
       <div id="sessions-container">
         {% set sessions = grouped[activeVille][activeDate] ?? [] %}
         {% include 'film_user/_sessions_grid.html.twig' with { sessions: sessions, activeVille: activeVille } %}
@@ -114,6 +127,22 @@
 <script id="sessions-data" type="application/json">
   {{ sessionsMap|default({})|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
 </script>
+
+{# Modale des avis (contenu chargé en AJAX) #}
+{# Modale des avis (contenu déjà rendu côté serveur) #}
+<div id="reviews-modal" class="modal hidden" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="reviews-title">
+    <button class="modal-close" aria-label="Fermer">×</button>
+    <div id="reviews-content">
+      {% if nbAvis is defined and nbAvis > 0 %}
+        {% include 'film_user/_avis_modal_content.html.twig' with { film: film, avis: avisPreloaded } %}
+      {% else %}
+        <p>Aucun avis pour le moment.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}

@@ -43,7 +43,7 @@ public function show(
     Request $request,
     SeanceRepository $seanceRepository,
     CinemaRepository $cinemaRepository,
-    AvisRepository $avisRepository   // ← pour la note moyenne
+    AvisRepository $avisRepository
 ): Response {
     // --- Villes triées: France d'abord, Belgique ensuite ---
     $cinemas = $cinemaRepository->findAll();
@@ -91,11 +91,15 @@ public function show(
     $activeDate  = $request->query->get('date') ?: array_key_first($jours);
 
     // --- Précharge TOUTES les séances (8 jours) pour ce film, groupées pour le JS ---
-    $sessionsMap = $seanceRepository->findByFilmBetweenDatesForJs($film, $today, $today->modify('+7 day'));
+    $sessionsMap = $seanceRepository->findByFilmBetweenDatesForJs(
+        $film,
+        $today,
+        $today->modify('+7 day')
+    );
 
     // counts initiaux pour les "dots" des jours (ville active)
     $dayCounts = [];
-    if (isset($sessionsMap[$activeVille])) {
+    if ($activeVille && isset($sessionsMap[$activeVille])) {
         foreach ($sessionsMap[$activeVille] as $ymd => $list) {
             $dayCounts[$ymd] = \is_array($list) ? \count($list) : 0;
         }
@@ -111,8 +115,12 @@ public function show(
         $grouped[$activeVille][$activeDate] = $sessions;
     }
 
-    // --- Note moyenne du film (table Avis) ---
+    // --- Notes/Avis ---
     $noteMoy = $avisRepository->getAverageNoteForFilm($film); // ex: 3.7 ou null
+    $nbAvis  = $avisRepository->countValidatedForFilm($film); // ex: 12
+
+    // Précharger le contenu des avis pour la modale (ou tableau vide s'il n'y en a pas)
+    $avisPreloaded = $nbAvis > 0 ? $avisRepository->findValidatedForFilm($film) : [];
 
     return $this->render('film_user/show.html.twig', [
         'film'         => $film,
@@ -122,10 +130,13 @@ public function show(
         'activeVille'  => $activeVille,
         'activeDate'   => $activeDate,
         'dayCounts'    => $dayCounts,
-        'sessionsMap'  => $sessionsMap, // pour le JS (sans DateTime)
-        'noteMoy'      => $noteMoy,     // pour afficher la note entre synopsis & séances
+        'sessionsMap'  => $sessionsMap,   // pour le JS (normalisé)
+        'noteMoy'      => $noteMoy,       // pour l’affichage de la note moyenne
+        'nbAvis'       => $nbAvis,        // pour "Lire les X avis"
+        'avisPreloaded'=> $avisPreloaded, // pour remplir la pop-up immédiatement
     ]);
 }
+
 
 
 
@@ -171,6 +182,31 @@ public function dayCounts(
 
     return $this->json(['counts' => $counts]);
 }
-    
+
+#[Route('/films/{id}/avis', name: 'app_films_reviews', methods: ['GET'])]
+public function reviews(
+    Film $film,
+    AvisRepository $avisRepository,
+    Request $request
+): Response {
+    $avis = $avisRepository->findValidatedForFilm($film);
+
+    // Ajax : renvoie juste le fragment HTML pour la modale
+    if ($request->isXmlHttpRequest()) {
+        return $this->render('film_user/_avis_modal_content.html.twig', [
+            'film' => $film,
+            'avis' => $avis,
+        ]);
+    }
+
+    // Fallback non-AJAX : page complète
+    return $this->render('film_user/avis.html.twig', [
+        'film'   => $film,
+        'avis'   => $avis,
+        'nbAvis' => \count($avis), // <— défini ici
+    ]);
+}
+
+
 
 }
