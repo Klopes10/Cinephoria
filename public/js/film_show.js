@@ -166,10 +166,5 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Escape') closeModal();
     });
   
-    // OUVERTURE IMMÉDIATE SI DES AVIS EXISTENT (le contenu est déjà dans #reviews-content)
-    const reviewsLink = document.querySelector('.reviews-link');
-    if (reviewsLink) {
-      openModal();
-    }
   });
   
