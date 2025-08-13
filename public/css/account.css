@@ -1,0 +1,213 @@
+body { background-color: #0A0602; }
+
+/* Page wrapper */
+.account-wrap {
+    margin: 150px 177px;
+    color: #e9e3dc;
+    background: #0A0602;
+  }
+  
+  /* Titles */
+  .page-title {
+    font-weight:400;
+    letter-spacing: .6px;
+    margin: 0 0 70px 0;
+  }
+  
+  .section-title {
+    font-size: 28px;
+    margin: 8px 0 70px;
+    color: #e9e3dc;
+  }
+  
+  .subhead {
+    margin: 18px 0 10px;
+    font-size: 12px;
+    color: #9b938a;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+  }
+  .mt-32{ margin-top:32px; }
+  
+  /* List */
+  .orders-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px 0;
+    display: grid;
+    gap: 12px;
+  }
+  
+
+  
+  /* Card */
+  .order-card {
+    height:44px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 15px;
+    border: 1px solid #3c332c;
+    border-radius: 10px;
+    background: #0A0602;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+
+  
+  /* Left: poster + title */
+  .order-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  .poster {
+    width: 145px;
+    height: 24px;
+    object-fit: cover;
+    
+    background: #1a140f;
+  }
+  .poster--placeholder {
+    display: inline-block;
+  }
+  .title {
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .order-middle {
+    margin: auto;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-weight: 500;
+    color: #d9d3cc;
+  }
+  
+  /* Right: meta + rating */
+  .order-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-weight: 500;
+    color: #d9d3cc;
+  }
+
+  .order-right.stars {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+    color: #d9d3cc;
+  }
+  .meta { opacity: .95; }
+  .meta.date { min-width: 90px; text-align: right; color:#e9e3dc; }
+  .meta.city { color: #bcb4ad; }
+  .meta.seats { color: #e9e3dc; }
+  
+  /* Stars (historique à droite) */
+  .rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+  }
+  .star svg {
+    display: block;
+    fill: transparent;
+    stroke: #ee8b1b;
+    stroke-width: 1.4;
+  }
+  .star.full svg {
+    fill: #0A0602;
+    stroke: #ee8b1b;
+  }
+  .order-card:hover .star svg {
+    stroke: #f29a33;
+  }
+  
+  /* Empty rows */
+  .empty {
+    color: #9b938a;
+    padding: 12px 2px;
+  }
+  
+  /* bloc étoiles */
+/* étoiles vides dans la liste (déjà envoyé, rappel) */
+.rating-stars {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .rating-stars .star-btn{
+    width:22px; height:22px; padding:0; border:0; background:transparent;
+    background-image:var(--star-empty); background-repeat:no-repeat;
+    background-position:center; background-size:contain; cursor:pointer;
+  }
+  .rating-stars .star-btn:hover,
+  .rating-stars .star-btn:hover ~ .star-btn{
+    background-image:var(--star-full);
+  }
+  
+  /* ---------- Modale ---------- */
+  .modal.hidden{ display:none; }
+  .modal{ position:fixed; inset:0; z-index:1000; }
+  .modal-backdrop{
+    position:absolute; inset:0; background:#000; opacity:.65;
+  }
+  .modal-panel{
+    position:relative; margin:40px auto; width:min(850px, 92vw); height:432px;
+    background:#0e0a06; border:1px solid #A19D9A; border-radius:10px;
+    padding:28px 26px 26px; color:#e9e3dc;
+  }
+  .modal-close{
+    position:absolute; right:10px; top:8px; font-size:22px; line-height:1;
+    width:32px; height:32px; border:0; background:transparent; color:#e9e3dc; cursor:pointer;
+  }
+  
+  .rate-title{ font-size:36px; letter-spacing:.5px; margin:4px 0 22px 0; place-items: center;}
+  .rate-title .bar{
+    display:block; width:56px; height:4px; background:#ee8b1b; border-radius:2px; margin-bottom:10px;
+  }
+  
+  /* étoiles dans la modale */
+  .rate-stars{ display:flex; gap:12px; justify-content:center; margin:10px 0 18px; }
+  .m-star-btn{ border:0; background:transparent; padding:0; cursor:pointer; }
+  .m-star-ico{ width:28px; height:28px; display:block; }
+  
+  /* textarea + bouton */
+  .rate-comment textarea{
+    width:100%; min-height:80px; resize:vertical; border:1px solid #3a2f25;
+    background:#0b0805; color:#e9e3dc; border-radius:8px; padding:14px 12px; font:inherit;
+  }
+  .rate-validate{
+    margin-top:18px; width:100%; background:#ee8b1b; border:1px solid #ee8b1b;
+    color:#0b0805; padding:14px 16px; border-radius:10px; font-weight:600; cursor:pointer;
+  }
+  .rate-validate:hover{ filter:brightness(1.05); }
+
+  .rating-stars.is-locked .star-btn {
+    pointer-events: none;
+    cursor: default;
+  }
+  .rating-stars.is-locked .star-static .star-ico {
+    display: block;
+    width: 24px;
+    height: 24px;
+  }
+.rating-stars.is-locked .star-btn::before { background-image: var(--star-empty); }
+.rating-stars.is-locked .star-btn.on::before { background-image: var(--star-full); }
+
+/* (si tu as déjà les règles de hover/preview, elles ne doivent pas s’appliquer quand is-locked est présent) */
+.rating-stars.is-locked:hover .star-btn::before,
+.rating-stars.is-locked .star-btn:hover ~ .star-btn::before {
+  background-image: var(--star-empty);
+}
+
+  

@@ -48,4 +48,27 @@ class AvisRepository extends ServiceEntityRepository
             ->orderBy('a.createdAt', 'DESC')
             ->getQuery()->getResult();
     }
+
+    public function getNotesByUserForFilmIds(User $user, array $filmIds): array
+    {
+        if (!$filmIds) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('a')
+            ->select('IDENTITY(a.film) AS film_id, a.noteSur5 AS note')
+            ->where('a.user = :u')
+            ->andWhere('a.valide = true')
+            ->andWhere('a.film IN (:ids)')
+            ->setParameter('u', $user)
+            ->setParameter('ids', $filmIds)
+            ->getQuery()
+            ->getArrayResult();
+
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int)$r['film_id']] = (int)$r['note'];
+        }
+        return $map;
+    }
 }

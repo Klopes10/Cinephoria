@@ -41,7 +41,7 @@ services:
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: app
-      POSTGRES_PASSWORD: "docker compose exec php php bin/console doctrine:fixtures:load"
+      POSTGRES_PASSWORD: admin
     volumes:
       - database_data:/var/lib/postgresql/data
 

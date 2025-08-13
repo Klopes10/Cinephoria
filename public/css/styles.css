@@ -25,6 +25,14 @@ span.underline {
     height: 3px;
     background-color: #ee8b1b;
 }
+span.upperline {
+    content: "";
+    position: absolute;
+    
+    width: 40px;
+    height: 3px;
+    background-color: #ee8b1b;
+}
 
 .section-title {
     color: #EEE8E2;
