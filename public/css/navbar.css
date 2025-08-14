@@ -71,28 +71,45 @@
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #EEE8E2;
-    color: #0A0602;
+    background-color: #0A0602;
+    color: #EEE8E2;
     right: 60px;
     margin-top: 10px;
     list-style: none;
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border:#EEE8E2 1px solid;
 }
 
 .dropdown-content li {
     padding: 5px 10px;
 }
 
-.dropdown-content li a {
-    text-decoration: none;
-    color: #0A0602;
-}
 
-.dropdown-content li a:hover {
-    color: #EE8B1B;
-}
+/* État normal */
+.dropdown-content li a {
+    position: relative;          /* pour positionner ::after */
+    display: inline-block;       /* évite des bizarreries de ligne */
+    text-decoration: none;
+    color: #EEE8E2;
+  }
+  
+  .dropdown-content li a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    height: 2px;
+    width: 0;                    /* caché par défaut */
+    background: #EE8B1B;
+    transition: width 0.3s ease; /* anime la largeur */
+  }
+  
+  /* Au survol */
+  .dropdown-content li a:hover::after {
+    width: 100%;
+  }
 
 .dropdown.open .dropdown-content {
     display: block;
