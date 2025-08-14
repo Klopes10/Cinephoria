@@ -80,40 +80,33 @@
           </div>
 
           <div class="order-right">
-            {# Si déjà noté -> 5 icônes statiques, pas d’interaction #}
-            {% if note > 0 %}
-              <div class="rating-stars is-locked"
-                   style="
-                     --star-empty: url('{{ asset('images/icons/etoile_vide.svg') }}');
-                     --star-full:  url('{{ asset('images/icons/etoile_pleine.svg') }}');
-                   ">
-                {% for i in 1..5 %}
-                  <span class="star-static">
-                    <img class="star-ico"
-                         src="{{ asset(i <= note ? 'images/icons/etoile_pleine.svg' : 'images/icons/etoile_vide.svg') }}"
-                         alt="{{ i <= note ? '★' : '☆' }}">
-                  </span>
-                {% endfor %}
-              </div>
-            {% else %}
-              {# Sinon étoiles interactives (hover rempli, clic -> ouvre la modale) #}
-              <div class="rating-stars js-rate-trigger"
-                   data-reservation="{{ o.id }}"
-                   data-film="{{ film ? film.id : '' }}"
-                   style="
-                     --star-empty: url('{{ asset('images/icons/etoile_vide.svg') }}');
-                     --star-full:  url('{{ asset('images/icons/etoile_pleine.svg') }}');
-                   ">
-                {% for i in 1..5 %}
-                  <button type="button"
-                          class="star-btn"
-                          data-value="{{ i }}"
-                          aria-label="{{ i }} étoile{{ i > 1 ? 's' : '' }}">
-                  </button>
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
+  <div class="rating-stars js-rate-trigger
+              {{ o.rated ? 'is-locked' : '' }}
+              {{ o.pending ? 'is-pending' : '' }}"
+       data-reservation="{{ o.id }}"
+       data-film="{{ o.film ? o.film.id : '' }}"
+       data-initial="{{ o.userNote|default(0) }}"
+       style="
+         --star-empty: url('{{ asset('images/icons/etoile_vide.svg') }}');
+         --star-full:  url('{{ asset('images/icons/etoile_pleine.svg') }}');
+       ">
+    {% for i in 1..5 %}
+      {# si déjà noté ET validé => remplis côté serveur #}
+      {% set filled = (o.rated and not o.pending and i <= o.userNote) %}
+      <button type="button"
+              class="star-btn"
+              data-value="{{ i }}"
+              aria-label="{{ i }} étoile{{ i>1 ? 's' : '' }}"
+              style="--star: {{ filled ? 'var(--star-full)' : 'var(--star-empty)' }}"
+              {{ o.rated ? 'disabled' : '' }}>
+      </button>
+    {% endfor %}
+  </div>
+
+  {% if o.pending %}
+    <span class="tag tag-pending">En attente de validation</span>
+  {% endif %}
+</div>
         </div>
       </li>
     {% else %}
@@ -151,6 +144,8 @@
       </div>
 
       <button id="rate-validate" class="rate-validate">Valider</button>
+      <div id="rate-feedback" class="rate-feedback" style="display:none"></div>
+
     </div>
   </div>
 

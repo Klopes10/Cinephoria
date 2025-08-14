@@ -1,185 +1,170 @@
 // public/js/account.js
 document.addEventListener('DOMContentLoaded', () => {
-    const $  = (sel, root = document) => root.querySelector(sel);
-    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-  
-    // ---------- Config ----------
-    const cfg         = $('#rating-config');
-    const ENDPOINT    = cfg?.dataset.endpoint || '/mon-compte/note';
-    const STAR_FULL   = cfg?.dataset.starFull  || '';
-    const STAR_EMPTY  = cfg?.dataset.starEmpty || '';
-  
-    // ---------- Modale ----------
-    const modal     = $('#rate-modal');
-    const backdrop  = modal ? modal.querySelector('.modal-backdrop') : null;
-    const btnClose  = modal ? modal.querySelector('.modal-close')   : null;
-    const btnOK     = $('#rate-validate');
-    const commentEl = $('#rate-comment-input');
-  
-    let currentReservationId = null;
-    let currentValue = 0; // valeur validée dans la modale
-  
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  
-    function getModalStars() {
-      return modal ? $$('.m-star-btn[data-value]', modal) : [];
-    }
-  
-    function paintModalStars(value) {
-      const v = clamp(parseInt(value || 0, 10), 0, 5);
-      getModalStars().forEach((btn, idx) => {
-        const img = btn.querySelector('.m-star-ico');
-        if (!img) return;
-        const filled = idx < v;
-        img.src = filled ? STAR_FULL : STAR_EMPTY;
-        img.alt = filled ? '★' : '☆';
-        btn.setAttribute('aria-pressed', filled ? 'true' : 'false');
-      });
-    }
-  
-    function setModalValue(value) {
-      currentValue = clamp(parseInt(value || 0, 10), 0, 5);
-      paintModalStars(currentValue);
-    }
-  
-    function openModal(reservationId, initialValue) {
-      currentReservationId = reservationId;
-      setModalValue(initialValue);
-      if (commentEl) commentEl.value = '';
-      modal.classList.remove('hidden');
-      modal.setAttribute('aria-hidden', 'false');
-    }
-  
-    function closeModal() {
-      modal.classList.add('hidden');
-      modal.setAttribute('aria-hidden', 'true');
-    }
-  
-    // Init : étoiles de la modale à vide
-    if (modal) paintModalStars(0);
-  
-    // ---------- Etoiles "inline" (dans la liste) ----------
-    function fillInline(container, value) {
-      const v = clamp(parseInt(value || 0, 10), 0, 5);
-      const stars = $$('.star-btn', container);
-      stars.forEach((btn, idx) => {
-        btn.style.backgroundImage = idx < v ? `var(--star-full)` : `var(--star-empty)`;
-      });
-    }
-  
-    // Attache sur tous les groupes interactifs
-    function initInlineGroups() {
-      const groups = $$('.js-rate-trigger');
-      groups.forEach(group => {
-        // état initial : toutes vides
-        fillInline(group, 0);
-  
-        // Survol -> remplir de gauche à droite jusqu’à la star survolée
-        $$('.star-btn', group).forEach(btn => {
-          btn.addEventListener('mouseenter', () => {
-            const val = parseInt(btn.dataset.value || '0', 10);
-            fillInline(group, val);
-          });
-        });
-  
-        // Sortie du groupe -> revenir à vide
-        group.addEventListener('mouseleave', () => fillInline(group, 0));
-  
-        // Clic -> ouvrir modale avec la valeur cliquée
-        group.addEventListener('click', (e) => {
-          const star = e.target.closest('.star-btn');
-          if (!star) return;
-          e.preventDefault();
-          const resId = group.dataset.reservation || null;
-          const value = parseInt(star.dataset.value || '0', 10);
-          openModal(resId, value);
-        });
-      });
-    }
-  
-    initInlineGroups();
-  
-    // ---------- Interaction modale ----------
-    // Hover dans la modale = aperçu
-    modal?.addEventListener('mousemove', (e) => {
-      const over = e.target.closest('.m-star-btn[data-value]');
-      if (!over) return;
-      paintModalStars(over.dataset.value || '0');
-    });
-  
-    // Clique une étoile dans la modale = sélection
-    modal?.addEventListener('click', (e) => {
-      const star = e.target.closest('.m-star-btn[data-value]');
-      if (star) {
-        setModalValue(star.dataset.value || '0');
-      }
-    });
-  
-    // Sortie de la zone étoiles -> revenir sur la valeur choisie
-    modal?.querySelector('.rate-stars')?.addEventListener('mouseleave', () => {
-      paintModalStars(currentValue);
-    });
-  
-    // Fermer modale
-    btnClose?.addEventListener('click', closeModal);
-    backdrop?.addEventListener('click', closeModal);
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  
-    // ---------- Valider (= POST + lock instantané dans la liste) ----------
-    btnOK?.addEventListener('click', async () => {
-      const note = clamp(currentValue, 1, 5);
-      const comment = (commentEl?.value || '').trim();
-  
-      if (!currentReservationId || note < 1) {
-        closeModal();
-        return;
-      }
-  
-      try {
-        const resp = await fetch(ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          body: JSON.stringify({
-            reservationId: currentReservationId,
-            note,
-            comment
-          })
-        });
-  
-        const data = await resp.json();
-  
-        if (!resp.ok || !data.ok) {
-          // Tu peux afficher un toast/flash ici si besoin
-          closeModal();
-          return;
-        }
-  
-        // Remplacer le bloc interactif par un bloc "verrouillé" statique et plein à 'note'
-        const selector = `.js-rate-trigger[data-reservation="${CSS.escape(String(currentReservationId))}"]`;
-        const target = document.querySelector(selector);
-        if (target) {
-          target.classList.remove('js-rate-trigger');
-          target.classList.add('is-locked');
-  
-          // Remplacer l'intérieur par 5 icônes statiques
-          target.innerHTML = Array.from({ length: 5 })
-            .map((_, i) => {
-              const filled = i < note;
-              const src = filled ? STAR_FULL : STAR_EMPTY;
-              const alt = filled ? '★' : '☆';
-              return `<span class="star-static"><img class="star-ico" src="${src}" alt="${alt}"></span>`;
-            })
-            .join('');
-        }
-  
-        closeModal();
-      } catch (err) {
-        // Gestion erreur silencieuse
-        closeModal();
-      }
+  const $  = (s, r=document)=>r.querySelector(s);
+  const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+
+  const cfg        = $('#rating-config');
+  const ENDPOINT   = cfg?.dataset.endpoint || '';
+  const STAR_FULL  = cfg?.dataset.starFull  || '';
+  const STAR_EMPTY = cfg?.dataset.starEmpty || '';
+
+  const modal     = $('#rate-modal');
+  const backdrop  = modal?.querySelector('.modal-backdrop');
+  const btnClose  = modal?.querySelector('.modal-close');
+  const btnOK     = $('#rate-validate');
+  const commentEl = $('#rate-comment-input');
+
+  let currentReservationId = null;
+  let currentValue = 0;
+
+  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+
+  // ---- Init : peindre les étoiles inline d'après data-initial
+  $$('.js-rate-trigger').forEach(c => {
+    const initial = clamp(parseInt(c.dataset.initial||'0',10)||0,0,5);
+    c.querySelectorAll('.star-btn').forEach((btn, idx) => {
+      const i = idx + 1;
+      btn.style.setProperty('--star', i <= initial ? `url(${STAR_FULL})` : `url(${STAR_EMPTY})`);
     });
   });
+
+  // ---- Modal helpers
+  function paintModalStars(v) {
+    const val = clamp(parseInt(v,10)||0,0,5);
+    $$('.m-star-btn', modal).forEach((btn, idx) => {
+      const img = btn.querySelector('.m-star-ico');
+      const filled = (idx+1) <= val;
+      img.src = filled ? STAR_FULL : STAR_EMPTY;
+      img.alt = filled ? '★' : '☆';
+    });
+  }
+  function openModal(resId, initialValue) {
+    currentReservationId = resId;
+    currentValue = clamp(parseInt(initialValue,10)||0,0,5);
+    paintModalStars(currentValue);
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden','true');
+  }
+  if (modal) paintModalStars(0);
+
+  // ---- Ouvrir la modale au clic (ignore si verrouillé)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.js-rate-trigger .star-btn');
+    if (btn) {
+      const container = btn.closest('.js-rate-trigger');
+      if (container.classList.contains('is-locked')) return; // déjà noté
+      e.preventDefault();
+      openModal(container.dataset.reservation, btn.dataset.value || '0');
+      return;
+    }
+    const mBtn = e.target.closest('#rate-modal .m-star-btn[data-value]');
+    if (mBtn) {
+      currentValue = clamp(parseInt(mBtn.dataset.value||'0',10)||0,0,5);
+      paintModalStars(currentValue);
+      return;
+    }
+    if (e.target === backdrop || e.target.closest('.modal-close')) {
+      closeModal();
+    }
+  });
+
+  // Aperçu provisoire
+  modal?.querySelector('.rate-stars')?.addEventListener('mouseleave', ()=>paintModalStars(currentValue));
+  modal?.querySelector('.rate-stars')?.addEventListener('mousemove', (e)=>{
+    const over = e.target.closest('.m-star-btn[data-value]');
+    if (over) paintModalStars(over.dataset.value||'0');
+  });
+
+  function showFeedback(message, { autoClose=false } = {}) {
+    const fb  = document.getElementById('rate-feedback');
+    const box = modal?.querySelector('.modal-panel');
+    if (!fb || !box) { closeModal(); return; }
   
+    // masquer les contrôles
+    modal.querySelector('.rate-stars')?.setAttribute('hidden', 'true');
+    modal.querySelector('.rate-comment')?.setAttribute('hidden', 'true');
+    btnOK?.setAttribute('hidden', 'true');
+  
+    // afficher le message
+    fb.textContent = message;
+    fb.style.display = 'block';
+  
+    if (autoClose) {
+      setTimeout(() => {
+        closeModal();
+        // remettre la modale en état initial pour la prochaine ouverture
+        fb.style.display = 'none';
+        modal.querySelector('.rate-stars')?.removeAttribute('hidden');
+        modal.querySelector('.rate-comment')?.removeAttribute('hidden');
+        btnOK?.removeAttribute('hidden');
+        commentEl && (commentEl.value = '');
+        paintModalStars(0);
+      }, 3000);
+    }
+  }
+  
+  // ---- Valider
+  btnOK?.addEventListener('click', async () => {
+    if (!ENDPOINT || !currentReservationId || currentValue < 1) return;
+    const payload = {
+      reservationId: currentReservationId,
+      note: currentValue,
+      comment: commentEl?.value || ""
+    };
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await r.json();
+      if (!json.ok) { alert(json.error || 'Erreur'); return; }
+  
+      // MAJ immédiate de la ligne (comme avant)
+      const rowStars = document.querySelector(`.js-rate-trigger[data-reservation="${json.resId}"]`);
+      if (rowStars) {
+        const N = Math.max(1, Math.min(5, parseInt(json.note || '0', 10) || 0));
+        rowStars.querySelectorAll('.star-btn').forEach((btn, idx) => {
+          const i = idx + 1;
+          btn.style.setProperty('--star', i <= N ? `url(${STAR_FULL})` : `url(${STAR_EMPTY})`);
+          btn.disabled = true;
+        });
+        rowStars.classList.add('is-locked');
+        rowStars.dataset.initial = String(N);
+  
+        if (json.validated) {
+          // Scénario 1 : pas de commentaire => validé directement
+          rowStars.classList.remove('is-pending');
+        } else {
+          // Scénario 2 : commentaire => en attente
+          rowStars.classList.add('is-pending');
+          const cardRight = rowStars.parentElement; // .order-right
+          if (cardRight && !cardRight.querySelector('.tag-pending')) {
+            const tag = document.createElement('span');
+            tag.className = 'tag tag-pending';
+            tag.textContent = 'En attente de validation';
+            cardRight.appendChild(tag);
+          }
+        }
+      }
+  
+      // Message dans la pop-up selon le cas
+      if (json.validated) {
+        showFeedback("Merci d'avoir noté ce film.", { autoClose: true });
+      } else {
+        showFeedback("Votre avis a été déposé et est soumis à validation");
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Erreur réseau');
+    }
+  });
+  
+
+  // ESC
+  window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closeModal(); });
+});

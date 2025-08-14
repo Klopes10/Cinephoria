@@ -16,93 +16,81 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class AccountController extends AbstractController
 {
     #[Route('/mon-compte', name: 'app_account', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')]
-    public function account(
-        ReservationRepository $reservationRepo,
-        AvisRepository $avisRepository
-    ): Response {
-        $user = $this->getUser();
-        $now  = new \DateTimeImmutable('now');
+#[IsGranted('ROLE_USER')]
+public function account(
+    ReservationRepository $reservationRepo,
+    AvisRepository $avisRepository
+): Response {
+    $user = $this->getUser();
+    $now  = new \DateTimeImmutable();
 
-        // Récupère toutes les réservations de l’utilisateur
-        $reservations = $reservationRepo->findBy(['user' => $user]);
+    $reservations = $reservationRepo->findBy(['user' => $user]);
 
-        $upcoming = [];
-        $history  = [];
+    $upcoming = [];
+    $history  = [];
 
-        foreach ($reservations as $r) {
-            $seance = $r->getSeance();
-            $date   = $seance?->getDate(); // \DateTimeInterface|NULL
+    foreach ($reservations as $r) {
+        $seance = $r->getSeance();
+        $date   = $seance?->getDate();
 
-            // Film / affiche / titre
-            $film    = $seance?->getFilm();
-            $titre   = $film?->getTitre() ?? 'Film';
-            $affiche = $film?->getAffiche();
-
-            // Ville (en fonction de ton modèle de données)
-            $ville =
-                $seance?->getCinema()?->getVille()
+        $film    = $seance?->getFilm();
+        $titre   = $film?->getTitre() ?? 'Film';
+        $affiche = $film?->getAffiche();
+        $ville   = $seance?->getCinema()?->getVille()
                 ?? $seance?->getSalle()?->getCinema()?->getVille()
                 ?? '';
 
-            // Nombre de places (entité: getNombrePlaces)
-            $nbPlaces = method_exists($r, 'getNombrePlaces')
-                ? $r->getNombrePlaces()
-                : (method_exists($r, 'getNbPlaces') ? $r->getNbPlaces() : 1);
+        $nbPlaces = method_exists($r, 'getNbPlaces') ? $r->getNbPlaces()
+                   : (method_exists($r, 'getPlaces') ? $r->getPlaces() : 1);
 
-            // Note déjà donnée par l’utilisateur pour ce film (si validée)
-            $userNote = 0;
-            if ($film && $user) {
-                $avis = $avisRepository->findOneBy([
-                    'film'   => $film,
-                    'user'   => $user,
-                    'valide' => true,
-                ]);
-                if ($avis && method_exists($avis, 'getNoteSur5')) {
-                    $userNote = (int) $avis->getNoteSur5();
-                }
-            }
+        // ⬇️ récupère l’avis user/film SANS filtrer par "valide"
+        $userNote = 0;
+        $rated    = false;
+        $pending  = false;
 
-            $row = [
-                'id'         => $r->getId(),
-                'film'       => $film,
-                'titre'      => $titre,
-                'affiche'    => $affiche,
-                'dateSeance' => $date,
-                'ville'      => $ville,
-                'nbPlaces'   => $nbPlaces,
-                'userNote'   => $userNote, // affichage étoilé et lock si > 0
-            ];
-
-            if ($date instanceof \DateTimeInterface) {
-                if ($date >= $now) {
-                    $upcoming[] = $row;
-                } else {
-                    $history[]  = $row;
-                }
-            } else {
-                // si pas de date, on met par défaut en historique
-                $history[] = $row;
+        if ($film && $user) {
+            $avis = $avisRepository->findOneBy(['film' => $film, 'user' => $user]);
+            if ($avis) {
+                $rated    = true;
+                $userNote = (int) $avis->getNoteSur5();
+                $pending  = !$avis->isValide();
             }
         }
 
-        // Tri : à venir (du plus proche au plus lointain)
-        usort($upcoming, static fn(array $a, array $b) =>
-            ($a['dateSeance'] <=> $b['dateSeance']) ?: ($a['id'] <=> $b['id'])
-        );
+        $row = [
+            'id'         => $r->getId(),
+            'film'       => $film,
+            'titre'      => $titre,
+            'affiche'    => $affiche,
+            'dateSeance' => $date,
+            'ville'      => $ville,
+            'nbPlaces'   => $nbPlaces,
+            'userNote'   => $userNote, // 0..5
+            'rated'      => $rated,    // déjà noté par l’utilisateur ?
+            'pending'    => $pending,  // en attente de validation ?
+        ];
 
-        // Historique (du plus récent au plus ancien)
-        usort($history, static fn(array $a, array $b) =>
-            ($b['dateSeance'] <=> $a['dateSeance']) ?: ($b['id'] <=> $a['id'])
-        );
-
-        return $this->render('account/index.html.twig', [
-            'upcoming' => $upcoming,
-            'history'  => $history,
-        ]);
+        if ($date instanceof \DateTimeInterface) {
+            if ($date >= $now) { $upcoming[] = $row; } else { $history[] = $row; }
+        } else {
+            $history[] = $row;
+        }
     }
 
-    #[Route('/mon-compte/note', name: 'app_account_rate', methods: ['POST'])]
+    usort($upcoming, static fn($a, $b) =>
+        ($a['dateSeance'] <=> $b['dateSeance']) ?: ($a['id'] <=> $b['id'])
+    );
+    usort($history, static fn($a, $b) =>
+        ($b['dateSeance'] <=> $a['dateSeance']) ?: ($b['id'] <=> $a['id'])
+    );
+
+    return $this->render('account/index.html.twig', [
+        'upcoming' => $upcoming,
+        'history'  => $history,
+    ]);
+}
+
+#[Route('/mon-compte/note', name: 'app_account_rate', methods: ['POST'])]
 #[IsGranted('ROLE_USER')]
 public function rate(
     Request $request,
@@ -117,8 +105,10 @@ public function rate(
 
     $data    = json_decode($request->getContent() ?: '[]', true) ?: [];
     $resId   = (int)($data['reservationId'] ?? 0);
-    $note    = max(1, min(5, (int)($data['note'] ?? 0)));
+    $note    = (int)($data['note'] ?? 0);
     $comment = trim((string)($data['comment'] ?? ''));
+
+    $note = max(1, min(5, $note));
 
     $reservation = $reservationRepo->find($resId);
     if (!$reservation || $reservation->getUser() !== $user) {
@@ -127,36 +117,38 @@ public function rate(
 
     $film = $reservation->getSeance()->getFilm();
 
-    // Bloque les doublons (qu’ils soient déjà validés ou encore en attente)
+    // Un avis max par user/film
     $existing = $avisRepo->findOneBy(['film' => $film, 'user' => $user]);
     if ($existing) {
-        return $this->json(['ok' => false, 'error' => 'already_rated_or_pending'], 409);
+        return $this->json(['ok' => false, 'error' => 'already_rated'], 409);
     }
+
+    $isAutoValidated = ($comment === '' || $comment === null);
 
     $avis = (new Avis())
         ->setUser($user)
         ->setFilm($film)
         ->setNoteSur5($note)
         ->setCommentaire($comment ?: null)
-        ->setValide(false) // <-- IMPORTANT : en attente de validation employé
+        ->setValide($isAutoValidated)
         ->setCreatedAt(new \DateTimeImmutable());
 
     $em->persist($avis);
     $em->flush();
 
-    // Moyenne/compte restent ceux des AVIS VALIDÉS uniquement (ta repo le fait déjà)
-    $avg   = $avisRepo->getAverageNoteForFilm($film);
+    $avg   = $avisRepo->getAverageNoteForFilm($film); // sur "valide = true" seulement
     $count = $avisRepo->countValidatedForFilm($film);
 
     return $this->json([
         'ok'        => true,
+        'validated' => $isAutoValidated, // ← important pour le front
         'note'      => $note,
-        'pending'   => true,      // <-- explicite côté front
-        'validated' => false,     // <-- explicite côté front
-        'average'   => $avg,      // inchangé (n’intègre pas cet avis)
-        'count'     => $count,    // idem
+        'average'   => $avg,
+        'count'     => $count,
         'filmId'    => $film->getId(),
         'resId'     => $reservation->getId(),
     ]);
 }
+
+
 }
