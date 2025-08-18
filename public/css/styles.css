@@ -7,7 +7,8 @@ body {
       margin:0;
       font-size:18px;
       font-weight: 400;
-      color: #EEE8E2
+      color: #EEE8E2;
+      background:#0A0602;
 }
 p span{
     font-weight: 400;

@@ -237,4 +237,33 @@ class SeanceRepository extends ServiceEntityRepository
 
         return $out;
     }
+
+    
+// pour la page reservation
+public function findForCityDate(
+    string $ville,
+    string $pays,
+    \DateTimeInterface $date,
+    ?int $filmId = null
+): array {
+    $qb = $this->createQueryBuilder('s')
+        ->innerJoin('s.film', 'f')->addSelect('f')
+        ->innerJoin('s.salle', 'sa')->addSelect('sa')
+        ->innerJoin('sa.cinema', 'c')->addSelect('c')
+        ->andWhere('c.ville = :ville')
+        ->andWhere('c.pays  = :pays')
+        ->andWhere('s.date  = :jour')
+        ->setParameter('ville', $ville)
+        ->setParameter('pays',  $pays)
+        // IMPORTANT : on passe l'objet DateTime + type DATE_IMMUTABLE (adapter si ton mapping diffère)
+        ->setParameter('jour',  $date, Types::DATE_IMMUTABLE)
+        ->orderBy('f.titre', 'ASC')
+        ->addOrderBy('s.heureDebut', 'ASC');
+
+    if ($filmId !== null) {
+        $qb->andWhere('f.id = :fid')->setParameter('fid', $filmId);
+    }
+
+    return $qb->getQuery()->getResult();
+}
 }

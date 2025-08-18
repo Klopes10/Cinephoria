@@ -1,0 +1,70 @@
+:root{
+    --bg:#0d0b0a;
+    --text:#e9e3dc;
+    --muted:#9a8f86;
+    --card:#171311;
+    --line:#2a241f;
+    --accent:#EE8B1B;
+    --shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  
+  /* Wrapper & titres */
+  .reserv-wrapper{ margin:150px 177px; color:var(--text); }
+  .reserv-title{ margin:28px 0 8px; letter-spacing:.06em; }
+  .reserv-title::after{ content:""; display:block; width:36px; height:3px; background:var(--accent); margin-top:8px; }
+  
+  /* Filtres */
+  .reserv-filters{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    background:#0A0602;
+    padding:8px 10px;
+    border-radius:6px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  
+  .select{ position:relative; background:#1c1816; border-radius:4px; }
+  .select select{
+    appearance:none;
+    width:100%;
+    padding:12px 40px 12px 12px;
+    font-size:14px;
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:4px;
+    outline:none;
+  }
+  .select select:disabled{ opacity:.45; cursor:not-allowed; }
+  .select .chev{ position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--muted); }
+  
+  /* Bandeau jours */
+  .reserv-days{ display:flex; gap:22px; align-items:center; margin:14px 0 18px; padding-left:4px; overflow-x:auto; }
+  .day-pill{
+    background:none;
+    border:none;
+    color:var(--muted);
+    padding:6px 0;
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .day-pill.active{ color:var(--text); border-color:var(--accent); }
+  
+  /* Zone résultats */
+  #sessionsArea{ min-height:80px; display:flex; }
+  #sessionsArea .hint{ color:var(--muted); }
+  
+  /* La grille et les cartes films réutilisent film.css
+     Les chips séances réutilisent film_show.css */
+  
+
+     
+  /* Responsive */
+  @media (max-width: 900px){
+    .reserv-wrapper{ margin:110px 18px; }
+    .reserv-filters{ grid-template-columns:1fr; gap:10px; }
+  }
+  

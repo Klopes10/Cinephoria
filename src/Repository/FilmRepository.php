@@ -67,4 +67,54 @@ class FilmRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+
+    public function findFilmsWithSessionsInCityOnDate(
+        string $ville,
+        string $pays,
+        \DateTimeInterface $date,
+        ?int $filmId = null
+    ): array {
+        // Jointures: Film f -> Seance s -> Salle sa -> Cinema c
+        // s.date est un champ DATE (sinon adapte)
+        $conn = $this->getEntityManager()->getConnection();
+    
+        $sql = '
+            SELECT
+                f.id   AS film_id,
+                f.titre AS film_titre,
+                f.affiche AS film_affiche,
+                f.genres  AS film_genres,
+                f.age_minimum AS film_age,
+                f.synopsis AS film_synopsis,
+    
+                s.id    AS seance_id,
+                TO_CHAR(s.heure_debut, \'HH24:MI\') AS heure_debut,
+                sa.nom  AS salle_nom,
+                s.places_disponible AS places_disponible
+            FROM film f
+            INNER JOIN seance s   ON s.film_id = f.id
+            INNER JOIN salle sa   ON s.salle_id = sa.id
+            INNER JOIN cinema c   ON sa.cinema_id = c.id
+            WHERE c.ville = :ville
+              AND c.pays  = :pays
+              AND s.date  = :jour
+        ';
+    
+        $params = [
+            'ville' => $ville,
+            'pays'  => $pays,
+            'jour'  => $date->format('Y-m-d'),
+        ];
+    
+        if ($filmId) {
+            $sql .= ' AND f.id = :fid';
+            $params['fid'] = $filmId;
+        }
+    
+        $sql .= ' ORDER BY f.titre ASC, s.heure_debut ASC';
+    
+        return $conn->executeQuery($sql, $params)->fetchAllAssociative();
+    }
+
 }
