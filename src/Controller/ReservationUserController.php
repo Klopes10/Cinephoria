@@ -96,6 +96,7 @@ for ($i = 0; $i < 7; $i++) {
                         'affiche'  => method_exists($film, 'getAffiche') ? $film->getAffiche() : null,
                         'age'      => method_exists($film, 'getAgeMinimum') ? $film->getAgeMinimum() : null,
                         'synopsis' => method_exists($film, 'getSynopsis') ? $film->getSynopsis() : null,
+                        'genre'    => ($film->getGenre() ? $film->getGenre()->getNom() : null),
                     ],
                     'seances' => [],
                 ];
@@ -104,6 +105,8 @@ for ($i = 0; $i < 7; $i++) {
             $allData[$cityKey][$dateIso][$fid]['seances'][] = [
                 'id'     => $s->getId(),
                 'heure'  => $s->getHeureDebut()->format('H:i'),
+                'fin'    => $s->getHeureFin() ? $s->getHeureFin()->format('H:i') : null, // +++
+                'format' => method_exists($s, 'getQualite') ? $s->getQualite() : null,   // +++
                 'salle'  => $s->getSalle()?->getNom(),
                 'places' => (int)$s->getPlacesDisponible(),
             ];

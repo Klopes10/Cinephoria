@@ -17,40 +17,34 @@
 <div class="reserv-wrapper">
 
   <div class="reserv-filters">
-    <!-- Ville -->
-    <div class="select">
-      <select id="citySelect">
-        <option value="">Choisir une ville</option>
-        {% for pays, villes in villesParPays %}
-          <optgroup label="{{ pays }}">
-            {% for ville in villes %}
-              <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
-            {% endfor %}
-          </optgroup>
+  <!-- Ville -->
+  <select id="citySelect">
+    <option value="">Choisir une ville</option>
+    {% for pays, villes in villesParPays %}
+      <optgroup label="{{ pays }}">
+        {% for ville in villes %}
+          <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
         {% endfor %}
-      </select>
-      <span class="chev">▾</span>
-    </div>
+      </optgroup>
+    {% endfor %}
+  </select>
 
-    <!-- Film : rempli après choix de la ville -->
-    <div class="select">
-      <select id="filmSelect" disabled>
-        <option value="">Choisir un film</option>
-      </select>
-      <span class="chev">▾</span>
-    </div>
+  <!-- Film : rempli après choix de la ville -->
+  <select id="filmSelect" disabled>
+    <option value="">Choisir un film</option>
+  </select>
 
-    <!-- Places -->
-    <div class="select">
-      <select id="placesSelect">
-        <option value="">Sélectionner le nombre de places</option>
-        {% for n in 1..10 %}<option value="{{ n }}">{{ n }}</option>{% endfor %}
-      </select>
-      <span class="chev">▾</span>
-    </div>
-  </div>
+  <!-- Places -->
+  <select id="placesSelect">
+    <option value="">Sélectionner le nombre de places</option>
+    {% for n in 1..10 %}
+      <option value="{{ n }}">{{ n }} place{{ n > 1 ? 's' : '' }}</option>
+    {% endfor %}
+  </select>
+</div>
 
-  <h2 class="reserv-title">SÉANCES DISPONIBLES</h2>
+
+  <h2 class="reserv-title section-title">SÉANCES DISPONIBLES</h2>
 
   <div class="reserv-days" id="dayStrip">
     {% for d in days %}

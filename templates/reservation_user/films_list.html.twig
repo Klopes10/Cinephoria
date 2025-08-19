@@ -1,11 +1,8 @@
 {# templates/reservation_user/_films_list.html.twig #}
 <div class="film-grid">
   {% for f in films %}
-    {# DEBUG pour savoir ce qui sort de f.film.affiche #}
-    {{ dump(f.film.affiche) }}
-
-    <a class="film-horizontal-card" href="{{ path('app_films_show', { id: f.film.id }) }}">
-      {# Résolution robuste du poster (http | / | uploads/... | filename) #}
+    <div class="film-horizontal-card" href="{{ path('app_films_show', { id: f.film.id }) }}">
+      {# poster déjà OK chez toi #}
       {% set raw = f.film.affiche ?? '' %}
       {% if raw starts with 'http' %}
         {% set poster = raw %}
@@ -20,33 +17,41 @@
       {% endif %}
 
       <img src="{{ poster }}" alt="{{ f.film.titre }}">
-      
 
       <div class="film-info">
-        <h2>{{ f.film.titre }}</h2>
+        <h3>{{ f.film.titre }}</h3>
+        {# Ligne meta : âge + genre #}
+            <p class="public">
+              {% if f.film.age is defined and f.film.age is not null %}
+                Déconseillé aux moins de {{ f.film.age }} ans
+              {% else %}
+                Tout public
+              {% endif %}
+              {% if f.film.genre %}
+  | {{ f.film.genre }}
+{% endif %}
 
-
+            </p>
         {% if f.film.synopsis %}
-            <p class="desc">{{ f.film.synopsis }}</p>
+          <p class="desc">{{ f.film.synopsis }}</p>
         {% endif %}
 
-
-        {# ---- Séances : markup & classes = film_show.css ---- #}
         {% if f.seances is not empty %}
           <div class="sessions-grid">
             {% for s in f.seances %}
-              <a class="session-chip" href="{{ path('app_reservation_seance', { id: s.id }) }}"
-                 title="{{ s.salle ? 'Salle ' ~ s.salle : '' }}">
+              <a class="session-chip" href="{{ path('app_reservation_new', { seanceId: s.id }) }}">
                 <div class="chip-top">
-                  <span class="chip-version">séance</span>
+                  {% if s.format %}<span class="chip-version">{{ s.format|lower }}</span>{% endif %}
                 </div>
 
-                {# Les données préchargées fournissent "heure" (HH:mm). On garde le visuel XXL. #}
                 <div class="chip-time">{{ s.heure }}</div>
 
-                {# Secondaire : on affiche les places si pas d’heure de fin #}
                 <div class="chip-end">
-                  
+                  {% if s.fin %}
+                    fin à {{ s.fin }}
+                  {% else %}
+                    {{ s.places }} place{% if s.places > 1 %}s{% endif %} restantes
+                  {% endif %}
                 </div>
 
                 <div class="chip-bottom">
@@ -77,6 +82,6 @@
           <p class="no-session">Aucune séance.</p>
         {% endif %}
       </div>
-    </a>
+    </div>
   {% endfor %}
 </div>
