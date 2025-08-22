@@ -16,7 +16,7 @@
   <div class="reserv-filters">
     <!-- Ville -->
     <select id="citySelect">
-      <option value="">Choisir une ville</option>
+      <option value="">Choisir un cinema</option>
       {% for pays, villes in villesParPays %}
         <optgroup label="{{ pays }}">
           {% for ville in villes %}
@@ -50,7 +50,7 @@
 
   {# Zone résultats : on affiche uniquement le hint au chargement #}
   <div id="sessionsArea">
-    <p class="hint">Sélectionnez une ville pour choisir votre séance.</p>
+    <p class="hint">Sélectionnez un cinéma pour choisir votre séance.</p>
   </div>
 
 </div>

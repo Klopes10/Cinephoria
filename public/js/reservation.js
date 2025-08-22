@@ -12,7 +12,7 @@
   // Ville courante (null au chargement => empêche l’affichage des films)
   let currentCity = null;
 
-  const HINT_NEED_CITY   = 'Sélectionnez une ville pour choisir votre séance.';
+  const HINT_NEED_CITY   = 'Sélectionnez un cinéma pour choisir votre séance.';
   const HINT_NO_SESSIONS = 'Aucune séance disponible.';
 
   function hint(msg){
