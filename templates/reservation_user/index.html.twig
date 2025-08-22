@@ -5,44 +5,40 @@
 
 {% block stylesheets %}
   {{ parent() }}
-  {# >>> On réutilise les mêmes CSS que les pages Film <<< #}
   <link rel="stylesheet" href="{{ asset('css/film.css') }}">
   <link rel="stylesheet" href="{{ asset('css/film_show.css') }}">
-  {# Spécifique réservation : filtres, bandeau jours, layout #}
   <link rel="stylesheet" href="{{ asset('css/reservation.css') }}">
 {% endblock %}
-
 
 {% block body %}
 <div class="reserv-wrapper">
 
   <div class="reserv-filters">
-  <!-- Ville -->
-  <select id="citySelect">
-    <option value="">Choisir une ville</option>
-    {% for pays, villes in villesParPays %}
-      <optgroup label="{{ pays }}">
-        {% for ville in villes %}
-          <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
-        {% endfor %}
-      </optgroup>
-    {% endfor %}
-  </select>
+    <!-- Ville -->
+    <select id="citySelect">
+      <option value="">Choisir une ville</option>
+      {% for pays, villes in villesParPays %}
+        <optgroup label="{{ pays }}">
+          {% for ville in villes %}
+            <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
 
-  <!-- Film : rempli après choix de la ville -->
-  <select id="filmSelect" disabled>
-    <option value="">Choisir un film</option>
-  </select>
+    <!-- Film : rempli après choix de la ville -->
+    <select id="filmSelect" disabled>
+      <option value="">Choisir un film</option>
+    </select>
 
-  <!-- Places -->
-  <select id="placesSelect">
-    <option value="">Sélectionner le nombre de places</option>
-    {% for n in 1..10 %}
-      <option value="{{ n }}">{{ n }} place{{ n > 1 ? 's' : '' }}</option>
-    {% endfor %}
-  </select>
-</div>
-
+    <!-- Places -->
+    <select id="placesSelect" disabled>
+      <option value="">Sélectionner le nombre de places</option>
+      {% for n in 1..10 %}
+        <option value="{{ n }}">{{ n }} place{{ n > 1 ? 's' : '' }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
   <h2 class="reserv-title section-title">SÉANCES DISPONIBLES</h2>
 
@@ -52,13 +48,9 @@
     {% endfor %}
   </div>
 
-  {# Zone résultats. On affiche d’abord côté serveur si tu fournis filmsOfDay ; sinon le JS remplit. #}
+  {# Zone résultats : on affiche uniquement le hint au chargement #}
   <div id="sessionsArea">
-    {% if filmsOfDay is defined %}
-      {% include 'reservation_user/_films_list.html.twig' with { films: filmsOfDay } %}
-    {% else %}
-      <p class="hint">Sélectionner une ville, un film et un jour.</p>
-    {% endif %}
+    <p class="hint">Sélectionnez une ville pour choisir votre séance.</p>
   </div>
 
 </div>
@@ -72,7 +64,5 @@
 
 {% block javascripts %}
   {{ parent() }}
-
   <script src="{{ asset('js/reservation.js') }}"></script>
-  
 {% endblock %}
