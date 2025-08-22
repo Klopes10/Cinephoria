@@ -7,7 +7,7 @@
         <h2>{{ film.titre }}</h2>
 
         <p class="public">
-          {{ film.ageMinimum is not null ? 'Déconseillé aux moins de ' ~ film.ageMinimum ~ ' ans' : 'Tout public' }}
+          {{ film.ageMinimum is not null ? '-' ~ film.ageMinimum ~ ' ans' : 'Tout public' }}
         </p>
 
         <p class="desc">

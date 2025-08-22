@@ -22,7 +22,7 @@
                     <div class="error">Identifiants invalides</div>
                 {% endif %}
 
-                <form method="post" action="{{ path('app_login') }}" class="auth-form">
+                <form method="post" action="{{ path('app_auth') }}" class="auth-form">
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="text" id="email" name="_username" value="{{ last_username }}" required>

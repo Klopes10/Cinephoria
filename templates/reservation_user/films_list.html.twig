@@ -23,7 +23,7 @@
         {# Ligne meta : âge + genre #}
             <p class="public">
               {% if f.film.age is defined and f.film.age is not null %}
-                Déconseillé aux moins de {{ f.film.age }} ans
+                -{{ f.film.age }} ans
               {% else %}
                 Tout public
               {% endif %}

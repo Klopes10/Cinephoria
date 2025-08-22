@@ -1,0 +1,331 @@
+/* ===== Layout ===== */
+.layout{
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  gap:48px;
+  align-items:start;
+  margin-top:94px;
+}
+@media (max-width: 980px){
+  .layout{ grid-template-columns: 1fr; }
+}
+
+/* ===== Left column (poster + résumé) ===== */
+.left{
+  position:sticky;
+  top:0;
+  padding:50px 0 0 50px;
+  height:100vh;
+  background:linear-gradient(to left,#0A0602,#272C30);
+}
+.poster img{
+  width:200px; height:auto; border-radius:6px; display:block;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+}
+.infos{ margin-top:16px; color:#EEE8E2; }
+.film-title{ font-size:18px; margin:0 0 24px; }
+.cinema{ color:#b7b1aa; margin:0 0 4px; }
+.date{ color:#d6cec6; margin:0 12px 16px 0; }
+
+.session-card{
+  border:1px solid #EEE8E2; border-radius:6px;
+  background:transparent; color:#e8e1d9;
+  padding:12px 14px; width:180px;
+}
+.chip-top{ min-height:18px; margin-bottom:4px; }
+.chip-version{
+  position:relative; display:inline-block; padding-bottom:6px;
+  font-size:12px; color:#bcb4ad; text-transform:lowercase;
+}
+.chip-time{ font-size:36px; line-height:1; font-weight:500; }
+.chip-end{ color:#9b938c; margin-top:2px; }
+.chip-room{ color:#d6cec6; margin-top:6px; }
+.chip-icons{ display:flex; gap:10px; color:#A19D9A; margin-top:6px; }
+.icon svg{ display:block; width:18px; height:18px; }
+
+/* ===== Main ===== */
+.main{ color:#EEE8E2; margin:auto; margin-top:110px; }
+.sub{ color:#9b938c; margin:0 0 40px; }
+
+/* ===== Room / seats ===== */
+#room{ max-width:620px; }
+.seats{ display:flex; flex-direction:column; padding:10px 0 18px; overflow:visible; }
+.row{ display:flex; gap:0; justify-content:center; overflow:visible; }
+.row.pmr-row{ justify-content:center; gap:10px; }
+
+/* ----- Seat button (modifieurs: .pmr, .std, .is-selected, .taken) ----- */
+.seat{
+  position:relative;
+  background:#0A0602;
+  border:none;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition: transform .08s ease, background-color .15s ease, filter .15s ease;
+  border-radius:8px;
+  padding:0;
+  margin:10px 0;
+}
+.seat img{
+  width:50px; height:50px; display:block;
+  pointer-events:none; /* pour que :hover s’applique sur .seat */
+}
+
+.seat img::selection{
+ color:#ee8b1b
+}
+
+/* Bulle numéro */
+.seat::before{
+  width:44px; height:39px;
+  content: attr(data-num);
+  position:absolute; left:50%; top:-52px;
+  transform: translateX(-50%) translateY(8px);
+  background:#ee8b1b; color:#0A0602;
+  font-weight:600; font-size:18px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:8px;
+  box-shadow:0 0 0 1px rgba(238,139,27,.25) inset, 0 8px 20px rgba(0,0,0,.35);
+  opacity:0; pointer-events:none; z-index:5;
+  transition: opacity .15s ease, transform .15s ease;
+}
+.seat:hover::before,
+.seat:focus-visible::before{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Hover visuel léger */
+.seat:hover{ filter: brightness(1.1); }
+
+/* Sélection (fond orange) */
+.seat.is-selected{
+  background:#ee8b1b;
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+/* Occupé */
+.seat.taken{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+/* Icônes PMR un peu plus petites (comme ta maquette) */
+.seat.pmr img{ width:43px; height:43px; }
+
+/* ===== Screen ===== */
+.screen{
+  text-align:center; color:#ee8b1b; font-size:12px; letter-spacing:.14em;
+  margin:8px auto 0; padding-top:10px; width:100%;
+  border-top:2px solid #ee8b1b;
+}
+
+/* ===== CTA + ligne Total animée ===== */
+.cta{
+  position:relative;
+  margin-top:22px;
+  padding-top:56px;           /* réserve la place pour la ligne Total quand elle remonte */
+}
+
+
+
+
+.auth-form {
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  margin-top: 10px;
+  background-color: #ee8b1b;
+  color: #0A0602;
+  font-weight: 500;
+  border: none;
+  padding: 12px 20px;
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.4s ease, background-color 0.4s ease;
+  z-index: 1;
+  width:100%;
+}
+
+/* État disabled (de base) */
+.auth-form:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+  background-color: white;
+  color:black;
+}
+
+/* Effet avant plan */
+.auth-form::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 0%;
+  width: 100%;
+  background-color: #0A0602;
+  z-index: -1;
+  transition: height 0.4s ease;
+  border-radius: 4px;
+}
+
+/* Effet hover normal */
+.auth-form:hover::before {
+  height: 100%;
+  border: 1px solid #EE8B1B;
+}
+
+.auth-form:hover {
+  color: #EE8B1B;
+}
+
+/* Cas particulier : désactivé + hover -> NE PAS appliquer les effets */
+.auth-form:disabled:hover,
+.auth-form:disabled:hover::before {
+  background-color: white !important;
+  color: black !important;
+  border: none !important;
+  height: 0% !important; /* annule l’animation du ::before */
+}
+
+.auth-form:hover:disabled{ opacity:.5; cursor:not-allowed; background-color: white; color:black}
+/* Ligne Total : démarre cachée sous le bouton, remonte au-dessus */
+.total-line{
+  position:absolute; left:0; right:0;
+  bottom:8px;                  /* point d’ancrage commun */
+  text-align:center;
+  font-size:16px;
+  font-weight:400;
+  color:#ee8b1b;
+  opacity:0;
+  transform: translateY(115%); /* cachée sous le bouton */
+  transition: opacity .25s ease, transform .25s ease;
+}
+.total-line.show{
+  opacity:1;
+  transform: translateY(-48px); /* remonte au-dessus du bouton (~48px) */
+}
+.total-line.bump{ animation: total-bump .25s ease; }
+@keyframes total-bump{
+  0%{ transform: translateY(-48px) scale(1); }
+  50%{ transform: translateY(-48px) scale(1.03); }
+  100%{ transform: translateY(-48px) scale(1); }
+}
+
+.seat.std{
+  background: transparent url("{{ asset('images/icons/Seat.svg') }}") no-repeat center/50px auto;
+}
+.seat.pmr{
+  background: transparent url("{{ asset('images/icons/Handicap.svg') }}") no-repeat center/43px auto;
+}
+
+/* Hover → version pleine */
+.seat.std:hover:not(.taken):not(.is-selected){
+  background-image: url("{{ asset('images/icons/seat-plein.svg') }}");
+}
+.seat.pmr:hover:not(.taken):not(.is-selected){
+  background-image: url("{{ asset('images/icons/Handi-plein.svg') }}");
+}
+
+/* Sélectionné → version pleine + fond orange */
+.seat.std.is-selected{
+  background-color:#ee8b1b;
+  background-image: url("{{ asset('images/icons/seat-plein.svg') }}");
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+.seat.pmr.is-selected{
+  background-color:#ee8b1b;
+  background-image: url("{{ asset('images/icons/Handi-plein.svg') }}");
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+/* Désactivés */
+.seat.taken{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+/* ---- Modal de confirmation ---- */
+.modal[hidden]{ display:none; }
+.modal{
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal__content{
+  background: #0A0602;
+  border: 1px solid #3a312a;
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 280px;
+  color: #EEE8E2;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  animation: modal-pop .18s ease-out;
+}
+.modal__icon{ font-size: 28px; margin-bottom: 4px; }
+.modal__title{ font-size: 18px; font-weight: 700; margin-bottom: 4px; color:#ee8b1b; }
+.modal__text{ font-size: 14px; opacity: .9; }
+
+@keyframes modal-pop {
+  from { transform: translateY(6px) scale(.98); opacity: .6; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+
+/* Étiquette de validation (slide-in depuis la droite) */
+.purchase-tag{
+  position: fixed;
+  top: 110px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #0A0602;
+  color: #EEE8E2;
+  border: 1px solid rgba(238,139,27,.55);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .5s ease;
+  z-index: 9999;
+}
+.purchase-tag.show{
+  transform: translateX(0);
+  opacity: 1;
+}
+.purchase-tag__icon{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #0A0602;
+  background: #EE8B1B;
+  box-shadow: 0 0 0 2px rgba(238,139,27,.25) inset;
+}
+.purchase-tag__text{
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.purchase-tag__text strong{
+  font-weight: 600;
+  color: #EE8B1B;
+  padding-bottom:5px;
+}
+.purchase-tag__sub{
+  font-size: 13px;
+  color: #D6CEC6;
+}
+
+/* Petit feedback si on dépasse la limite de sélection */
+@keyframes shake-x {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.seat.shake { animation: shake-x .3s ease; }

@@ -83,7 +83,7 @@ function renderFilms() {
       || '';
 
     const metaParts = [];
-    if (age != null && age !== '') metaParts.push(`Déconseillé aux moins de ${age} ans`);
+    if (age != null && age !== '') metaParts.push(`-${age} ans`);
     else metaParts.push('Tout public');
     if (genre) metaParts.push(genre);
     const metaLine = metaParts.join('  |  ');
@@ -171,3 +171,8 @@ $places.addEventListener('change', renderFilms);
 // Initial render
 populateFilmSelectForCity();
 renderFilms();
+
+
+  
+
+
