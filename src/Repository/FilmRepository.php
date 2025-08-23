@@ -117,4 +117,22 @@ class FilmRepository extends ServiceEntityRepository
         return $conn->executeQuery($sql, $params)->fetchAllAssociative();
     }
 
+    // src/Repository/FilmRepository.php
+
+public function findPublishedOn(\DateTimeInterface $day): array
+{
+    $start = (clone $day)->setTime(0, 0, 0);
+    $end   = (clone $start)->modify('+1 day');
+
+    return $this->createQueryBuilder('f')
+        ->andWhere('f.datePublication >= :start')
+        ->andWhere('f.datePublication < :end')
+        ->setParameter('start', $start)
+        ->setParameter('end',   $end)
+        ->orderBy('f.datePublication', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
+
 }

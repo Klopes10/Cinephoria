@@ -10,6 +10,7 @@
          data-film-id="{{ f.id }}"
          data-genre="{{ (f.genre is defined and f.genre) ? f.genre.nom : '' }}">
         {# Affiche #}
+        
         <div class="film-poster">
           {% if f.affiche %}
             <img src="{{ asset('uploads/affiches/' ~ f.affiche) }}" alt="{{ f.titre }}">

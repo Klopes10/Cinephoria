@@ -10,7 +10,6 @@
     justify-content: center;
 }
 
-
 .banner-overlay {
     background: linear-gradient(rgba(10, 6, 2, 0.4), transparent);
     width: 100%;
@@ -20,9 +19,10 @@
     justify-content: flex-start;
     padding-left: 283px;
 }
-.title-banner{ 
-    margin-top:0;
-    margin-bottom:50px;
+
+.title-banner { 
+    margin-top: 0;
+    margin-bottom: 50px;
 }
 
 .banner-content {
@@ -73,18 +73,15 @@
     z-index: -1;
     transition: top 0.3s ease;
 }
+
 .banner-btn:hover::before {
     top: 0;
 }
-
-
 
 .new-release {
     background-color: #0A0602;
     padding: 150px 170px;
 }
-
-
 
 .section-title::before {
     content: "";
@@ -102,7 +99,6 @@
     grid-auto-rows: auto;
     gap: 30px;
     justify-content: center;
-    
 }
 
 .movie-card {
@@ -112,21 +108,26 @@
     position: relative;
 }
 
-.movie-card::before {
+.movie-card .movie-image {
+    position: relative;
+    display: block;
+}
+
+.movie-card .movie-image::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: calc(100% - 30px); /* pour ne pas couvrir le texte */
-    background-color: rgba(238, 139, 27, 0.4); /* orange avec opacité */
+    height: 98%; /* prend pile la hauteur de l'image */
+    background-color: rgba(238, 139, 27, 0.4); 
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1;
     border-radius: 4px;
 }
 
-.movie-card:hover::before {
+.movie-card:hover .movie-image::before {
     opacity: 1;
 }
 
@@ -162,13 +163,31 @@
 
 .badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 15px;
+    right: 0;
     background-color: #EE8B1B;
     color: #0A0602;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    padding: 3px 10px;
     border-radius: 5px;
     z-index: 2;
+
+    /* Dimensions fixes */
+    width: 162px;
+    height: 34px;
+
+    /* Flexbox pour alignement parfait */
+    display: flex;
+    align-items: center;      /* Vertical centré */
+    justify-content: center;  /* Horizontal centré */
+    gap: 6px;                 /* Espace entre texte et icône */
+    text-align: center;
+}
+
+.badge img,
+.badge svg {
+    width: 20px;
+    height: 20px;
+    box-shadow: none;
+    flex-shrink: 0;
 }
