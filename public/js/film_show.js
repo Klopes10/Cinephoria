@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filmId         = root.dataset.filmId;
     let   activeVille    = root.dataset.activeVille;
     let   activeDate     = root.dataset.activeDate;
-    const reservePattern = root.dataset.reservePattern || '/reservation/new?seanceId=ID';
-    // reviewsPattern peut rester présent, mais on ne l'utilise plus pour ouvrir
+    const reserveBase    = root.dataset.reserveBase || '/reservation/seance/';
     const reviewsPattern = root.dataset.reviewsPattern || '/films/ID/avis';
+
   
     // JSON préchargé (ville -> jour -> [séances])
     let cache = {};
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function tmplCard(s) {
-      const href  = reservePattern.replace('ID', String(s.id));
+      const href  = reserveBase + String(s.id);
       const salle = s.salle ? s.salle : '';
       const fmt   = s.format ? `<span class="chip-version">${String(s.format).toLowerCase()}</span>` : '';
       const end   = s.end ? `<div class="chip-end">fin à ${s.end}</div>` : '';

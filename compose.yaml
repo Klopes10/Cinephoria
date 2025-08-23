@@ -5,6 +5,7 @@ services:
       APP_ENV: dev
       MAILER_FROM: "kev671007@gmail.com"
       MAILER_DSN: "smtp://kev671007@gmail.com:igxmcxtoffcudtjv@smtp.gmail.com:587?encryption=tls"
+      PHP_MEMORY_LIMIT: 512M
 
     build:
       context: .

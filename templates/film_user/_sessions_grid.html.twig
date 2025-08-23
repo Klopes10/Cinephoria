@@ -1,7 +1,7 @@
 {% if sessions is not empty %}
   <div class="sessions-grid">
     {% for s in sessions %}
-      <a class="session-chip" href="{{ path('app_reservation_new', { seanceId: s.id }) }}">
+      <a class="session-chip" href="{{ path('app_reservation_new', { id: s.id }) }}">
         <div class="chip-top">
           {% if s.format %}<span class="chip-version">{{ s.format|lower }}</span>{% endif %}
         </div>

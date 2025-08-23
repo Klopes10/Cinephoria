@@ -1,30 +1,91 @@
 {# templates/film_user/_films_list.html.twig #}
 <div class="film-grid">
-  {% for film in films %}
-     <a class="film-horizontal-card" href="{{ path('app_films_show', { id: film.id }) }}">
-      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
-      <div class="film-info">
-        <h2>{{ film.titre }}</h2>
+  {% if films is not empty %}
+    {% for film in films %}
+      {# film peut être une entité Film ou un objet { entity: Film, noteMoy, nbAvis } #}
+      {% set f     = film.entity is defined ? film.entity : film %}
+      {% set note  = film.noteMoy is defined ? film.noteMoy : null %}
 
-        <p class="public">
-          {{ film.ageMinimum is not null ? '-' ~ film.ageMinimum ~ ' ans' : 'Tout public' }}
-        </p>
+      <article class="film-horizontal-card"
+         data-film-id="{{ f.id }}"
+         data-genre="{{ (f.genre is defined and f.genre) ? f.genre.nom : '' }}">
+        {# Affiche #}
+        <div class="film-poster">
+          {% if f.affiche %}
+            <img src="{{ asset('uploads/affiches/' ~ f.affiche) }}" alt="{{ f.titre }}">
+          {% else %}
+            <img src="{{ asset('images/placeholder.jpg') }}" alt="{{ f.titre }}">
+          {% endif %}
+        </div>
 
-        <p class="desc">
-          {{ film.synopsis|slice(0, 156) ~ '…' }}
-        </p>
 
-        <p class="note">Note :
-          {% set note = film.noteMoyenne ?? 0 %}
-          {% for i in 1..5 %}
-            {% if i <= note %}
-              <span class="star">★</span>
+        <div class="film-info">
+          <h2>
+            <a href="{{ path('app_films_show', { id: f.id }) }}" style="color:inherit;text-decoration:none">
+              {{ f.titre }}
+            </a>
+          </h2>
+
+          <div class="public">
+            {% if f.ageMinimum is not null %}
+              - {{ f.ageMinimum }} ans
             {% else %}
-              <span class="star empty">★</span>
+              Tout public
             {% endif %}
-          {% endfor %}
-        </p>
-      </div>
-    </a>
-  {% endfor %}
+            {% if f.genre is defined and f.genre %}
+              &nbsp;|&nbsp;{{ f.genre.nom }}
+            {% endif %}
+          </div>
+
+          {% if f.synopsis %}
+            <p class="desc">
+              {{ f.synopsis|length > 210 ? f.synopsis|slice(0, 210) ~ '…' : f.synopsis }}
+            </p>
+          {% endif %}
+
+          <div class="note">
+            <span>Note :</span>
+
+            {% if note is not null %}
+              {# Clamp + découpe en pleines / demi / vides #}
+              {% set n     = note + 0 %}
+              {% set n     = n < 0 ? 0 : (n > 5 ? 5 : n) %}
+              {% set full  = n|round(0, 'floor') %}
+              {% set half  = (n - full) >= 0.5 ? 1 : 0 %}
+              {% set empty = 5 - full - half %}
+
+              <span class="stars">
+                {% for i in 1..full %}
+                  <span class="star">
+                    <img src="{{ asset('images/icons/etoile_pleine.svg') }}" alt="★">
+                  </span>
+                {% endfor %}
+                {% if half %}
+                  <span class="star half">
+                    <img src="{{ asset('images/icons/Star-Half.svg') }}" alt="☆">
+                  </span>
+                {% endif %}
+                {% for i in 1..empty %}
+                  <span class="star empty">
+                    <img src="{{ asset('images/icons/etoile_vide.svg') }}" alt="☆">
+                  </span>
+                {% endfor %}
+              </span>
+            {% else %}
+              {# Pas de note => 5 vides #}
+              <span class="stars">
+                {% for i in 1..5 %}
+                  <span class="star empty">
+                    <img src="{{ asset('images/icons/etoile_vide.svg') }}" alt="☆">
+                  </span>
+                {% endfor %}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  {% else %}
+    <p>Aucun film à afficher.</p>
+  {% endif %}
 </div>

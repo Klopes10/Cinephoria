@@ -10,6 +10,9 @@ body { background-color: #0A0602; }
   margin: 150px 177px;
 }
 
+#film-show{
+  margin:150px 177px;
+}
 
 /* ===================== */
 /*   Onglets (villes/jours)
@@ -263,3 +266,4 @@ a.review-link:hover{
 .rating-block .reviews-link:focus::after{
   width: 100%;
 }
+

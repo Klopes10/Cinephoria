@@ -8,13 +8,15 @@
 {% endblock %}
 
 {% block body %}
-<section class="show-section"
-         id="film-show"
-         data-film-id="{{ film.id }}"
-         data-active-ville="{{ activeVille }}"
-         data-active-date="{{ activeDate }}"
-         data-reserve-pattern="{{ path('app_reservation_new', { seanceId: 'ID' }) }}"
-         data-reviews-pattern="{{ path('app_films_reviews', { id: 'ID' }) }}">
+<section
+  id="film-show"
+  data-film-id="{{ film.id }}"
+  data-active-ville="{{ activeVille }}"
+  data-active-date="{{ activeDate }}"
+  {# BASE de l’URL: /reservation/seance/  (on enlève le 0 pour obtenir le prefix) #}
+  data-reserve-base="{{ path('app_reservation_new', { id: 0 })|replace({'/0':'/'}) }}"
+  data-reviews-pattern="{{ path('app_films_reviews', { id: 'ID' }) }}"
+>
 
   <h2 class="films-title section-title"><span class="underline"></span>SÉANCES DISPONIBLES</h2>
 

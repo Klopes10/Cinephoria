@@ -1,47 +1,64 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialisation Choices.js
-    const villeChoices = new Choices('#ville', { searchEnabled: false, itemSelectText: '' });
-    const genreChoices = new Choices('#genre', { searchEnabled: false, itemSelectText: '' });
-    const jourChoices = new Choices('#jour', { searchEnabled: false, itemSelectText: '' });
-
-    // Récupère les vrais <select> après transformation
+    // Choices.js optionnel
+    const safeInit = (selector) => {
+      try { if (window.Choices) return new Choices(selector, { searchEnabled: false, itemSelectText: '' }); } catch {}
+      return null;
+    };
+    safeInit('#ville'); safeInit('#genre'); safeInit('#jour');
+  
     const villeSelect = document.getElementById('ville');
     const genreSelect = document.getElementById('genre');
-    const jourSelect = document.getElementById('jour');
-
-    function updateFilms() {
-        const params = new URLSearchParams();
-
-        const ville = villeSelect.value;
-        const genre = genreSelect.value;
-        const jour = jourSelect.value;
-
-        console.log('Filtres appliqués :', { ville, genre, jour });
-
-        if (ville) params.append('ville', ville);
-        if (genre) params.append('genre', genre);
-        if (jour) params.append('jour', jour);
-
-        fetch('/films/filter?' + params.toString(), {
-            method: 'GET',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur serveur lors du filtrage');
-            }
-            return response.text();
-        })
-        .then(html => {
-            document.getElementById('films-container').innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Erreur AJAX :', error);
-        });
+    const jourSelect  = document.getElementById('jour');
+  
+    const container   = document.getElementById('films-container');
+    const pager       = document.querySelector('.pagination');
+  
+    // Map FR -> ISO-8601 (1..7)
+    const MAP_JOUR = {
+      'Lundi':1,'Mardi':2,'Mercredi':3,'Jeudi':4,'Vendredi':5,'Samedi':6,'Dimanche':7
+    };
+  
+    // Charge la disponibilité (film -> {villes[], jours[]})
+    let AVAIL = {};
+    try {
+      const json = document.getElementById('film-availability')?.textContent || '{}';
+      AVAIL = JSON.parse(json);
+    } catch { AVAIL = {}; }
+  
+    // Filtrage instantané
+    function applyFilters() {
+      const ville = (villeSelect.value || '').trim();
+      const genre = (genreSelect.value || '').trim().toLowerCase();
+      const jour  = (jourSelect.value  || '').trim();
+      const wantedDow = MAP_JOUR[jour] || null;
+  
+      const cards = container.querySelectorAll('.film-horizontal-card');
+  
+      let anyFilter = !!(ville || genre || jour);
+      let visibles = 0;
+  
+      cards.forEach(card => {
+        const fid    = parseInt(card.dataset.filmId || '0', 10);
+        const fgenre = (card.dataset.genre || '').toLowerCase();
+  
+        const okGenre = !genre || fgenre === genre;
+  
+        const a = AVAIL[fid] || { villes: [], jours: [] };
+        const okVille = !ville || (a.villes && a.villes.includes(ville));
+        const okJour  = !wantedDow || (a.jours && a.jours.includes(wantedDow));
+  
+        const show = okGenre && okVille && okJour;
+  
+        card.style.display = show ? '' : 'none';
+        if (show) visibles++;
+      });
+  
+      // Si on filtre côté client, on masque la pagination serveur (sinon elle ne correspond plus)
+      if (pager) pager.style.display = anyFilter ? 'none' : '';
     }
-
-    // Écoute les changements via Choices
-    villeSelect.addEventListener('change', updateFilms);
-    genreSelect.addEventListener('change', updateFilms);
-    jourSelect.addEventListener('change', updateFilms);
-});
+  
+    villeSelect.addEventListener('change', applyFilters);
+    genreSelect.addEventListener('change', applyFilters);
+    jourSelect.addEventListener('change', applyFilters);
+  });
+  
