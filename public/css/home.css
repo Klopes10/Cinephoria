@@ -161,33 +161,23 @@
     background-color: #EE8B1B;
 }
 
-.badge {
-    position: absolute;
-    top: 15px;
-    right: 0;
-    background-color: #EE8B1B;
-    color: #0A0602;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 5px;
-    z-index: 2;
-
-    /* Dimensions fixes */
-    width: 162px;
-    height: 34px;
-
-    /* Flexbox pour alignement parfait */
-    display: flex;
-    align-items: center;      /* Vertical centré */
-    justify-content: center;  /* Horizontal centré */
-    gap: 6px;                 /* Espace entre texte et icône */
-    text-align: center;
+.film-poster { position: relative; }
+.badge{
+  position:absolute;
+  top:12px;
+  right:0;
+  background:#EE8B1B;
+  color:#0A0602;
+  font-size:14px;
+  font-weight:600;
+  padding:0 10px;
+  border-radius:5px;
+  width:162px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  z-index:3; /* au-dessus de l’overlay éventuel */
 }
-
-.badge img,
-.badge svg {
-    width: 20px;
-    height: 20px;
-    box-shadow: none;
-    flex-shrink: 0;
-}
+.badge svg{ width:20px; height:20px; }

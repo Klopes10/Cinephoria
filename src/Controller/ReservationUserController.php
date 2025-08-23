@@ -96,12 +96,13 @@ class ReservationUserController extends AbstractController
             if (!isset($allData[$cityKey][$dateIso][$fid])) {
                 $allData[$cityKey][$dateIso][$fid] = [
                     'film' => [
-                        'id'       => $fid,
-                        'titre'    => $film->getTitre(),
-                        'affiche'  => method_exists($film, 'getAffiche') ? $film->getAffiche() : null,
-                        'age'      => method_exists($film, 'getAgeMinimum') ? $film->getAgeMinimum() : null,
-                        'synopsis' => method_exists($film, 'getSynopsis') ? $film->getSynopsis() : null,
-                        'genre'    => $film->getGenre() ? $film->getGenre()->getNom() : null,
+                        'id'           => $fid,
+                        'titre'        => $film->getTitre(),
+                        'affiche'      => method_exists($film, 'getAffiche') ? $film->getAffiche() : null,
+                        'age'          => method_exists($film, 'getAgeMinimum') ? $film->getAgeMinimum() : null,
+                        'synopsis'     => method_exists($film, 'getSynopsis') ? $film->getSynopsis() : null,
+                        'genre'        => $film->getGenre() ? $film->getGenre()->getNom() : null,
+                        'coupDeCoeur'  => method_exists($film, 'isCoupDeCoeur') ? (bool) $film->isCoupDeCoeur() : false, // ← AJOUT
                     ],
                     'seances' => [],
                 ];

@@ -142,4 +142,26 @@
     .reserv-wrapper{ margin:110px 18px; }
     .reserv-filters{ grid-template-columns:1fr; gap:10px; }
   }
+
+  .film-poster { position: relative; }
+.badge{
+  position:absolute;
+  top:12px;
+  right:0;
+  background:#EE8B1B;
+  color:#0A0602;
+  font-size:14px;
+  font-weight:600;
+  padding:0 10px;
+  border-radius:5px;
+  width:162px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  z-index:3; /* au-dessus de l’overlay éventuel */
+}
+.badge svg{ width:20px; height:20px; }
+
   
