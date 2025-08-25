@@ -51,9 +51,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user')]
     private Collection $reservations;
 
-   #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'user')]
     private Collection $avis;
 
+    // Champs pour reset mot de passe
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $resetPasswordToken = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $resetPasswordExpiresAt = null;
 
     public function __construct()
     {
@@ -73,7 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = strtolower(trim($email));
         return $this;
     }
 
@@ -95,7 +101,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // Nouveau champ virtuel utilisé dans EasyAdmin
+    // Champ virtuel pour EasyAdmin
     private ?string $singleRole = null;
 
     public function getSingleRole(): ?string
@@ -122,7 +128,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // Optionnel : vider des champs sensibles
+        // Optionnel
     }
 
     public function getName(): ?string
@@ -234,6 +240,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return 'Client';
+    }
+
+    // --- Reset password ---
+    public function getResetPasswordToken(): ?string
+    {
+        return $this->resetPasswordToken;
+    }
+
+    public function setResetPasswordToken(?string $token): self
+    {
+        $this->resetPasswordToken = $token;
+        return $this;
+    }
+
+    public function getResetPasswordExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetPasswordExpiresAt;
+    }
+
+    public function setResetPasswordExpiresAt(?\DateTimeImmutable $d): self
+    {
+        $this->resetPasswordExpiresAt = $d;
+        return $this;
+    }
+
+    public function isResetTokenValid(?string $token): bool
+    {
+        return $token
+            && $this->resetPasswordToken
+            && hash_equals($this->resetPasswordToken, $token)
+            && $this->resetPasswordExpiresAt
+            && $this->resetPasswordExpiresAt > new \DateTimeImmutable();
     }
 
     public function __toString(): string
