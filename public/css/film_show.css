@@ -135,7 +135,7 @@ span.star{ height:20px; width:19px; display:contents}
   display: inline-block;
   padding-bottom: 6px;
   font-size: 12px;
-  text-transform: lowercase;
+  text-transform: uppercase;
   color: #bcb4ad;
   letter-spacing: .2px;
 }

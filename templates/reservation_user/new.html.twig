@@ -73,13 +73,14 @@
                 type="button"
                 class="seat pmr {{ isTaken ? 'taken' : '' }}"
                 data-id="{{ cell.id }}"
-                data-num="{{ cell.numero }}"
+                data-num="{{ cell.code }}"         {# ← affichage lisible #}
                 {{ isTaken ? 'disabled' }}
                 aria-pressed="false"
-                aria-label="Siège {{ cell.numero }} PMR{{ isTaken ? ' indisponible' : '' }}"
+                aria-label="Siège {{ cell.code }} PMR{{ isTaken ? ' indisponible' : '' }}"
               >
                 <img src="{{ asset('images/icons/Handicap.svg') }}" alt="" width="28" height="28">
               </button>
+                
             {% endfor %}
           </div>
         {% endif %}
@@ -92,10 +93,10 @@
                 type="button"
                 class="seat std {{ isTaken ? 'taken' : '' }}"
                 data-id="{{ cell.id }}"
-                data-num="{{ cell.numero }}"
+                data-num="{{ cell.code }}"         {# ← affichage lisible #}
                 {{ isTaken ? 'disabled' }}
                 aria-pressed="false"
-                aria-label="Siège {{ cell.numero }}{{ isTaken ? ' indisponible' : '' }}"
+                aria-label="Siège {{ cell.code }}{{ isTaken ? ' indisponible' : '' }}"
               >
                 <img src="{{ asset('images/icons/Seat.svg') }}" alt="" width="28" height="28">
               </button>

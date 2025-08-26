@@ -14,36 +14,51 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 )]
 class GenerateSiegesOnSeanceCreatedListener
 {
+    private const STD_COLS_PER_ROW = 10; // nb sièges par rangée standard
+    private const PMR_COUNT        = 5;  // A1..A5 = PMR
+
     public function generateSieges(Seance $seance, PostPersistEventArgs $args): void
     {
-        $entityManager = $args->getObjectManager();
+        $em    = $args->getObjectManager();
         $salle = $seance->getSalle();
-        if (count($seance->getSieges()) > 0) {
-            return;
-        }
-
 
         if (!$salle) {
             return;
         }
 
-        $nombrePlaces = $salle->getNombrePlaces();
-
-        for ($i = 1; $i <= $nombrePlaces; $i++) {
-            $siege = new Siege();
-            $siege->setNumero($i);
-        
-            // ✅ Les 6 premiers sièges sont toujours PMR
-            $siege->setIsPMR($i <= 5);
-        
-            $siege->setIsReserved(false);
-            $siege->setSeance($seance);
-        
-            $entityManager->persist($siege);
+        // Ne régénère pas si la séance a déjà des sièges
+        if ($seance->getSieges()->count() > 0) {
+            return;
         }
-        
-        $entityManager->flush();
-        return;
-        
+
+        $nb = (int) $salle->getNombrePlaces();
+        if ($nb <= 0) {
+            return;
+        }
+
+        for ($n = 1; $n <= $nb; $n++) {
+            $siege = new Siege();
+            $siege->setNumero($n);
+            $siege->setSeance($seance);
+            $siege->setIsReserved(false);
+
+            if ($n <= self::PMR_COUNT) {
+                // PMR : A1..A5
+                $siege->setIsPMR(true);
+                $siege->setCode('A' . $n);
+            } else {
+                // Standards, commencent à B
+                $index      = $n - self::PMR_COUNT;     // 1,2,3...
+                $rowIndex   = intdiv($index - 1, self::STD_COLS_PER_ROW);  // 0=B, 1=C, ...
+                $col        = (($index - 1) % self::STD_COLS_PER_ROW) + 1; // 1..10
+                $rowLetter  = chr(ord('B') + $rowIndex);
+                $siege->setIsPMR(false);
+                $siege->setCode($rowLetter . $col);
+            }
+
+            $em->persist($siege);
+        }
+
+        $em->flush();
     }
 }

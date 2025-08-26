@@ -9,33 +9,24 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 
-
 class SalleCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
         return Salle::class;
     }
+
     public function configureFields(string $pageName): iterable
     {
         return [
             TextField::new('nom', 'Nom de la salle'),
             IntegerField::new('nombrePlaces', 'Nombre de places'),
-            TextField::new('qualite', 'Qualité de projection'),
-    
-            AssociationField::new('cinema', 'Cinéma associé'),
-    
+
+            // Qualité reliée
+            AssociationField::new('qualite', 'Qualité de projection')->autocomplete(),
+
+            AssociationField::new('cinema', 'Cinéma associé')->autocomplete(),
             DateTimeField::new('createdAt', 'Créée le')->hideOnForm(),
         ];
     }
-    /*
-    public function configureFields(string $pageName): iterable
-    {
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
-    }
-    */
 }

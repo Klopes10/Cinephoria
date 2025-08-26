@@ -18,6 +18,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use MongoDB\Client;
 
 class ReservationCrudController extends AbstractCrudController
@@ -166,4 +168,10 @@ class ReservationCrudController extends AbstractCrudController
             ['upsert' => true]
         );
     }
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->disable(Action::NEW); // autorise Edit et Delete, supprime juste NEW
+    }
+    
 }

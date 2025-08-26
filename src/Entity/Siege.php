@@ -6,6 +6,7 @@ use App\Repository\SiegeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SiegeRepository::class)]
+#[ORM\Table(name: 'siege')]
 class Siege
 {
     #[ORM\Id]
@@ -13,17 +14,24 @@ class Siege
     #[ORM\Column]
     private ?int $id = null;
 
+    /** Numéro séquentiel (1,2,3,...) */
     #[ORM\Column]
-    private int $numero;
+    private ?int $numero = null;
 
-    #[ORM\Column(options: ["default" => false])]
+    /** Code lisible (A1, A2, B7, ...) */
+    #[ORM\Column(length: 10)]
+    private ?string $code = null;
+
+    /** Siège PMR ? */
+    #[ORM\Column(type: 'boolean')]
     private bool $isPMR = false;
 
-    #[ORM\Column(options: ["default" => false])]
+    /** Réservé ? */
+    #[ORM\Column(type: 'boolean')]
     private bool $isReserved = false;
 
     #[ORM\ManyToOne(inversedBy: 'sieges')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Seance $seance = null;
 
     public function getId(): ?int
@@ -31,14 +39,25 @@ class Siege
         return $this->id;
     }
 
-    public function getNumero(): int
+    public function getNumero(): ?int
     {
         return $this->numero;
     }
 
-    public function setNumero(int $numero): static
+    public function setNumero(int $numero): self
     {
         $this->numero = $numero;
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): self
+    {
+        $this->code = strtoupper(trim($code));
         return $this;
     }
 
@@ -47,7 +66,7 @@ class Siege
         return $this->isPMR;
     }
 
-    public function setIsPMR(bool $isPMR): static
+    public function setIsPMR(bool $isPMR): self
     {
         $this->isPMR = $isPMR;
         return $this;
@@ -58,7 +77,7 @@ class Siege
         return $this->isReserved;
     }
 
-    public function setIsReserved(bool $isReserved): static
+    public function setIsReserved(bool $isReserved): self
     {
         $this->isReserved = $isReserved;
         return $this;
@@ -69,9 +88,14 @@ class Siege
         return $this->seance;
     }
 
-    public function setSeance(?Seance $seance): static
+    public function setSeance(?Seance $seance): self
     {
         $this->seance = $seance;
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->code ?: (string) $this->numero;
     }
 }
