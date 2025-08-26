@@ -4,4 +4,4 @@ framework:
     dsn: '%env(MAILER_DSN)%'
     envelope:
       sender: '%env(MAILER_FROM)%'
-      # recipients: ['kev7@live.fr']  # (facultatif) tu peux laisser vide et gérer dans le code
+      
