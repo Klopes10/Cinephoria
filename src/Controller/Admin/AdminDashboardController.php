@@ -19,12 +19,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -50,54 +50,85 @@ class AdminDashboardController extends AbstractDashboardController
     #[Route('/admin/stats-mongodb', name: 'admin_mongo_stats')]
     public function mongoStats(): Response
     {
-        $client = new Client($_ENV['MONGODB_URI']);
-        $collection = $client
-            ->selectDatabase('Cinephoria')
-            ->selectCollection('reservations_stats');
-
-        $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
-
-        $cursor = $collection->find([
-            'jour' => [
-                '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
-            ]
-        ]);
-
         $totaux = [];
+        $lignes = []; // pour le détail film/date si tu veux lister
 
-        foreach ($cursor as $doc) {
-            $titre = $doc['film_titre'] ?? 'Inconnu';
-            $nb = $doc['total_places'] ?? 0;
+        try {
+            $uri = $_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017';
+            $dbName = $_ENV['MONGODB_DB'] ?? 'cinephoria';
 
-            if (!isset($totaux[$titre])) {
-                $totaux[$titre] = 0;
+            $client = new Client($uri);
+            $collection = $client
+                ->selectDatabase($dbName)
+                ->selectCollection('reservations_stats');
+
+            $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
+
+            $cursor = $collection->find(
+                [
+                    '$or' => [
+                        ['date' => ['$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000)]],
+                        ['jour' => ['$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000)]],
+                    ],
+                ],
+                ['sort' => ['date' => -1, 'jour' => -1]]
+            );
+
+            foreach ($cursor as $doc) {
+                $titre = $doc['film_titre']    ?? $doc['film_title'] ?? 'Inconnu';
+                $nb    = $doc['total_places']  ?? $doc['nb_places']  ?? $doc['reservations_count'] ?? 0;
+                $dateField = $doc['date'] ?? $doc['jour'] ?? null;
+
+                $asDate = null;
+                if ($dateField instanceof UTCDateTime) {
+                    $asDate = $dateField->toDateTime();
+                }
+
+                $totaux[$titre] = ($totaux[$titre] ?? 0) + (int)$nb;
+
+                $lignes[] = [
+                    'film'  => (string)$titre,
+                    'count' => (int)$nb,
+                    'date'  => $asDate,
+                ];
             }
-
-            $totaux[$titre] += $nb;
+        } catch (\Throwable $e) {
+            $lignes = [];
+            $totaux = [];
+            $this->addFlash('danger', 'Erreur MongoDB : ' . $e->getMessage());
         }
 
-        return $this->render('dashboard_stats/index.html.twig', [
-            'stats' => $totaux,
+        // Tu peux avoir une page dédiée EasyAdmin ou une page Twig simple
+        return $this->render('admin/mongo_stats.html.twig', [
+            'totaux' => $totaux,
+            'lignes' => $lignes,
         ]);
     }
 
     #[Route('/admin/test-mongo', name: 'admin_test_mongo')]
     public function testMongoInsert(): Response
     {
-        $client = new Client($_ENV['MONGODB_URI']);
-        $collection = $client
-            ->selectDatabase('Cinephoria')
-            ->selectCollection('reservations_stats');
+        try {
+            $uri = $_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017';
+            $dbName = $_ENV['MONGODB_DB'] ?? 'cinephoria';
 
-        $document = [
-            'film_titre' => 'Test Film',
-            'nb_places' => 3,
-            'date' => new UTCDateTime((new \DateTimeImmutable())->getTimestamp() * 1000),
-        ];
+            $client = new Client($uri);
+            $collection = $client
+                ->selectDatabase($dbName)
+                ->selectCollection('reservations_stats');
 
-        $result = $collection->insertOne($document);
+            $document = [
+                'film_titre' => 'Test Film',
+                'total_places' => 3,
+                'date' => new UTCDateTime((new \DateTimeImmutable())->getTimestamp() * 1000),
+            ];
 
-        return new Response("Insertion test MongoDB réussie. ID : " . $result->getInsertedId());
+            $result = $collection->insertOne($document);
+
+            return new Response("Insertion test MongoDB réussie. ID : " . (string)$result->getInsertedId());
+        } catch (\Throwable $e) {
+            return new Response("Erreur MongoDB : " . $e->getMessage(), 500);
+        }
     }
 
     public function configureDashboard(): Dashboard
@@ -108,28 +139,18 @@ class AdminDashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-            yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
-        }
+
+        // Lien vers la page stats mongo
+        yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
+
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
-
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-            yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class); 
-        }
-
         yield MenuItem::linkToCrud('Cinémas', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
-        
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
-
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-            yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
-        }
-
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-            yield MenuItem::linkToCrud('Qualités', 'fa fa-star', \App\Entity\Qualite::class);
-        }
+        yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class)->setPermission('ROLE_SUPER_ADMIN');
+        yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class)->setPermission('ROLE_SUPER_ADMIN');
+        yield MenuItem::linkToCrud('Qualités', 'fa fa-star', Qualite::class)->setPermission('ROLE_SUPER_ADMIN');
 
         yield MenuItem::section('Modération & Activité');
         yield MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class);
@@ -137,10 +158,8 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Incidents', 'fas fa-exclamation-triangle', Incident::class);
         yield MenuItem::linkToCrud('Contacts', 'fas fa-envelope', Contact::class);
 
-        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-            yield MenuItem::section('Utilisateurs');
-            yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
-        }
+        yield MenuItem::section('Utilisateurs')->setPermission('ROLE_SUPER_ADMIN');
+        yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class)->setPermission('ROLE_SUPER_ADMIN');
 
         yield MenuItem::section();
         yield MenuItem::linkToUrl('Retour au site', 'fas fa-arrow-left', $this->generateUrl('app_home'));

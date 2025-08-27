@@ -1,0 +1,13 @@
+#Ajouter pour MongoDB
+parameters:
+  mongodb_db: '%env(default::MONGODB_DB)%'
+
+services:
+  MongoDB\Client:
+    arguments:
+      - '%env(MONGODB_URI)%'
+
+  App\Service\MongoReservationsLogger:
+    arguments:
+      $mongoClient: '@MongoDB\Client'
+      $mongoDbName: '%mongodb_db%'

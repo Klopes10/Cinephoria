@@ -7,6 +7,7 @@ use App\Entity\Seance;
 use App\Entity\Reservation;
 use App\Repository\SeanceRepository;
 use App\Repository\SiegeRepository;
+use App\Service\MongoReservationsLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +18,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ReservationUserController extends AbstractController
 {
+    public function __construct(
+        private readonly MongoReservationsLogger $mongoLogger, // ⇦ injection du logger Mongo
+    ) {}
+
     #[Route('/reservation', name: 'app_reservation')]
     public function index(SeanceRepository $seanceRepo, EntityManagerInterface $em): Response
     {
@@ -63,6 +68,7 @@ class ReservationUserController extends AbstractController
             $v = array_values(array_unique($v));
             sort($v);
         }
+        unset($v);
 
         // Séances 7 jours
         $allSeances = $seanceRepo->createQueryBuilder('s')
@@ -288,6 +294,9 @@ class ReservationUserController extends AbstractController
 
             $em->persist($reservation);
             $em->flush();
+
+            // ⇨ Journalise dans MongoDB (agrégation 7 jours)
+            $this->mongoLogger->log($reservation);
 
             return $this->json([
                 'ok'       => true,
