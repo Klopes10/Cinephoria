@@ -35,7 +35,7 @@
 .chip-top{ min-height:18px; margin-bottom:4px; }
 .chip-version{
   position:relative; display:inline-block; padding-bottom:6px;
-  font-size:12px; color:#bcb4ad; text-transform:lowercase;
+  font-size:12px; color:#bcb4ad; text-transform:uppercase;
 }
 .chip-time{ font-size:36px; line-height:1; font-weight:500; }
 .chip-end{ color:#9b938c; margin-top:2px; }
@@ -44,7 +44,7 @@
 .icon svg{ display:block; width:18px; height:18px; }
 
 /* ===== Main ===== */
-.main{ color:#EEE8E2; margin:auto; margin-top:110px; }
+.main{ color:#EEE8E2; margin:auto; margin-top:110px; margin-bottom:110px;}
 .sub{ color:#9b938c; margin:0 0 40px; }
 
 /* ===== Room / seats ===== */

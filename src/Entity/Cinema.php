@@ -145,7 +145,7 @@ class Cinema
 
     public function __toString()
     {
-        return $this->nom . ' - ' . $this->ville;
+        return $this->nom;
     }
 
     /**

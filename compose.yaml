@@ -1,12 +1,6 @@
 version: "3.8"
 services:
   php:
-    environment:
-      APP_ENV: dev
-      MAILER_FROM: "kev671007@gmail.com"
-      MAILER_DSN: "smtp://kev671007@gmail.com:igxmcxtoffcudtjv@smtp.gmail.com:587?encryption=tls"
-      PHP_MEMORY_LIMIT: 512M
-
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,8 +8,15 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
+    environment:
+      APP_ENV: dev
+      PHP_MEMORY_LIMIT: 512M
+      # 👉 Utilise Mailpit dans le réseau Docker (host = "mailpit")
+      MAILER_FROM: "Cinéphoria <ne-pas-repondre@cinephoria.fr>"
+      MAILER_DSN: "smtp://mailpit:1025?encryption=null&auth_mode=null"
     depends_on:
       - database
+      - mailpit
     tty: true
 
   mailpit:
@@ -24,6 +25,10 @@ services:
     ports:
       - "1025:1025"  # SMTP
       - "8025:8025"  # UI
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
 
   nginx:
     image: nginx:alpine

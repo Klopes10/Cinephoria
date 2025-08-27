@@ -13,6 +13,7 @@ use App\Entity\User;
 use App\Entity\Cinema;
 use App\Entity\Siege;
 use App\Entity\Genre;
+use App\Entity\Qualite;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -107,15 +108,28 @@ class AdminDashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
-        yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
-
+        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
+            yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
+        }
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
-        yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class); 
+
+        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
+            yield MenuItem::linkToCrud('Genres', 'fas fa-tags', Genre::class); 
+        }
+
         yield MenuItem::linkToCrud('Cinémas', 'fas fa-building', Cinema::class);
         yield MenuItem::linkToCrud('Séances', 'fas fa-clock', Seance::class);
+        
         yield MenuItem::linkToCrud('Salles', 'fas fa-video', Salle::class);
-        yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
+
+        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
+            yield MenuItem::linkToCrud('Sièges', 'fas fa-chair', Siege::class);
+        }
+
+        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
+            yield MenuItem::linkToCrud('Qualités', 'fa fa-star', \App\Entity\Qualite::class);
+        }
 
         yield MenuItem::section('Modération & Activité');
         yield MenuItem::linkToCrud('Avis', 'fas fa-star', Avis::class);

@@ -11,7 +11,7 @@ body { background-color: #0A0602; }
 }
 
 #film-show{
-  margin:150px 177px;
+  margin:150px 177px 0 177px;
 }
 
 /* ===================== */
@@ -135,7 +135,7 @@ span.star{ height:20px; width:19px; display:contents}
   display: inline-block;
   padding-bottom: 6px;
   font-size: 12px;
-  text-transform: lowercase;
+  text-transform: uppercase;
   color: #bcb4ad;
   letter-spacing: .2px;
 }
@@ -265,5 +265,43 @@ a.review-link:hover{
 .rating-block .reviews-link:hover::after,
 .rating-block .reviews-link:focus::after{
   width: 100%;
+}
+
+.legend {
+  display: flex;
+  justify-content: left; /* centré comme sur ton image */
+  gap: 2rem; /* espace horizontal entre les blocs */
+  margin-top: 86px;
+  margin-bottom:30px
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 16px; /* taille proche de ton screenshot */
+  color: #a5a5a5; /* gris clair */
+  font-style: italic;
+  position: relative;
+  padding-left: 1rem; /* espace entre le texte et la barre */
+}
+
+.legend-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 1.6em; /* hauteur de la barre */
+  background-color: #7a7a7a; /* couleur du séparateur */
+}
+
+.legend-format {
+  margin-right: 0.4rem;
+  font-weight: 500;
+}
+
+.legend-price {
+  font-weight: normal;
 }
 

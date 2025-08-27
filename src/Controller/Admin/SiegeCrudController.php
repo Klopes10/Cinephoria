@@ -18,7 +18,7 @@ class SiegeCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IntegerField::new('numero', 'Numéro de siège'),
+            IntegerField::new('code', 'Numéro de siège'),
             BooleanField::new('isPMR', 'Place PMR'),
             BooleanField::new('IsReserved', 'Réservé'),
             AssociationField::new('seance'),

@@ -10,6 +10,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 
 class IncidentCrudController extends AbstractCrudController
 {
@@ -44,5 +46,10 @@ class IncidentCrudController extends AbstractCrudController
                 ->setLabel('Résolu ?')
                 ->renderAsSwitch(true), // ✅ toggle activable
         ];
+    }
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->disable(Action::NEW); // autorise Edit et Delete, supprime juste NEW
     }
 }

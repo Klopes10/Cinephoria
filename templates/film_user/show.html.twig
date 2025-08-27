@@ -121,6 +121,18 @@
         {% set sessions = grouped[activeVille][activeDate] ?? [] %}
         {% include 'film_user/_sessions_grid.html.twig' with { sessions: sessions, activeVille: activeVille } %}
       </div>
+
+      {# ---- Légende : TOUTES les qualités + prix (préparé côté contrôleur) ---- #}
+      {% if legendFormats is not empty %}
+        <div class="legend">
+          {% for fmt, price in legendFormats %}
+            <div class="legend-item">
+              <span class="legend-format">{{ fmt }}</span>
+              <span class="legend-price">{{ price|number_format(2, ',', ' ') }} €</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -130,7 +142,6 @@
   {{ sessionsMap|default({})|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
 </script>
 
-{# Modale des avis (contenu chargé en AJAX) #}
 {# Modale des avis (contenu déjà rendu côté serveur) #}
 <div id="reviews-modal" class="modal hidden" aria-hidden="true">
   <div class="modal-backdrop"></div>

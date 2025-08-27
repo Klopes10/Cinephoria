@@ -23,10 +23,10 @@ class FilmUserController extends AbstractController
         CinemaRepository $cinemaRepository,
         GenreRepository $genreRepository,
         AvisRepository $avisRepository,
-        SeanceRepository $seanceRepository   // <-- ajoute ce repo ici
+        SeanceRepository $seanceRepository
     ): Response {
         $films = $filmRepository->findAll();
-    
+
         $filmsWithNotes = [];
         foreach ($films as $film) {
             $filmsWithNotes[] = [
@@ -35,22 +35,22 @@ class FilmUserController extends AbstractController
                 'nbAvis'  => $avisRepository->countValidatedForFilm($film),
             ];
         }
-    
-        // >>> Dispo: pour chaque film, liste des villes + jours (1..7) où il a au moins une séance
+
+        // Dispos: pour chaque film, villes + jours (1..7)
         $rows = $seanceRepository->createQueryBuilder('s')
             ->select('IDENTITY(s.film) AS fid, s.date AS sdate, c.ville AS ville')
             ->join('s.salle', 'sa')
             ->join('sa.cinema', 'c')
-            ->getQuery()->getResult(); // array ['fid'=>, 'sdate'=>\DateTimeInterface, 'ville'=>]
-    
+            ->getQuery()->getResult();
+
         $availability = [];
         foreach ($rows as $r) {
             $fid   = (int) $r['fid'];
             $ville = (string) $r['ville'];
             /** @var \DateTimeInterface $dt */
             $dt    = $r['sdate'];
-            $dow   = (int) $dt->format('N'); // 1..7 (Lundi..Dimanche)
-    
+            $dow   = (int) $dt->format('N');
+
             if (!isset($availability[$fid])) {
                 $availability[$fid] = ['villes' => [], 'jours' => []];
             }
@@ -62,19 +62,85 @@ class FilmUserController extends AbstractController
             $a['jours']  = array_keys($a['jours']);
         }
         unset($a);
-    
+
         $villes = [
             'france'   => $cinemaRepository->findDistinctCitiesByCountry('France'),
             'belgique' => $cinemaRepository->findDistinctCitiesByCountry('Belgique'),
         ];
         $genres = $genreRepository->findAll();
-    
+
         return $this->render('film_user/index.html.twig', [
             'films'        => $filmsWithNotes,
             'villes'       => $villes,
             'genres'       => $genres,
-            'availability' => $availability, // <<< passe la map au Twig
+            'availability' => $availability,
         ]);
+    }
+
+    /* ----------------- Helpers ----------------- */
+
+    /**
+     * Normalise récursivement un tableau pour JSON/Twig:
+     * - convertit toute instance de DateTimeInterface en string
+     * - convertit les clés non-scalaires en string
+     */
+    private function normalizeArrayForJson(mixed $data): mixed
+    {
+        if ($data instanceof \DateTimeInterface) {
+            return $data->format('Y-m-d H:i:s');
+        }
+        if (is_array($data)) {
+            $out = [];
+            foreach ($data as $k => $v) {
+                if ($k instanceof \DateTimeInterface) {
+                    $k = $k->format('Y-m-d'); // clés de date pour les maps
+                } elseif (!is_int($k) && !is_string($k)) {
+                    $k = (string) $k;
+                }
+                $out[$k] = $this->normalizeArrayForJson($v);
+            }
+            return $out;
+        }
+        return $data;
+    }
+
+    /**
+     * Construit la légende "format => prix" à partir d'une liste de séances (entités).
+     * - Essaie d'abord via $seance->getQualite()->getLabel()/getPrix()
+     * - Sinon fallback sur $seance->getPrix() ou $seance->getTarif()
+     */
+    private function buildLegendFormats(array $sessions): array
+    {
+        $legend = [];
+        foreach ($sessions as $s) {
+            $fmt   = null;
+            $price = null;
+
+            if (method_exists($s, 'getQualite') && null !== $s->getQualite()) {
+                $fmt   = $s->getQualite()->getLabel();
+                $price = $s->getQualite()->getPrix(); // float attendu
+            }
+
+            if ($fmt === null) {
+                // fallback si pas de Qualite liée
+                if (method_exists($s, 'getPrix') && null !== $s->getPrix()) {
+                    $price = $s->getPrix();
+                } elseif (method_exists($s, 'getTarif') && null !== $s->getTarif()) {
+                    $price = $s->getTarif();
+                }
+                // si un "format" texte existe côté entité
+                if (method_exists($s, 'getFormat') && null !== $s->getFormat()) {
+                    $fmt = (string) $s->getFormat();
+                }
+            }
+
+            if ($fmt && $price !== null && !isset($legend[$fmt])) {
+                // on enregistre le premier prix rencontré par format
+                $legend[$fmt] = (float) $price;
+            }
+        }
+        ksort($legend, SORT_NATURAL | SORT_FLAG_CASE);
+        return $legend;
     }
 
     #[Route('/films/{id}', name: 'app_films_show', requirements: ['id' => '\d+'], methods: ['GET'])]
@@ -85,7 +151,7 @@ class FilmUserController extends AbstractController
         CinemaRepository $cinemaRepository,
         AvisRepository $avisRepository
     ): Response {
-        // --- Villes triées: France d'abord, Belgique ensuite ---
+        // Villes triées: France puis Belgique
         $cinemas    = $cinemaRepository->findAll();
         $villesData = [];
         foreach ($cinemas as $cinema) {
@@ -109,7 +175,7 @@ class FilmUserController extends AbstractController
             $villes[] = $row['ville'];
         }
 
-        // --- Jours: aujourd’hui + 7 ---
+        // Jours: aujourd’hui + 7
         $jours        = [];
         $joursLabels  = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
         $moisLabels   = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
@@ -125,7 +191,7 @@ class FilmUserController extends AbstractController
             );
         }
 
-        // --- Actifs (éviter que "|" soit actif) ---
+        // Actifs (éviter "|")
         $activeVille = $request->query->get('ville');
         if (!$activeVille || $activeVille === '|') {
             foreach ($villes as $v) {
@@ -134,22 +200,24 @@ class FilmUserController extends AbstractController
         }
         $activeDate  = $request->query->get('date') ?: array_key_first($jours);
 
-        // --- Précharge toutes les séances (8 jours) pour ce film ---
+        // Précharge toutes les séances (8 jours) pour CE film (toutes villes)
         $sessionsMap = $seanceRepository->findByFilmBetweenDatesForJs(
             $film,
             $today,
             $today->modify('+7 day')
         );
+        // Normalise tout DateTime* en string pour le JSON du Twig
+        $sessionsMap = $this->normalizeArrayForJson($sessionsMap);
 
-        // counts initiaux pour les "dots" des jours (ville active)
+        // counts pour les "dots" (ville active)
         $dayCounts = [];
-        if ($activeVille && isset($sessionsMap[$activeVille])) {
+        if ($activeVille && isset($sessionsMap[$activeVille]) && \is_array($sessionsMap[$activeVille])) {
             foreach ($sessionsMap[$activeVille] as $ymd => $list) {
                 $dayCounts[$ymd] = \is_array($list) ? \count($list) : 0;
             }
         }
 
-        // --- Contenu initial (SEO / no-JS) ---
+        // Contenu initial (SEO / no-JS) — ville + jour actifs
         $sessions = [];
         if ($activeVille && $activeDate && $activeVille !== '|') {
             $sessions = $seanceRepository->findByFilmVilleAndDate($film, $activeVille, $activeDate);
@@ -159,23 +227,34 @@ class FilmUserController extends AbstractController
             $grouped[$activeVille][$activeDate] = $sessions;
         }
 
-        // --- Notes / Avis ---
+        // ⚠️ LÉGENDE TOUTES QUALITÉS/PRIX : on se base sur TOUTES les séances à 8 jours, toutes villes
+        $allUpcoming = $seanceRepository->createQueryBuilder('s')
+            ->andWhere('s.film = :film')
+            ->andWhere('s.date BETWEEN :d1 AND :d2')
+            ->setParameter('film', $film)
+            ->setParameter('d1', $today)
+            ->setParameter('d2', $today->modify('+7 day'))
+            ->getQuery()->getResult();
+        $legendFormats = $this->buildLegendFormats($allUpcoming);
+
+        // Notes / Avis
         $noteMoy       = $avisRepository->getAverageNoteForFilm($film);
         $nbAvis        = $avisRepository->countValidatedForFilm($film);
         $avisPreloaded = $nbAvis > 0 ? $avisRepository->findValidatedForFilm($film) : [];
 
         return $this->render('film_user/show.html.twig', [
-            'film'          => $film,
-            'villes'        => $villes,
-            'jours'         => $jours,
-            'grouped'       => $grouped,
-            'activeVille'   => $activeVille,
-            'activeDate'    => $activeDate,
-            'dayCounts'     => $dayCounts,
-            'sessionsMap'   => $sessionsMap,
-            'noteMoy'       => $noteMoy,
-            'nbAvis'        => $nbAvis,
-            'avisPreloaded' => $avisPreloaded,
+            'film'           => $film,
+            'villes'         => $villes,
+            'jours'          => $jours,
+            'grouped'        => $grouped,        // entités, OK
+            'activeVille'    => $activeVille,
+            'activeDate'     => $activeDate,
+            'dayCounts'      => $dayCounts,
+            'sessionsMap'    => $sessionsMap,    // sérialisable JSON (string-ified)
+            'noteMoy'        => $noteMoy,
+            'nbAvis'         => $nbAvis,
+            'avisPreloaded'  => $avisPreloaded,
+            'legendFormats'  => $legendFormats,  // ⇐ TOUTES les qualités + prix (8 jours, toutes villes)
         ]);
     }
 
@@ -254,25 +333,23 @@ class FilmUserController extends AbstractController
     ): Response {
         $ville  = trim((string) $request->query->get('ville', ''));
         $genre  = trim((string) $request->query->get('genre', ''));
-        $jour   = trim((string) $request->query->get('jour', '')); // Lundi..Dimanche
+        $jour   = trim((string) $request->query->get('jour', ''));
         $page   = max(1, (int) $request->query->get('page', 1));
         $perPage = 12;
-    
+
         // 1) Base: films (+ genre éventuel)
         $qb = $filmRepository->createQueryBuilder('f')
             ->leftJoin('f.genre', 'g')->addSelect('g');
-    
+
         if ($genre !== '') {
             $qb->andWhere('g.nom = :gn')->setParameter('gn', $genre);
         }
-    
-        $filmsBase = $qb->getQuery()->getResult(); // tableau d'entités Film
-    
-        // 2) Si une ville est choisie, on restreint aux films qui ont AU MOINS UNE séance dans cette ville.
-        //    (On évite les fonctions SQL non-portables.)
+
+        $filmsBase = $qb->getQuery()->getResult();
+
+        // 2) Si une ville est choisie, restreindre aux films ayant au moins une séance dans cette ville
         $filmIdsAllowed = null;
         if ($ville !== '') {
-            // Récupère tous les couples (film_id, date) qui matchent la ville
             $dql = 'SELECT DISTINCT IDENTITY(s.film) AS fid, s.date AS sdate
                     FROM App\Entity\Seance s
                     JOIN s.salle sa
@@ -280,37 +357,33 @@ class FilmUserController extends AbstractController
                     WHERE c.ville = :ville';
             $rows = $em->createQuery($dql)
                 ->setParameter('ville', $ville)
-                ->getResult(); // renvoie un tableau de [fid => int, sdate => \DateTimeInterface]
-    
-            // Si un jour est choisi, on filtre ces résultats par jour côté PHP
+                ->getResult();
+
             if ($jour !== '') {
                 $mapFrToNum = [
                     'Lundi' => 1, 'Mardi' => 2, 'Mercredi' => 3,
                     'Jeudi' => 4, 'Vendredi' => 5, 'Samedi' => 6, 'Dimanche' => 7,
                 ];
                 $wanted = $mapFrToNum[$jour] ?? null;
-    
+
                 if ($wanted) {
                     $rows = array_filter($rows, function($r) use ($wanted) {
                         /** @var \DateTimeInterface $d */
                         $d = $r['sdate'];
-                        // ISO-8601: 1 (lundi) à 7 (dimanche)
                         $isoDow = (int) $d->format('N');
                         return $isoDow === $wanted;
                     });
                 }
             }
-    
-            // On garde juste les film IDs qui ont au moins une séance restante après le filtre jour éventuel
+
             $filmIdsAllowed = array_values(array_unique(array_map(fn($r) => (int)$r['fid'], $rows)));
         }
-    
-        // 3) Applique la restriction de ville/jour si nécessaire
+
         if (is_array($filmIdsAllowed)) {
             $filmsBase = array_values(array_filter($filmsBase, fn($f) => in_array($f->getId(), $filmIdsAllowed, true)));
         }
-    
-        // 4) Ajoute les notes / nb avis
+
+        // Notes / nb avis
         $filmsWithNotes = [];
         foreach ($filmsBase as $film) {
             $filmsWithNotes[] = [
@@ -319,19 +392,16 @@ class FilmUserController extends AbstractController
                 'nbAvis'  => $avisRepository->countValidatedForFilm($film),
             ];
         }
-    
-        // 5) Pagination (12 par page)
+
+        // Pagination
         $total      = count($filmsWithNotes);
         $totalPages = (int) ceil($total / $perPage);
         if ($page > $totalPages && $totalPages > 0) { $page = $totalPages; }
         $offset     = ($page - 1) * $perPage;
         $slice      = array_slice($filmsWithNotes, $offset, $perPage);
-    
-        // 6) Renvoie juste la LISTE (ton partial affiche "Aucun film..." si vide)
+
         return $this->render('film_user/_films_list.html.twig', [
             'films' => $slice,
         ]);
     }
-    
-
 }

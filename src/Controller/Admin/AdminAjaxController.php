@@ -1,62 +1,31 @@
 <?php 
 
 // src/Controller/Admin/AdminAjaxController.php
-
 namespace App\Controller\Admin;
 
-use App\Entity\Film;
-use App\Entity\Seance;
-use App\Repository\FilmRepository;
-use App\Repository\SeanceRepository;
+use App\Repository\SalleRepository;
+use App\Entity\Cinema;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/admin/ajax')]
 class AdminAjaxController extends AbstractController
 {
-    #[Route('/admin/ajax/films', name: 'admin_ajax_films')]
-    public function films(Request $request, FilmRepository $filmRepo): JsonResponse
+    #[Route('/salles-by-cinema/{id}', name: 'admin_ajax_salles_by_cinema', methods: ['GET'])]
+    public function sallesByCinema(Cinema $cinema, SalleRepository $repo): JsonResponse
     {
-        $cinemaId = $request->query->get('cinemaId');
-        $films = $filmRepo->createQueryBuilder('f')
-            ->join('f.seances', 's')
-            ->where('s.cinema = :cinemaId')
-            ->setParameter('cinemaId', $cinemaId)
-            ->groupBy('f.id')
-            ->getQuery()
-            ->getResult();
+        $salles = $repo->createQueryBuilder('s')
+            ->andWhere('s.cinema = :cinema')
+            ->setParameter('cinema', $cinema)
+            ->orderBy('s.nom', 'ASC')
+            ->getQuery()->getResult();
 
-        $data = [];
-        foreach ($films as $film) {
-            $data[] = ['id' => $film->getId(), 'titre' => $film->getTitre()];
-        }
+        $data = array_map(fn($s) => [
+            'id'    => $s->getId(),
+            'label' => (string) $s, // __toString() => nom
+        ], $salles);
 
-        return new JsonResponse($data);
-    }
-
-    #[Route('/admin/ajax/seances', name: 'admin_ajax_seances')]
-    public function seances(Request $request, SeanceRepository $seanceRepo): JsonResponse
-    {
-        $filmId = $request->query->get('filmId');
-        $cinemaId = $request->query->get('cinemaId');
-
-        $seances = $seanceRepo->createQueryBuilder('s')
-            ->where('s.film = :filmId')
-            ->andWhere('s.cinema = :cinemaId')
-            ->setParameters(['filmId' => $filmId, 'cinemaId' => $cinemaId])
-            ->orderBy('s.date', 'ASC')
-            ->getQuery()
-            ->getResult();
-
-        $data = [];
-        foreach ($seances as $seance) {
-            $data[] = [
-                'id' => $seance->getId(),
-                'label' => $seance->getDate()->format('d/m/Y') . ' à ' . $seance->getHeureDebut()->format('H:i')
-            ];
-        }
-
-        return new JsonResponse($data);
+        return $this->json($data);
     }
 }

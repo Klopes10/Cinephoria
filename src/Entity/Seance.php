@@ -6,6 +6,8 @@ use App\Repository\SeanceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: SeanceRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -25,9 +27,6 @@ class Seance
     #[ORM\Column(type: 'time_immutable')]
     private ?\DateTimeImmutable $heureFin = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $qualite = null;
-
     #[ORM\Column]
     private ?int $placesDisponible = null;
 
@@ -46,18 +45,11 @@ class Seance
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
-    #[ORM\Column]
-    private ?float $prix = null;
-
-    /**
-     * @var Collection<int, Reservation>
-     */
+    /** @var Collection<int, Reservation> */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'seance', cascade: ['remove'])]
     private Collection $reservations;
 
-    /**
-     * @var Collection<int, Siege>
-     */
+    /** @var Collection<int, Siege> */
     #[ORM\OneToMany(targetEntity: Siege::class, mappedBy: 'seance', cascade: ['persist', 'remove'])]
     private Collection $sieges;
 
@@ -79,9 +71,6 @@ class Seance
     public function getHeureFin(): ?\DateTimeImmutable { return $this->heureFin; }
     public function setHeureFin(\DateTimeImmutable $heureFin): static { $this->heureFin = $heureFin; return $this; }
 
-    public function getQualite(): ?string { return $this->qualite; }
-    public function setQualite(string $qualite): static { $this->qualite = $qualite; return $this; }
-
     public function getPlacesDisponible(): ?int { return $this->placesDisponible; }
     public function setPlacesDisponible(int $placesDisponible): static { $this->placesDisponible = $placesDisponible; return $this; }
 
@@ -92,15 +81,36 @@ class Seance
     public function setFilm(?Film $film): static { $this->film = $film; return $this; }
 
     public function getSalle(): ?Salle { return $this->salle; }
-    public function setSalle(?Salle $salle): static { $this->salle = $salle; return $this; }
+    public function setSalle(?Salle $salle): static
+    {
+        $this->salle = $salle;
+
+        // Init/maj des places si non renseigné
+        if ($salle && $this->placesDisponible === null) {
+            $this->placesDisponible = $salle->getNombrePlaces();
+        }
+
+        return $this;
+    }
 
     public function getCinema(): ?Cinema { return $this->cinema; }
     public function setCinema(?Cinema $cinema): static { $this->cinema = $cinema; return $this; }
 
-    public function getPrix(): ?float { return $this->prix; }
-    public function setPrix(float $prix): static { $this->prix = $prix; return $this; }
+    /** Qualité dérivée de la salle (utile pour l’UI/admin) */
+    public function getQualite(): ?Qualite
+    {
+        return $this->salle?->getQualite();
+    }
 
+    /** Prix dérivé de la qualité de la salle */
+    public function getPrix(): ?float
+    {
+        return $this->getQualite()?->getPrix();
+    }
+
+    /** @return Collection<int, Reservation> */
     public function getReservations(): Collection { return $this->reservations; }
+
     public function addReservation(Reservation $reservation): static
     {
         if (!$this->reservations->contains($reservation)) {
@@ -109,6 +119,7 @@ class Seance
         }
         return $this;
     }
+
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation) && $reservation->getSeance() === $this) {
@@ -124,16 +135,7 @@ class Seance
 
     public function __toString(): string
     {
-        return 'Séance ' . $this->id;
-    }
-
-    #[ORM\PrePersist]
-    #[ORM\PreUpdate]
-    public function setQualiteFromSalle(): void
-    {
-        if ($this->salle !== null) {
-            $this->qualite = $this->salle->getQualite();
-        }
+        return 'Séance ' . ($this->id ?? '');
     }
 
     #[ORM\PrePersist]
@@ -144,7 +146,20 @@ class Seance
         }
     }
 
+    /** Validation : la salle doit appartenir au cinéma choisi */
+    #[Assert\Callback]
+    public function validateCinemaSalle(ExecutionContextInterface $ctx): void
+    {
+        if ($this->cinema && $this->salle && $this->salle->getCinema() !== $this->cinema) {
+            $ctx->buildViolation('La salle sélectionnée n’appartient pas au cinéma choisi.')
+                ->atPath('salle')
+                ->addViolation();
+        }
+    }
+
+    /** @return Collection<int, Siege> */
     public function getSieges(): Collection { return $this->sieges; }
+
     public function addSiege(Siege $siege): static
     {
         if (!$this->sieges->contains($siege)) {
@@ -153,6 +168,7 @@ class Seance
         }
         return $this;
     }
+
     public function removeSiege(Siege $siege): static
     {
         if ($this->sieges->removeElement($siege) && $siege->getSeance() === $this) {

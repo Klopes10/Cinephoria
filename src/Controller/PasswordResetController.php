@@ -1,21 +1,23 @@
 <?php
 
-// src/Controller/PasswordResetController.php
 namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RequestPasswordResetFormType;
 use App\Form\ResetPasswordFormType;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail; // <- plus utilisé mais je laisse l'use si tu veux revenir
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Mailer;
 use Psr\Log\LoggerInterface;
 
 class PasswordResetController extends AbstractController
@@ -24,14 +26,13 @@ class PasswordResetController extends AbstractController
     public function request(
         Request $request,
         EntityManagerInterface $em,
-        MailerInterface $mailer,
+        MailerInterface $defaultMailer, // non utilisé ici (on force Gmail), mais on le garde si besoin
         LoggerInterface $logger
     ): Response {
         $form = $this->createForm(RequestPasswordResetFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Normalisation: trim + minuscule => insensitive à la casse
             $emailInput = strtolower(trim((string) $form->get('email')->getData()));
             $logger->info('[PWD-RESET] Form submitted for {email}', ['email' => $emailInput]);
 
@@ -43,7 +44,6 @@ class PasswordResetController extends AbstractController
                 ->getQuery()
                 ->getOneOrNullResult();
 
-            // Toujours même message côté UX ; si user existe on génère & envoie
             if ($user) {
                 $token  = rtrim(strtr(base64_encode(random_bytes(48)), '+/', '-_'), '=');
                 $expire = new \DateTimeImmutable('+1 hour');
@@ -53,23 +53,44 @@ class PasswordResetController extends AbstractController
                 $em->flush();
 
                 try {
-                    $from = $_ENV['MAILER_FROM'] ?? 'no-reply@cinephoria.local';
+                    // ---- Transport Gmail (envoyé pour de vrai) ----
+                    $gmailDsn  = $_ENV['MAILER_DSN_GMAIL']  ?? '';
+                    $gmailFrom = $_ENV['MAILER_FROM_GMAIL'] ?? 'Cinéphoria <kev671007@gmail.com>';
+                    $replyTo   = $_ENV['MAILER_REPLY_TO_RESET'] ?? null;
 
-                    $email = (new TemplatedEmail())
-                        ->from(new Address($from, 'Cinéphoria'))
+                    $transport = Transport::fromDsn($gmailDsn);
+                    $mailer    = new Mailer($transport);
+
+                    // ---- Rendre le template manuellement (IMPORTANT) ----
+                    $html = $this->renderView('security/password_reset_email.html.twig', [
+                        'user'      => $user,
+                        'token'     => $token,
+                        'expiresAt' => $expire,
+                        'resetUrl'  => $this->generateUrl(
+                            'app_reset_password',
+                            ['token' => $token],
+                            UrlGeneratorInterface::ABSOLUTE_URL
+                        ),
+                    ]);
+
+                    // (optionnel) une version texte simplifiée
+                    $text = sprintf(
+                        "Bonjour %s,\n\nPour réinitialiser votre mot de passe, cliquez sur le lien suivant :\n%s\n\nCe lien expire à %s.\n\n— Cinéphoria",
+                        $user->getUsername() ?: $user->getEmail(),
+                        $this->generateUrl('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL),
+                        $expire->format('d/m/Y H:i')
+                    );
+
+                    $email = (new Email())
+                        ->from(Address::create($gmailFrom))
                         ->to(new Address($emailInput))
                         ->subject('Réinitialisez votre mot de passe')
-                        ->htmlTemplate('security/password_reset_email.html.twig')
-                        ->context([
-                            'user'      => $user,
-                            'token'     => $token,
-                            'expiresAt' => $expire,
-                            'resetUrl'  => $this->generateUrl(
-                                'app_reset_password',
-                                ['token' => $token],
-                                UrlGeneratorInterface::ABSOLUTE_URL
-                            ),
-                        ]);
+                        ->text($text)   // pour les clients texte
+                        ->html($html);  // pour les clients HTML
+
+                    if ($replyTo) {
+                        $email->replyTo($replyTo);
+                    }
 
                     $mailer->send($email);
                     $logger->info('[PWD-RESET] Mail sent to {email}', ['email' => $emailInput]);
