@@ -16,21 +16,45 @@
             <h1 id="tab-register" class="tab">INSCRIPTION</h1>
         </div>
 
+        {# Flashes optionnels #}
+        {% for msg in app.flashes('success') %}
+            <div class="toast toast-success">{{ msg }}</div>
+        {% endfor %}
+        {% for msg in app.flashes('error') %}
+            <div class="toast toast-error">{{ msg }}</div>
+        {% endfor %}
+
         <div class="auth-forms">
+            {# ---------- Connexion ---------- #}
             <div id="login-form" class="auth-form-section">
                 {% if login_error %}
                     <div class="error">Identifiants invalides</div>
                 {% endif %}
 
-                <form method="post" action="{{ path('app_login') }}" class="auth-form">
+                <form method="post" action="{{ path('app_auth') }}" class="auth-form" autocomplete="on">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="text" id="email" name="_username" value="{{ last_username }}" required>
+                        {# Doit correspondre à username_parameter: email #}
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ last_username }}"
+                            required
+                            autocomplete="email"
+                        >
                     </div>
 
                     <div class="form-group">
                         <label for="password">Mot de passe</label>
-                        <input type="password" id="password" name="_password" required>
+                        {# Doit correspondre à password_parameter: password #}
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                        >
                     </div>
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
@@ -38,44 +62,55 @@
                     <button type="submit">Connexion</button>
 
                     <div class="forgot-password">
-                        <a href="#">Mot de passe oublié</a>
+                        <a href="{{ path('app_forgot_password') }}">Mot de passe oublié</a>
                     </div>
                 </form>
             </div>
 
+            {# ---------- Inscription ---------- #}
             <div id="register-form" class="auth-form-section" style="display: none;">
-                {{ form_start(registration_form, {'attr': {'class': 'auth-form'}}) }}
+                {{ form_start(registration_form, {
+                    action: path('app_register'),
+                    method: 'POST',
+                    attr: { class: 'auth-form', autocomplete: 'on' }
+                }) }}
 
                     <div class="form-row">
                         <div class="form-group">
                             {{ form_label(registration_form.forname) }}
-                            {{ form_widget(registration_form.forname) }}
+                            {{ form_widget(registration_form.forname, { attr: { autocomplete: 'given-name' } }) }}
+                            {{ form_errors(registration_form.forname) }}
                         </div>
 
                         <div class="form-group">
                             {{ form_label(registration_form.name) }}
-                            {{ form_widget(registration_form.name) }}
+                            {{ form_widget(registration_form.name, { attr: { autocomplete: 'family-name' } }) }}
+                            {{ form_errors(registration_form.name) }}
                         </div>
                     </div>
 
                     <div class="form-group">
                         {{ form_label(registration_form.username) }}
-                        {{ form_widget(registration_form.username) }}
+                        {{ form_widget(registration_form.username, { attr: { autocomplete: 'username' } }) }}
+                        {{ form_errors(registration_form.username) }}
                     </div>
 
                     <div class="form-group">
                         {{ form_label(registration_form.email) }}
-                        {{ form_widget(registration_form.email) }}
+                        {{ form_widget(registration_form.email, { attr: { autocomplete: 'email' } }) }}
+                        {{ form_errors(registration_form.email) }}
                     </div>
 
                     <div class="form-group">
                         {{ form_label(registration_form.plainPassword.first) }}
-                        {{ form_widget(registration_form.plainPassword.first) }}
+                        {{ form_widget(registration_form.plainPassword.first, { attr: { autocomplete: 'new-password' } }) }}
+                        {{ form_errors(registration_form.plainPassword.first) }}
                     </div>
 
                     <div class="form-group">
                         {{ form_label(registration_form.plainPassword.second) }}
-                        {{ form_widget(registration_form.plainPassword.second) }}
+                        {{ form_widget(registration_form.plainPassword.second, { attr: { autocomplete: 'new-password' } }) }}
+                        {{ form_errors(registration_form.plainPassword.second) }}
                     </div>
 
                     <button type="submit">Inscription</button>

@@ -1,69 +1,153 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ film.titre }}{% endblock %}
+{% block title %}{{ film.titre }} – Séances{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/film_show.css') }}">
+{% endblock %}
 
 {% block body %}
-<h1>{{ film.titre }}</h1>
+<section
+  id="film-show"
+  data-film-id="{{ film.id }}"
+  data-active-ville="{{ activeVille }}"
+  data-active-date="{{ activeDate }}"
+  {# BASE de l’URL: /reservation/seance/  (on enlève le 0 pour obtenir le prefix) #}
+  data-reserve-base="{{ path('app_reservation_new', { id: 0 })|replace({'/0':'/'}) }}"
+  data-reviews-pattern="{{ path('app_films_reviews', { id: 'ID' }) }}"
+>
 
-<p>{{ film.synopsis }}</p>
+  <h2 class="films-title section-title"><span class="underline"></span>SÉANCES DISPONIBLES</h2>
 
-{% if film.affiche %}
-    <img src="{{ film.affiche }}" alt="{{ film.titre }}" width="200">
-{% endif %}
+  {# Villes #}
+  {% if villes is not empty %}
+    <div class="tabs cities">
+      {% for ville in villes %}
+        {% if ville == '|' %}
+          <span class="separator" aria-hidden="true">|</span>
+        {% else %}
+          <a class="tab {{ ville == activeVille ? 'active' : '' }}"
+             href="{{ path('app_films_show', { id: film.id, ville: ville, date: activeDate }) }}"
+             data-ville="{{ ville }}">
+            {{ ville }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
 
-<hr>
+  {# Jours (avec indicateur dot si séances) #}
+  {% if jours is not empty %}
+    {% set counts = dayCounts|default({}) %}
+    <div class="tabs days">
+      {% for ymd, label in jours %}
+        {% set count = counts[ymd]|default(0) %}
+        <a class="tab {{ ymd == activeDate ? 'active' : '' }} {{ count > 0 ? 'has-sessions' : '' }}"
+           href="{{ path('app_films_show', { id: film.id, ville: activeVille, date: ymd }) }}"
+           data-date="{{ ymd }}"
+           title="{{ count > 0 ? count ~ ' séance(s) disponible(s)' : 'Aucune séance' }}">
+          {{ label }}
+          {% if count > 0 and ymd != activeDate %}
+            <span class="dot" aria-hidden="true"></span>
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-<h2>Séances à venir</h2>
+  <div class="film-block">
+    <div class="poster">
+      <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
+    </div>
 
-{% if film.seances is not empty %}
-    <ul>
-        {% for seance in film.seances %}
-            <li style="margin-bottom: 20px;">
-                <strong>Date :</strong> {{ seance.dateHeureDebut|date('d/m/Y H:i') }}<br>
-                <strong>Fin :</strong> {{ seance.dateHeureFin|date('d/m/Y H:i') }}<br>
-                <strong>Salle :</strong> {{ seance.salle.nom }}<br>
-                <strong>Qualité :</strong> {{ seance.qualite }}<br>
-                <strong>Places dispo :</strong> {{ seance.placesDisponible }}<br>
+    <div class="details">
+      <h3>{{ film.titre }}</h3>
 
-                <a href="{{ path('app_reservation_seance', { id: seance.id }) }}">Réserver</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Aucune séance disponible pour ce film.</p>
-{% endif %}
+      <div class="meta">
+        <span class="age">
+          {{ film.ageMinimum is not null
+            ? 'Déconseillé aux moins de ' ~ film.ageMinimum ~ ' ans'
+            : 'Tout public'
+          }}
+        </span>
+        <span> | </span>
+        {% if film.genre is defined and film.genre %}
+          <span>{{ film.genre.nom }}</span>
+        {% endif %}
+      </div>
 
-<hr>
+      {% if film.synopsis %}
+        <p class="synopsis">{{ film.synopsis }}</p>
+      {% endif %}
 
-<h2>Avis</h2>
-<h2>Ajouter un avis</h2>
+      {# Note moyenne #}
+      {% if noteMoy is not null %}
+        <div class="rating-block">
+          <span class="rating-label">Note :</span>
 
-    {{ form_start(avis_form) }}
-        {{ form_row(avis_form.noteSur5) }}
-        {{ form_row(avis_form.commentaire) }}
-        <button type="submit">Envoyer</button>
-    {{ form_end(avis_form) }}
+          {% set full = noteMoy|round(0, 'floor') %}
+          {% set half = (noteMoy - full) >= 0.5 ? 1 : 0 %}
+          {% set empty = 5 - full - half %}
 
-
-<hr>
-
-<h2>Avis des spectateurs</h2>
-
-{% if film.avis is not empty %}
-    <ul>
-        {% for a in film.avis %}
-            {% if a.valide %}
-                <li>
-                    <strong>Note :</strong> {{ a.noteSur5 }}/5<br>
-                    <em>{{ a.commentaire }}</em>
-                </li>
+          <span class="stars">
+            {% for i in 1..full %}
+              <span class="star">
+                <img src="{{ asset('images/icons/etoile_pleine.svg') }}" alt="★">
+              </span>
+            {% endfor %}
+            {% if half %}
+              <span class="star half">
+                <img src="{{ asset('images/icons/Star-Half.svg') }}" alt="☆">
+              </span>
             {% endif %}
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Aucun avis pour ce film.</p>
-{% endif %}
+            {% for i in 1..empty %}
+              <span class="star empty">
+                <img src="{{ asset('images/icons/etoile_vide.svg') }}" alt="☆">
+              </span>
+            {% endfor %}
+          </span>
 
+          {% if nbAvis is defined and nbAvis > 0 %}
+            <a class="reviews-link" data-film="{{ film.id }}">
+              Lire les {{ nbAvis }} avis
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
 
-<p><a href="{{ path('app_films') }}">← Retour à la liste des films</a></p>
+      {# Séances (rendu initial, remplacé instantanément par JS) #}
+      <div id="sessions-container">
+        {% set sessions = grouped[activeVille][activeDate] ?? [] %}
+        {% include 'film_user/_sessions_grid.html.twig' with { sessions: sessions, activeVille: activeVille } %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{# Données préchargées pour interaction instantanée (ville -> jour -> séances) #}
+<script id="sessions-data" type="application/json">
+  {{ sessionsMap|default({})|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+</script>
+
+{# Modale des avis (contenu chargé en AJAX) #}
+{# Modale des avis (contenu déjà rendu côté serveur) #}
+<div id="reviews-modal" class="modal hidden" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="reviews-title">
+    <button class="modal-close" aria-label="Fermer">×</button>
+    <div id="reviews-content">
+      {% if nbAvis is defined and nbAvis > 0 %}
+        {% include 'film_user/_avis_modal_content.html.twig' with { film: film, avis: avisPreloaded } %}
+      {% else %}
+        <p>Aucun avis pour le moment.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/film_show.js') }}"></script>
 {% endblock %}

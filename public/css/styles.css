@@ -4,16 +4,43 @@
 
 body {
       font-family: "Poppins", sans-serif;
-      margin:0
+      margin:0;
+      font-size:18px;
+      font-weight: 400;
+      color: #EEE8E2;
+      background:#0A0602;
+}
+p span{
+    font-weight: 400;
+    color: #EEE8E2
 }
 h1{font-size:47px}
+h2{font-size:29px}
+h3{font-size: 21px; font-weight: 400;}
+span.underline {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background-color: #ee8b1b;
+}
+span.upperline {
+    content: "";
+    position: absolute;
+    
+    width: 40px;
+    height: 3px;
+    background-color: #ee8b1b;
+}
 
 .section-title {
     color: #EEE8E2;
-    font-size: 47px;
     font-weight: 400;
     margin-bottom: 20px;
     position: relative;
     text-transform: uppercase;
 }
+
 

@@ -1,0 +1,269 @@
+/* ===================== */
+/*   Page / Layout       */
+/* ===================== */
+
+body { background-color: #0A0602; }
+
+.show-section {
+  color: #e9e3dc;
+  padding: 24px 0;
+  margin: 150px 177px;
+}
+
+#film-show{
+  margin:150px 177px;
+}
+
+/* ===================== */
+/*   Onglets (villes/jours)
+ * ===================== */
+
+.tabs {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  
+}
+
+.tabs.cities { margin: 70px 0 30px 0; }
+.tabs.days   { margin-bottom: 60px; }
+
+.tab,
+.separator {
+  text-decoration: none;
+  color: #9b938a;
+
+  position: relative;
+  display: inline-block;
+}
+
+.separator { opacity: .6; padding: 0 2px; }
+.tab.active { color: #e9e3dc; }
+
+/* Jour actif : trait orange pleine largeur */
+.tabs.days .tab { padding-bottom: 6px; }
+.tabs.days .tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: #ee8b1b;
+  border-radius: 2px;
+}
+
+
+/* ===================== */
+/*   Bloc film           */
+/* ===================== */
+
+.film-block {
+  display: grid;
+  grid-template-columns: 267px 1fr;
+  gap: 30px;
+  margin-top: 8px;
+}
+
+.poster img {
+  width: 267px;
+  border-radius: 5px;
+}
+
+.details h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  margin-top:10px;
+  margin-bottom: 30px;
+  
+}
+span.age{font-weight: 600;}
+.synopsis {
+  
+  font-weight: 400;
+  color: #EEE8E2;
+  line-height: 1.55;
+  margin: 10px 0 30px;
+}
+
+.rating-block{
+  margin-bottom:30px;
+}
+.star img { width:19px ;height:20px;}
+span.stars{ margin-left:18px;}
+span.star{ height:20px; width:19px; display:contents}
+
+/* ===================== */
+/*   Grille / Sessions   */
+/* ===================== */
+
+.sessions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Carte d’une séance */
+.session-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 180px;
+  padding: 12px 14px;
+  border: 1px solid #423a33;
+  border-radius: 5px;
+  background: #0A0602;
+  color: #e8e1d9;
+  text-decoration: none;
+  transition: transform .12s ease, border-color .12s ease, background-color .12s ease;
+}
+
+.session-chip:hover {
+  border-color: #ee8b1b;
+  background: #0A0602; /* on garde le même fond, juste le contour devient orange */
+}
+
+/* Format (ex: vostfr / imax) — trait orange UNIQUEMENT au hover de la carte */
+.chip-top { min-height: 18px; margin-bottom: 4px; }
+
+.chip-version {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 6px;
+  font-size: 12px;
+  text-transform: lowercase;
+  color: #bcb4ad;
+  letter-spacing: .2px;
+}
+
+/* masqué par défaut */
+.chip-version::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 22px;
+  height: 2px;
+  background: #ee8b1b;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+/* n’apparaît qu’au survol de .session-chip */
+.session-chip:hover .chip-version::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/* Heure XXL */
+.chip-time {
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: .4px;
+}
+
+/* "fin à 13:11" */
+.chip-end {
+  font-size: 16px;
+  color: #9b938c;
+  margin-top: -2px;
+}
+
+/* Bas de la carte : icônes à gauche, salle à droite */
+.chip-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.chip-icons { display: flex; gap: 10px; color: #A19D9A; opacity: 1; }
+.icon svg   { display: block; width: 18px; height: 18px; }
+
+.chip-room { font-size: 14px; color: #d6cec6; }
+
+/* Message "aucune séance" */
+.no-session { color: #b7b1aa; margin-top: 8px; }
+
+
+/* Lien avis */
+.reviews-link{
+  margin-left: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #ee8b1b;
+}
+
+a.review-link:hover{
+  
+  border-bottom: #ee8b1b 2px solid;
+}
+
+
+/* Modale */
+.modal.hidden { display: none; }
+.modal { position: fixed; inset: 0; z-index: 1000; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.6); }
+.modal-panel {
+  position: relative;
+  max-width: 680px; width: 92%;
+  margin: 7vh auto;
+  background: #0f0e0c;
+  border: 1px solid #423a33;
+  border-radius: 12px;
+  color: #e9e3dc;
+  padding: 16px 18px 18px;
+}
+.modal-close{
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: 0; color: #e9e3dc;
+  font-size: 22px; cursor: pointer;
+}
+
+/* Liste d'avis */
+.reviews-list{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.review-header{ display:flex; align-items:center; gap:10px; font-size:14px; color:#bcb4ad; }
+.review-user{ font-weight:600; color:#e9e3dc; }
+.review-date{ margin-left:auto; opacity:.8; }
+.review-body{ margin:6px 0 0; color:#c9c3bd; line-height:1.5; }
+.review-stars .star-ico{ width:16px; height:16px; vertical-align:middle; }
+
+/* Lien "Lire les X avis" */
+.rating-block .reviews-link{
+  position: relative;
+  color: #bcb4ad;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s ease;
+}
+
+.rating-block .reviews-link::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 0;
+  background: #ee8b1b;
+  border-radius: 1px;
+  
+}
+
+.rating-block .reviews-link:hover,
+.rating-block .reviews-link:focus{
+  color: #ee8b1b;
+}
+
+.rating-block .reviews-link:hover::after,
+.rating-block .reviews-link:focus::after{
+  width: 100%;
+}
+

@@ -19,11 +19,15 @@
         "symfony/flex": "^2",
         "symfony/form": "7.2.*",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/mailer": "7.2.*",
+        "symfony/monolog-bundle": "*",
         "symfony/runtime": "7.2.*",
         "symfony/security-bundle": "7.2.*",
+        "symfony/twig-bridge": "7.2.*",
         "symfony/twig-bundle": "7.2.*",
         "symfony/validator": "7.2.*",
-        "symfony/yaml": "7.2.*"
+        "symfony/yaml": "7.2.*",
+        "twig/intl-extra": "*"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",

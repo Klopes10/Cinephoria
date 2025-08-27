@@ -32,14 +32,18 @@ class GenerateSiegesOnSeanceCreatedListener
         for ($i = 1; $i <= $nombrePlaces; $i++) {
             $siege = new Siege();
             $siege->setNumero($i);
-            $siege->setIsPMR($i % 10 === 0); // exemple : 1 sur 10
+        
+            // ✅ Les 6 premiers sièges sont toujours PMR
+            $siege->setIsPMR($i <= 5);
+        
             $siege->setIsReserved(false);
             $siege->setSeance($seance);
-
+        
             $entityManager->persist($siege);
         }
-
+        
         $entityManager->flush();
         return;
+        
     }
 }

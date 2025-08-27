@@ -14,7 +14,7 @@ class Contact
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $nomUtilisateur = null;
 
     #[ORM\Column(length: 255)]
@@ -25,10 +25,6 @@ class Contact
 
     #[ORM\Column]
     private ?\DateTimeImmutable $dateEnvoi = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?string $debugField = null;
-
 
     public function __construct()
     {

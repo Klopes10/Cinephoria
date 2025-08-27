@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Cinema;
 use App\Entity\Salle;
+use App\Entity\Genre;
 use App\Entity\Film;
 use App\Entity\Seance;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -17,12 +18,12 @@ class AppFixtures extends Fixture
         $cinema = new Cinema();
         $cinema->setNom('Cinéphoria Bordeaux');
         $cinema->setVille('Bordeaux');
-        $cinema->setPays('France'); // ← AJOUT OBLIGATOIRE
+        $cinema->setPays('France');
         $cinema->setAdresse("1 rue principale");
         $cinema->setCodePostal("67350");
         $manager->persist($cinema);
 
-        // Créer une salle liée à ce cinéma
+        // Créer une salle
         $salle = new Salle();
         $salle->setNom('Salle 1');
         $salle->setNombrePlaces(20);
@@ -31,7 +32,12 @@ class AppFixtures extends Fixture
         $salle->setCinema($cinema);
         $manager->persist($salle);
 
-        // Créer un film (facultatif mais utile)
+          // Créer un genre
+          $genre = new Genre();
+          $genre->setNom('Science-Fiction');
+          $manager->persist($genre);
+
+        // Créer un film
         $film = new Film();
         $film->setTitre('Interstellar');
         $film->setSynopsis('Exploration d\'un trou noir.');
@@ -40,21 +46,26 @@ class AppFixtures extends Fixture
         $film->setCoupDeCoeur(true);
         $film->setNoteMoyenne(4.7);
         $film->setCreatedAt(new \DateTimeImmutable());
+        $film->setGenre($genre); // ← AJOUT OBLIGATOIRE
         $manager->persist($film);
-        
-        // Créer une séance pour ce film dans cette salle
+
+      
+
+        // Créer une séance
         $seance = new Seance();
-        $seance->setDateHeureDebut(new \DateTimeImmutable('2025-05-25 14:00:00'));
-        $seance->setDateHeureFin(new \DateTimeImmutable('2025-05-25 16:30:00'));
+        $seance->setDate(new \DateTimeImmutable('2025-05-25'));
+        $seance->setHeureDebut(new \DateTimeImmutable('14:00'));
+        $seance->setHeureFin(new \DateTimeImmutable('16:30'));
         $seance->setQualite('4K');
         $seance->setPlacesDisponible($salle->getNombrePlaces());
         $seance->setCreatedAt(new \DateTimeImmutable());
         $seance->setPrix(11.90);
         $seance->setSalle($salle);
+        $seance->setCinema($cinema);
         $seance->setFilm($film);
         $manager->persist($seance);
 
-        // Envoie en base (déclenche les événements, donc les sièges sont générés)
+        // Enregistre en base
         $manager->flush();
     }
 }

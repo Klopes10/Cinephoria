@@ -1,19 +1,158 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon compte{% endblock %}
+{% block title %}Mon espace{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/account.css') }}">
+{% endblock %}
 
 {% block body %}
-<h1>Mes réservations</h1>
+<section class="account-wrap">
 
-<ul>
-    {% for reservation in reservations %}
-        <li>
-            🎬 {{ reservation.seance.film.titre }}<br>
-            📅 {{ reservation.seance.dateHeureDebut|date('d/m/Y H:i') }}<br>
-            🎟️ {{ reservation.nombrePlaces }} place(s)
-        </li>
+  <h1 class="page-title"><span class="upperline"></span>MON ESPACE</h1>
+
+  <h2 class="section-title"><span class="underline"></span>MES COMMANDES</h2>
+
+  {# ========= PROCHAINEMENT ========= #}
+  <div class="subhead">PROCHAINEMENT</div>
+
+  <ul class="orders-list">
+    {% for o in upcoming|default([]) %}
+      {% set film    = o.film ?? null %}
+      {% set titre   = film ? film.titre : (o.titre ?? 'Film') %}
+      {% set affiche = film ? film.affiche : (o.affiche ?? null) %}
+      {% set date    = o.dateSeance ?? o.date ?? null %}
+      {% set ville   = o.ville ?? (o.cinema.ville ?? '') %}
+      {% set nb      = o.nbPlaces ?? o.places ?? 1 %}
+
+      <li class="order-item">
+        <div class="order-card">
+          <div class="order-left">
+            {% if affiche %}
+              <img class="poster" src="{{ asset('uploads/affiches/' ~ affiche) }}" alt="{{ titre }}">
+            {% else %}
+              <div class="poster poster--placeholder" aria-hidden="true"></div>
+            {% endif %}
+            <div class="title">{{ titre }}</div>
+          </div>
+
+          <div class="order-right">
+            <span class="meta date">{{ date ? date|date('d/m/Y') : '' }}</span>
+            <span class="meta city">{{ ville }}</span>
+            <span class="meta seats">{{ nb }} place{{ nb > 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+      </li>
     {% else %}
-        <p>Vous n’avez pas encore réservé de séance.</p>
+      <li class="empty">Aucune séance à venir.</li>
     {% endfor %}
-</ul>
+  </ul>
+
+  {# ========= HISTORIQUE ========= #}
+  <div class="subhead mt-32">HISTORIQUE</div>
+
+  <ul class="orders-list">
+    {% for o in history|default([]) %}
+      {% set film    = o.film ?? null %}
+      {% set titre   = film ? film.titre : (o.titre ?? 'Film') %}
+      {% set affiche = film ? film.affiche : (o.affiche ?? null) %}
+      {% set date    = o.dateSeance ?? o.date ?? null %}
+      {% set ville   = o.ville ?? (o.cinema.ville ?? '') %}
+      {% set nb      = o.nbPlaces ?? o.places ?? 1 %}
+      {% set note    = o.userNote|default(0) %} {# 0..5 si déjà noté #}
+
+      <li class="order-item">
+        <div class="order-card">
+          <div class="order-left">
+            {% if affiche %}
+              <img class="poster" src="{{ asset('uploads/affiches/' ~ affiche) }}" alt="{{ titre }}">
+            {% else %}
+              <div class="poster poster--placeholder" aria-hidden="true"></div>
+            {% endif %}
+            <div class="title">{{ titre }}</div>
+          </div>
+
+          <div class="order-middle">
+            <span class="meta date">{{ date ? date|date('d/m/Y') : '' }}</span>
+            <span class="meta city">{{ ville }}</span>
+            <span class="meta seats">{{ nb }} place{{ nb > 1 ? 's' : '' }}</span>
+          </div>
+
+          <div class="order-right">
+  <div class="rating-stars js-rate-trigger
+              {{ o.rated ? 'is-locked' : '' }}
+              {{ o.pending ? 'is-pending' : '' }}"
+       data-reservation="{{ o.id }}"
+       data-film="{{ o.film ? o.film.id : '' }}"
+       data-initial="{{ o.userNote|default(0) }}"
+       style="
+         --star-empty: url('{{ asset('images/icons/etoile_vide.svg') }}');
+         --star-full:  url('{{ asset('images/icons/etoile_pleine.svg') }}');
+       ">
+    {% for i in 1..5 %}
+      {# si déjà noté ET validé => remplis côté serveur #}
+      {% set filled = (o.rated and not o.pending and i <= o.userNote) %}
+      <button type="button"
+              class="star-btn"
+              data-value="{{ i }}"
+              aria-label="{{ i }} étoile{{ i>1 ? 's' : '' }}"
+              style="--star: {{ filled ? 'var(--star-full)' : 'var(--star-empty)' }}"
+              {{ o.rated ? 'disabled' : '' }}>
+      </button>
+    {% endfor %}
+  </div>
+
+  {% if o.pending %}
+    <span class="tag tag-pending">En attente de validation</span>
+  {% endif %}
+</div>
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">Pas encore d’historique.</li>
+    {% endfor %}
+  </ul>
+
+  {# ---------- Config JS (endpoint + icônes) ---------- #}
+  <div id="rating-config"
+       data-endpoint="{{ path('app_account_rate') }}"
+       data-star-full="{{ asset('images/icons/etoile_pleine.svg') }}"
+       data-star-empty="{{ asset('images/icons/etoile_vide.svg') }}">
+  </div>
+
+  {# ---------- Modale de notation (pré-rendue) ---------- #}
+  <div id="rate-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="rate-title">
+      <button class="modal-close" aria-label="Fermer">×</button>
+
+      <h2 id="rate-title" class="rate-title">
+        <span class="bar"></span> VOUS AVEZ AIMÉ ?
+      </h2>
+
+      <div class="rate-stars" role="radiogroup" aria-label="Choisir la note">
+        {% for i in 1..5 %}
+          <button type="button" class="m-star-btn" data-value="{{ i }}" aria-label="{{ i }} étoile{{ i>1?'s':'' }}">
+            <img class="m-star-ico" alt="">
+          </button>
+        {% endfor %}
+      </div>
+
+      <div class="rate-comment">
+        <textarea id="rate-comment-input" placeholder="Laisser un commentaire... (facultatif)"></textarea>
+      </div>
+
+      <button id="rate-validate" class="rate-validate">Valider</button>
+      <div id="rate-feedback" class="rate-feedback" style="display:none"></div>
+
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/account.js') }}"></script>
 {% endblock %}

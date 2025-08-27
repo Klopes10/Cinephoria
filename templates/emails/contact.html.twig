@@ -1,0 +1,15 @@
+{# templates/emails/contact.html.twig #}
+<h2>Nouveau message</h2>
+
+<p><strong>Nom d’utilisateur :</strong>
+  {{ contact.nomUtilisateur ?: '— (non renseigné)' }}</p>
+
+<p><strong>Titre :</strong> {{ contact.titre }}</p>
+
+<p><strong>Description :</strong><br>
+  {{ contact.description|nl2br }}</p>
+
+<p style="margin-top:12px;color:#777">
+  Envoyé le {{ contact.dateEnvoi|date('d/m/Y H:i') }}.
+  {% if userEmail %}<br>Répondre à : {{ userEmail }}{% endif %}
+</p>

@@ -1,20 +1,68 @@
+{# templates/reservation_user/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ReservationUserController!{% endblock %}
+{% block title %}Réservation - Cinéphoria{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/film.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/film_show.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/reservation.css') }}">
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="reserv-wrapper">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+  <div class="reserv-filters">
+    <!-- Ville -->
+    <select id="citySelect">
+      <option value="">Choisir un cinema</option>
+      {% for pays, villes in villesParPays %}
+        <optgroup label="{{ pays }}">
+          {% for ville in villes %}
+            <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/xampp/htdocs/Cinephoria-main/cinephoria/src/Controller/ReservationUserController.php</code></li>
-        <li>Your template at <code>C:/xampp/htdocs/Cinephoria-main/cinephoria/templates/reservation_user/index.html.twig</code></li>
-    </ul>
+    <!-- Film : rempli après choix de la ville -->
+    <select id="filmSelect" disabled>
+      <option value="">Choisir un film</option>
+    </select>
+
+    <!-- Places -->
+    <select id="placesSelect" disabled>
+      <option value="">Sélectionner le nombre de places</option>
+      {% for n in 1..10 %}
+        <option value="{{ n }}">{{ n }} place{{ n > 1 ? 's' : '' }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <h2 class="reserv-title section-title">SÉANCES DISPONIBLES</h2>
+
+  <div class="reserv-days" id="dayStrip">
+    {% for d in days %}
+      <button class="day-pill {{ loop.first ? 'active' : '' }}" data-date="{{ d.iso }}">{{ d.label }}</button>
+    {% endfor %}
+  </div>
+
+  {# Zone résultats : on affiche uniquement le hint au chargement #}
+  <div id="sessionsArea">
+    <p class="hint">Sélectionnez un cinéma pour choisir votre séance.</p>
+  </div>
+
 </div>
+
+{# Données préchargées pour filtrage instantané #}
+<script>
+  const allData     = {{ data|raw }};        // { "Ville — Pays": { "YYYY-MM-DD": { filmId: {film, seances[]} } } }
+  const filmsByCity = {{ filmsByCity|raw }}; // { "Ville — Pays": [ {id,titre}, ... ] }
+</script>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/reservation.js') }}"></script>
 {% endblock %}

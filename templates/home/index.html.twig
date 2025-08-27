@@ -3,69 +3,66 @@
 {% block title %}Accueil - Cinéphoria{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">{% endblock %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+{% endblock %}
 
 {% block body %}
-    <section class="banner">
-        <div class="banner-overlay">
-            <div class="banner-content">
-                <h1 class="title-banner">Lilo <br> & Stitch</h1>
-                <a href="#" class="banner-btn">Réserver &nbsp 
-                <svg width="33" height="37" viewBox="0 0 33 37" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: translateY(9px)">
-<path d="M2.21652 24.5896L14.6609 3.03543C15.2136 2.07807 16.4911 1.71843 17.529 2.31767L20.3994 3.9749C20.1455 5.64372 20.9326 7.36234 22.4742 8.25235C24.0156 9.1423 25.8968 8.96403 27.2151 7.90996L30.0864 9.56767C31.1243 10.1669 31.4516 11.4531 30.8988 12.4104L18.4545 33.9646C17.9018 34.922 16.6243 35.2816 15.5864 34.6824L12.7151 33.0247C12.9688 31.356 12.1826 29.6377 10.6412 28.7477C9.09963 27.8577 7.2177 28.0354 5.89939 29.0896L3.02899 27.4324C1.99108 26.8332 1.66379 25.547 2.21652 24.5896Z" stroke="#0A0602" stroke-width="3"/>
-</svg>
-</a>
-            </div>
-        </div>
-    </section>
-   <section class="new-release">
-    <h1 class="section-title">Nouvelles sorties</h1>
-    <div class="movie-grid">
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/spiderman.png') }}" alt="Spiderman">
-            <p>The Amazing Spiderman 2</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/genshin.png') }}" alt="Genshin Impact">
-            <p>Genshin Impact</p>
-        </div>
-        <div class="movie-card">
-            <div class="badge">Coup de cœur 🧡</div>
-            <img src="{{ asset('images/posters/robot.png') }}" alt="Robot Sauvage">
-            <p>Robot Sauvage</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/live.png') }}" alt="We Live in Time">
-            <p>We Live in Time</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/spiderman.png') }}" alt="Spiderman">
-            <p>The Amazing Spiderman 2</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/lalaland.png') }}" alt="La La Land">
-            <p>La La Land</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/deadpool.png') }}" alt="Deadpool">
-            <p>Deadpool</p>
-        </div>
-        <div class="movie-card">
-            <div class="badge">Coup de cœur 🧡</div>
-            <img src="{{ asset('images/posters/dune.png') }}" alt="Dune">
-            <p>Dune</p>
-        </div>
-        <div class="movie-card">
-            <div class="badge">Coup de cœur 🧡</div>
-            <img src="{{ asset('images/posters/dream.png') }}" alt="Dream">
-            <p>Dream</p>
-        </div>
-        <div class="movie-card">
-            <img src="{{ asset('images/posters/spiderman.png') }}" alt="Spiderman">
-            <p>The Amazing Spiderman 2</p>
-        </div>
+  <section class="banner">
+    <div class="banner-overlay">
+      <div class="banner-content">
+        {# L’en-tête peut rester statique, ou tu peux le lier au 1er film si tu veux #}
+        <h1 class="title-banner">Lilo <br> & Stitch</h1>
+        <a href="{{ path('app_films_show', { id: 4 }) }}" class="banner-btn">
+          Réserver &nbsp
+          <svg width="33" height="37" viewBox="0 0 33 37" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: translateY(9px)">
+            <path d="M2.21652 24.5896L14.6609 3.03543C15.2136 2.07807 16.4911 1.71843 17.529 2.31767L20.3994 3.9749C20.1455 5.64372 20.9326 7.36234 22.4742 8.25235C24.0156 9.1423 25.8968 8.96403 27.2151 7.90996L30.0864 9.56767C31.1243 10.1669 31.4516 11.4531 30.8988 12.4104L18.4545 33.9646C17.9018 34.922 16.6243 35.2816 15.5864 34.6824L12.7151 33.0247C12.9688 31.356 12.1826 29.6377 10.6412 28.7477C9.09963 27.8577 7.2177 28.0354 5.89939 29.0896L3.02899 27.4324C1.99108 26.8332 1.66379 25.547 2.21652 24.5896Z" stroke="#0A0602" stroke-width="3"/>
+          </svg>
+        </a>
+      </div>
     </div>
-</section>
+  </section>
 
+  <section class="new-release">
+    <h1 class="section-title">Nouvelles sorties</h1>
+
+    <div class="movie-grid">
+     {% if films is defined and films is not empty %}
+  {% for film in films %}
+    <div class="movie-card">
+        <a href="{{ path('app_films_show', { id: film.id }) }}">
+            <div class="movie-image">
+                {# Badge coup de cœur #}
+                {% if film.coupDeCoeur %}
+                <div class="badge">
+                    Coup de cœur
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                {% endif %}
+
+            
+            {% if film.affiche %}
+                <img src="{{ asset('uploads/affiches/' ~ film.affiche) }}" alt="{{ film.titre }}">
+            {% else %}
+                <img src="{{ asset('images/placeholder.jpg') }}" alt="{{ film.titre }}">
+            {% endif %}
+            
+        </div>
+
+        <p>
+            <a href="{{ path('app_films_show', { id: film.id }) }}" style="color:inherit; text-decoration:none;">
+            {{ film.titre }}
+            </a>
+        </p>
+        </a>
+        </div>
+    {% endfor %}
+    {% else %}
+    <p>Aucun film publié ce mercredi pour le moment.</p>
+    {% endif %}
+
+    </div>
+  </section>
 {% endblock %}

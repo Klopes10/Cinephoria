@@ -22,10 +22,10 @@ class Film
     #[ORM\Column(type: Types::TEXT)]
     private ?string $synopsis = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $ageMinimum = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $affiche = null;
 
     #[ORM\Column]
@@ -34,8 +34,9 @@ class Film
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $noteMoyenne = null;
 
+    // ⬇️ Remplace createdAt par datePublication
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $datePublication = null;
 
     #[ORM\ManyToOne(targetEntity: Genre::class, inversedBy: 'films')]
     #[ORM\JoinColumn(nullable: false)]
@@ -55,111 +56,47 @@ class Film
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        // Valeur par défaut : aujourd’hui (tu peux l’enlever si tu veux forcer la saisie manuelle dans l’admin)
+        $this->datePublication = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->coupDeCoeur = false;
     }
 
-    public function getId(): ?int
+    public function __toString(): string
     {
-        return $this->id;
+        return (string) $this->titre;
     }
 
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setTitre(string $titre): static
-    {
-        $this->titre = $titre;
-        return $this;
-    }
+    public function getTitre(): ?string { return $this->titre; }
+    public function setTitre(string $titre): static { $this->titre = $titre; return $this; }
 
-    public function getSynopsis(): ?string
-    {
-        return $this->synopsis;
-    }
+    public function getSynopsis(): ?string { return $this->synopsis; }
+    public function setSynopsis(string $synopsis): static { $this->synopsis = $synopsis; return $this; }
 
-    public function setSynopsis(string $synopsis): static
-    {
-        $this->synopsis = $synopsis;
-        return $this;
-    }
+    public function getAgeMinimum(): ?int { return $this->ageMinimum; }
+    public function setAgeMinimum(?int $ageMinimum): static { $this->ageMinimum = $ageMinimum; return $this; }
 
-    public function getAgeMinimum(): ?int
-    {
-        return $this->ageMinimum;
-    }
+    public function getAffiche(): ?string { return $this->affiche; }
+    public function setAffiche(?string $affiche): static { $this->affiche = $affiche; return $this; }
 
-    public function setAgeMinimum(int $ageMinimum): static
-    {
-        $this->ageMinimum = $ageMinimum;
-        return $this;
-    }
+    public function isCoupDeCoeur(): ?bool { return $this->coupDeCoeur; }
+    public function setCoupDeCoeur(bool $coupDeCoeur): static { $this->coupDeCoeur = $coupDeCoeur; return $this; }
 
-    public function getAffiche(): ?string
-    {
-        return $this->affiche;
-    }
+    public function getNoteMoyenne(): ?float { return $this->noteMoyenne; }
+    public function setNoteMoyenne(?float $noteMoyenne): static { $this->noteMoyenne = $noteMoyenne; return $this; }
 
-    public function setAffiche(string $affiche): static
-    {
-        $this->affiche = $affiche;
-        return $this;
-    }
+    // ⬇️ Nouveaux getters/setters
+    public function getDatePublication(): ?\DateTimeImmutable { return $this->datePublication; }
+    public function setDatePublication(\DateTimeImmutable $datePublication): static { $this->datePublication = $datePublication; return $this; }
 
-    public function isCoupDeCoeur(): ?bool
-    {
-        return $this->coupDeCoeur;
-    }
+    public function getGenre(): ?Genre { return $this->genre; }
+    public function setGenre(?Genre $genre): static { $this->genre = $genre; return $this; }
 
-    public function setCoupDeCoeur(bool $coupDeCoeur): static
-    {
-        $this->coupDeCoeur = $coupDeCoeur;
-        return $this;
-    }
-
-    public function getNoteMoyenne(): ?float
-    {
-        return $this->noteMoyenne;
-    }
-
-    public function setNoteMoyenne(?float $noteMoyenne): static
-    {
-        $this->noteMoyenne = $noteMoyenne;
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getGenre(): ?Genre
-    {
-        return $this->genre;
-    }
-
-    public function setGenre(?Genre $genre): static
-    {
-        $this->genre = $genre;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Seance>
-     */
-    public function getSeances(): Collection
-    {
-        return $this->seances;
-    }
+    /** @return Collection<int, Seance> */
+    public function getSeances(): Collection { return $this->seances; }
 
     public function addSeance(Seance $seance): static
     {
@@ -180,13 +117,8 @@ class Film
         return $this;
     }
 
-    /**
-     * @return Collection<int, Avis>
-     */
-    public function getAvis(): Collection
-    {
-        return $this->avis;
-    }
+    /** @return Collection<int, Avis> */
+    public function getAvis(): Collection { return $this->avis; }
 
     public function addAvis(Avis $avis): static
     {
@@ -205,10 +137,5 @@ class Film
             }
         }
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->titre;
     }
 }

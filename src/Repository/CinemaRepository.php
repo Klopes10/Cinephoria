@@ -1,14 +1,10 @@
 <?php
-
 namespace App\Repository;
 
 use App\Entity\Cinema;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Cinema>
- */
 class CinemaRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +12,34 @@ class CinemaRepository extends ServiceEntityRepository
         parent::__construct($registry, Cinema::class);
     }
 
-    //    /**
-    //     * @return Cinema[] Returns an array of Cinema objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /** @return string[] */
+    public function findAllDistinctCities(): array
+    {
+        $rows = $this->createQueryBuilder('c')
+            ->select('DISTINCT c.ville AS ville')
+            ->orderBy('c.ville', 'ASC')
+            ->getQuery()->getScalarResult();
 
-    //    public function findOneBySomeField($value): ?Cinema
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return array_map(static fn(array $r) => $r['ville'], $rows);
+    }
+
+    /**
+     * Retourne un tableau simple de villes distinctes pour un pays donné.
+     * Exemple: "France" ou "Belgique" (champ Cinema.pays).
+     *
+     * @return string[]
+     */
+    public function findDistinctCitiesByCountry(string $pays): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('DISTINCT c.ville AS ville')
+            ->andWhere('LOWER(c.pays) = LOWER(:pays)')
+            ->setParameter('pays', $pays)
+            ->orderBy('c.ville', 'ASC');
+
+        // getScalarResult() => [ ['ville'=>'Lyon'], ['ville'=>'Paris'] ... ]
+        $rows = $qb->getQuery()->getScalarResult();
+
+        return array_map(static fn(array $r) => $r['ville'], $rows);
+    }
 }
