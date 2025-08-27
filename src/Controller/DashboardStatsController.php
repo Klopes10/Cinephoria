@@ -17,32 +17,50 @@ class DashboardStatsController extends AbstractController
         $collectionsNames = [];
 
         try {
-            $client = new Client('mongodb://localhost:27017');
-            $db = $client->selectDatabase('Cinephoria'); // ✅ casse respectée
-            $collection = $db->reservations_stats;
+            // Utilise l’URI docker si dispo, sinon fallback local
+            $uri = $_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017';
+            $dbName = $_ENV['MONGODB_DB'] ?? 'cinephoria';
+
+            $client = new Client($uri);
+            $db = $client->selectDatabase($dbName);
+            $collection = $db->selectCollection('reservations_stats');
 
             // Liste des collections (optionnel)
-            $collections = $db->listCollections();
-            foreach ($collections as $collectionItem) {
-                $collectionsNames[] = $collectionItem->getName();
+            foreach ($db->listCollections() as $col) {
+                $collectionsNames[] = $col->getName();
             }
 
-            // Requête : documents des 7 derniers jours
-            $sevenDaysAgo = new \DateTime('-7 days');
+            // 7 derniers jours (>= aujourd’hui-7 à 00:00)
+            $sevenDaysAgo = (new \DateTimeImmutable('-7 days'))->setTime(0, 0);
+            $cursor = $collection->find(
+                [
+                    // accepte "date" ou "jour" selon ce que tu enregistres
+                    '$or' => [
+                        ['date' => ['$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000)]],
+                        ['jour' => ['$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000)]],
+                    ],
+                ],
+                ['sort' => ['date' => -1, 'jour' => -1]]
+            );
 
-            $cursor = $collection->find([
-                'date' => [
-                    '$gte' => new UTCDateTime($sevenDaysAgo->getTimestamp() * 1000),
-                ]
-            ], [
-                'sort' => ['date' => -1]
-            ]);
-
+            // Normalise pour Twig (on convertit UTCDateTime -> \DateTimeImmutable)
             foreach ($cursor as $doc) {
-                $stats[] = $doc;
-            }
+                $film = $doc['film_titre']    ?? $doc['film_title'] ?? 'Inconnu';
+                $nb   = $doc['total_places']  ?? $doc['nb_places']  ?? $doc['reservations_count'] ?? 0;
 
-        } catch (\Exception $e) {
+                $dateField = $doc['date'] ?? $doc['jour'] ?? null;
+                $asDate = null;
+                if ($dateField instanceof UTCDateTime) {
+                    $asDate = $dateField->toDateTime(); // \DateTime
+                }
+
+                $stats[] = [
+                    'film' => (string) $film,
+                    'count' => (int) $nb,
+                    'date' => $asDate,
+                ];
+            }
+        } catch (\Throwable $e) {
             $this->addFlash('danger', 'Erreur MongoDB : ' . $e->getMessage());
         }
 
@@ -51,5 +69,4 @@ class DashboardStatsController extends AbstractController
             'collections' => $collectionsNames,
         ]);
     }
-
 }

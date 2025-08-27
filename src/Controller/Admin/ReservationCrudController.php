@@ -99,9 +99,10 @@ class ReservationCrudController extends AbstractCrudController
                 return $seance->getDate()->format('d/m/Y') . ' à ' . $seance->getHeureDebut()->format('H:i');
             });
 
-        yield IntegerField::new('nombrePlaces', 'Places')->onlyOnIndex();
-        yield TextField::new('siegesString', 'Sièges')->onlyOnIndex();
-        yield MoneyField::new('prixTotal', 'Prix total')->setCurrency('EUR')->onlyOnIndex();
+            yield MoneyField::new('prixTotal', 'Prix total')
+            ->setCurrency('EUR')
+            ->setStoredAsCents(false) // <<< la valeur est stockée en euros, pas en centimes
+            ->onlyOnIndex();
     }
 
     public function createEntity(string $entityFqcn)

@@ -2,37 +2,30 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">📊 Statistiques des réservations (7 derniers jours)</h1>
+  <h1 class="mb-4">📊 Statistiques des réservations (7 derniers jours)</h1>
 
-    {% if stats is empty %}
-        <div class="alert alert-warning">Aucune donnée disponible dans MongoDB.</div>
-    {% else %}
-        <table class="table table-bordered table-striped table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>🎬 Film</th>
-                    <th>🎟️ Réservations</th>
-                    <th>📅 Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in stats %}
-                    <tr>
-                        <td>{{ stat.film_title ?? 'Non défini' }}</td>
-                        <td>{{ stat.reservations_count ?? '—' }}</td>
-                        <td>
-                            {% if stat.date is iterable %}
-                                {{ stat.date|date('d/m/Y') }}
-                            {% elseif stat.date is not null %}
-                                {{ stat.date|date('d/m/Y') }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+  {% if totaux is empty and lignes is empty %}
+    <div class="alert alert-warning">Aucune donnée disponible dans MongoDB.</div>
+  {% else %}
+
+    <h2 class="h5 mt-3">Par film (total sur 7 jours)</h2>
+    <table class="table table-bordered table-striped table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>🎬 Film</th>
+          <th>🎟️ Total réservations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for film, total in totaux %}
+          <tr>
+            <td>{{ film }}</td>
+            <td>{{ total }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  {% endif %}
 </div>
 {% endblock %}

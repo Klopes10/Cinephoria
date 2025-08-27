@@ -14,9 +14,11 @@ services:
       # 👉 Utilise Mailpit dans le réseau Docker (host = "mailpit")
       MAILER_FROM: "Cinéphoria <ne-pas-repondre@cinephoria.fr>"
       MAILER_DSN: "smtp://mailpit:1025?encryption=null&auth_mode=null"
+      MONGODB_URI: "mongodb://mongo:27017"  
     depends_on:
       - database
       - mailpit
+      - mongo    
     tty: true
 
   mailpit:
@@ -56,6 +58,29 @@ services:
     restart: always
     ports:
       - "8081:8080"
+    
+  mongo:
+    image: mongo:6
+    container_name: cinephoria_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"        # optionnel, utile si tu veux te connecter depuis l’hôte
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: cinephoria_mongo_express
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      - "8082:8081"          # UI accessible sur http://localhost:8082
 
 volumes:
   database_data:
+  mongo_data:  
