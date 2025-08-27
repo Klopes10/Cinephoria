@@ -36,21 +36,26 @@ class ContactUserController extends AbstractController
             $em->flush();
 
             // 2) Envoyer l’e-mail
-            $email = (new TemplatedEmail())
-    ->from(new Address($_ENV['MAILER_FROM'] ?? 'kev671007@gmail.com', 'Cinéphoria'))
-    ->to($this->supportDeliveryEmail) // kev7@live.fr
-    ->replyTo($this->supportDisplayEmail) // contact@cinephoria.fr (affiché aux users)
-    ->subject('Contact – '.$contact->getTitre())
-    ->htmlTemplate('emails/contact.html.twig')
-    ->context([
-        'contact'             => $contact,
-        'supportDisplayEmail' => $this->supportDisplayEmail,
-        'userEmail'           => $this->getUser()?->getEmail(),
-    ]);
+            // MAILER_FROM doit être du type: "Cinéphoria <ne-pas-repondre@cinephoria.fr>"
+            $from = $_ENV['MAILER_FROM'] ?? 'Cinéphoria <no-reply@cinephoria.test>';
 
-if ($this->getUser() && method_exists($this->getUser(), 'getEmail') && $this->getUser()->getEmail()) {
-    $email->addReplyTo($this->getUser()->getEmail()); // on peut avoir plusieurs Reply-To
-}
+            $email = (new TemplatedEmail())
+                ->from(Address::create($from))                  // ✅ Option A
+                ->to($this->supportDisplayEmail)               // destinataire interne
+                ->replyTo($this->supportDisplayEmail)           // adresse publique de contact
+                ->subject('Contact – '.$contact->getTitre())
+                ->htmlTemplate('emails/contact.html.twig')
+                ->context([
+                    'contact'             => $contact,
+                    'supportDisplayEmail' => $this->supportDisplayEmail,
+                    'userEmail'           => $this->getUser()?->getEmail(),
+                ]);
+
+            // Si l’utilisateur est connecté, on ajoute aussi son email en Reply-To
+            if ($this->getUser() && method_exists($this->getUser(), 'getEmail') && $this->getUser()->getEmail()) {
+                $email->addReplyTo($this->getUser()->getEmail());
+            }
+
             $mailer->send($email);
 
             $this->addFlash('success', 'Votre message a bien été envoyé. Merci !');
@@ -58,8 +63,8 @@ if ($this->getUser() && method_exists($this->getUser(), 'getEmail') && $this->ge
         }
 
         return $this->render('contact_user/index.html.twig', [
-            'contact_form' => $form->createView(),
-            'supportEmailPublic' => $this->supportDisplayEmail,
+            'contact_form'        => $form->createView(),
+            'supportEmailPublic'  => $this->supportDisplayEmail,
         ]);
     }
 }
