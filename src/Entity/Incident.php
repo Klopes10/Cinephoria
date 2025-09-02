@@ -20,6 +20,10 @@ class Incident
     #[ORM\Column]
     private ?\DateTimeImmutable $dateSignalement = null;
 
+     #[ORM\Column(length: 255)]
+     
+    private ?string $titre = null;
+
     #[ORM\Column]
     private ?bool $resolu = null;
 
@@ -41,6 +45,16 @@ class Incident
         return $this->id;
     }
 
+     public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(string $titre): static
+    {
+        $this->titre = $titre;
+        return $this;
+    }
     public function getDescription(): ?string
     {
         return $this->description;

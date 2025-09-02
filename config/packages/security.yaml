@@ -61,10 +61,13 @@ security:
     # --- API ---
     - { path: ^/api/login_check$, roles: PUBLIC_ACCESS }          # login JSON public
     - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }               # le reste de l'API nécessite JWT
+    - { path: ^/api/salles, roles: ROLE_ADMIN }      # employés
+    - { path: ^/api/incidents, roles: ROLE_ADMIN }   # employés
 
     # --- Espace appli web ---
     - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/mon-espace, roles: ROLE_USER }
+    
 
 when@test:
   security:
