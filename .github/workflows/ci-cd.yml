@@ -1,0 +1,84 @@
+name: CI/CD Cinéphoria
+
+on:
+  push:
+    branches: [ develop, main, 'feature/**' ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  test:
+    name: Build & Tests (PHPUnit)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Optionnel mais pratique si tu fais composer install côté host avant de monter les volumes
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/vendor
+            ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Start stack (detached)
+        run: |
+          docker compose up -d --build
+          # Attendre un peu que les services montent
+          sleep 5
+
+      # (Facultatif) attendre que Postgres soit up si tu n'as pas mis de healthcheck
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T database pg_isready -U app -d app; then
+              echo "Postgres is ready"; exit 0
+            fi
+            echo "Waiting for Postgres... ($i)"
+            sleep 2
+          done
+          echo "Postgres not ready in time"; exit 1
+
+      # Crée la base de test et charge schema + data (sandbox_cinephoria_test)
+      - name: Prepare sandbox DB
+        run: |
+          docker compose exec -T database psql -U app -d postgres -c "DROP DATABASE IF EXISTS sandbox_cinephoria_test;"
+          docker compose exec -T database psql -U app -d postgres -c "CREATE DATABASE sandbox_cinephoria_test;"
+          cat db/schema.sql | docker compose exec -T database psql -U app -d sandbox_cinephoria_test
+          cat db/data.sql   | docker compose exec -T database psql -U app -d sandbox_cinephoria_test
+
+      # Installer dépendances PHP DANS le conteneur php (tu as déjà Composer dedans)
+      - name: Composer install (in container)
+        run: docker compose exec -T php composer install --no-interaction --prefer-dist
+
+      # Lancer PHPUnit (tes tests lisent DATABASE_URL depuis phpunit.xml.dist)
+      - name: Run PHPUnit
+        env:
+          APP_ENV: test
+        run: docker compose exec -T php ./vendor/bin/phpunit
+
+      - name: Teardown
+        if: always()
+        run: docker compose down -v
+
+  # Déploiement  – n’exécute que sur main et seulement si les tests passent
+  deploy:
+    name: Deploy (VPS)
+    runs-on: ubuntu-22.04
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy over SSH
+        if: ${{ secrets.SSH_HOST && secrets.SSH_USER && secrets.SSH_PASSWORD }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y sshpass
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd /var/www/html
+          docker compose pull
+          docker compose down
+          docker compose up -d --build
+          EOF
