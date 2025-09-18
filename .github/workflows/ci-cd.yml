@@ -15,25 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Optionnel mais pratique si tu fais composer install côté host avant de monter les volumes
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: |
-            **/vendor
-            ~/.composer/cache
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
       - name: Start stack (detached)
         run: |
           docker compose up -d --build
-          # Attendre un peu que les services montent
-          sleep 5
+          # attendre Postgres
+          until docker compose exec -T database pg_isready -U app -d app; do sleep 1; done
 
-      
-
-      # Crée la base de test et charge schema + data (sandbox_cinephoria_test)
       - name: Prepare sandbox DB
         run: |
           docker compose exec -T database psql -U app -d postgres -c "DROP DATABASE IF EXISTS sandbox_cinephoria_test;"
@@ -41,34 +28,37 @@ jobs:
           cat db/schema.sql | docker compose exec -T database psql -U app -d sandbox_cinephoria_test
           cat db/data.sql   | docker compose exec -T database psql -U app -d sandbox_cinephoria_test
 
-      # Installer dépendances PHP DANS le conteneur php (tu as déjà Composer dedans)
-      - name: Composer install (in container)
-        run: docker compose exec -T php composer install --no-interaction --prefer-dist
+      - name: Composer install (inside container)
+        run: docker compose exec -T php composer install --no-interaction --prefer-dist --no-progress
 
-      # Lancer PHPUnit (tes tests lisent DATABASE_URL depuis phpunit.xml.dist)
       - name: Run PHPUnit
         env:
           APP_ENV: test
+          # IMPORTANT : en CI, on force l’hôte DB à "database" (service compose),
+          # peu importe ce qu’il y a dans phpunit.xml.dist local.
+          DATABASE_URL: 'postgresql://app:admin@database:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8'
         run: docker compose exec -T php ./vendor/bin/phpunit
 
       - name: Teardown
         if: always()
         run: docker compose down -v
 
-  # Déploiement  – n’exécute que sur main et seulement si les tests passent
   deploy:
-  name: Déploiement sur le VPS Hostinger
-  runs-on: ubuntu-latest
-  needs: test
-  if: github.ref == 'refs/heads/main' 
+    name: Déploiement sur le VPS Hostinger
+    runs-on: ubuntu-22.04
+    needs: test
+    if: github.ref == 'refs/heads/main'
 
-  steps:
-    - name: Connexion et déploiement sur le VPS Hostinger
-      run: |
-        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-        cd /var/www/html
-        if [ ! -f "docker-compose.yml" ]; then echo "❌ ERREUR: docker-compose.yml introuvable"; exit 1; fi
-        docker-compose pull
-        docker-compose down
-        docker-compose up -d --build
-        EOF
+    steps:
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Deploy via SSH
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          set -e
+          cd /var/www/html
+          docker compose pull
+          docker compose down
+          docker compose up -d --build
+          EOF
