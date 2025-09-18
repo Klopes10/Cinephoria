@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    failOnWarning="true"
+    failOnRisky="true"
+>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory>tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Functional">
+      <directory>tests/Functional</directory>
+    </testsuite>
+  </testsuites>
+
+  <php>
+    <env name="APP_ENV" value="test"/>
+    <env name="KERNEL_CLASS" value="App\Kernel"/>
+    <env name="DATABASE_URL" value="postgresql://app:admin@cinephoria_db:5432/sandbox_cinephoria?serverVersion=16&amp;charset=utf8"/>
+  </php>
+</phpunit>

@@ -33,6 +33,10 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",
+        "phpunit/phpunit": "^11.5",
+        "symfony/browser-kit": "7.2.*",
+        "symfony/css-selector": "7.2.*",
+        "symfony/dom-crawler": "7.2.*",
         "symfony/maker-bundle": "^1.63",
         "symfony/web-profiler-bundle": "7.2.*"
     },
