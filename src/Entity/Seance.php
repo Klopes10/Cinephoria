@@ -1,4 +1,5 @@
 <?php
+// src/Entity/Seance.php
 
 namespace App\Entity;
 
@@ -45,6 +46,10 @@ class Seance
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
+    #[ORM\ManyToOne(targetEntity: Qualite::class, inversedBy: 'seances')]
+    #[ORM\JoinColumn(name: 'qualite_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    private ?Qualite $qualite = null;
+
     /** @var Collection<int, Reservation> */
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'seance', cascade: ['remove'])]
     private Collection $reservations;
@@ -85,32 +90,27 @@ class Seance
     {
         $this->salle = $salle;
 
-        // Init/maj des places si non renseigné
+        // Init places si vide
         if ($salle && $this->placesDisponible === null) {
             $this->placesDisponible = $salle->getNombrePlaces();
         }
-
+        // Hériter la qualité de la salle si non définie
+        if ($salle && $this->qualite === null) {
+            $this->qualite = $salle->getQualite();
+        }
         return $this;
     }
 
     public function getCinema(): ?Cinema { return $this->cinema; }
     public function setCinema(?Cinema $cinema): static { $this->cinema = $cinema; return $this; }
 
-    /** Qualité dérivée de la salle (utile pour l’UI/admin) */
-    public function getQualite(): ?Qualite
-    {
-        return $this->salle?->getQualite();
-    }
+    public function getQualite(): ?Qualite { return $this->qualite; }
+    public function setQualite(?Qualite $qualite): static { $this->qualite = $qualite; return $this; }
 
-    /** Prix dérivé de la qualité de la salle */
-    public function getPrix(): ?float
-    {
-        return $this->getQualite()?->getPrix();
-    }
+    public function getPrix(): ?float { return $this->qualite?->getPrix(); }
 
     /** @return Collection<int, Reservation> */
     public function getReservations(): Collection { return $this->reservations; }
-
     public function addReservation(Reservation $reservation): static
     {
         if (!$this->reservations->contains($reservation)) {
@@ -119,7 +119,6 @@ class Seance
         }
         return $this;
     }
-
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation) && $reservation->getSeance() === $this) {
@@ -139,14 +138,18 @@ class Seance
     }
 
     #[ORM\PrePersist]
-    public function setPlacesFromSalle(): void
+    #[ORM\PreUpdate]
+    public function syncDerivedFields(): void
     {
         if ($this->salle !== null && $this->placesDisponible === null) {
             $this->placesDisponible = $this->salle->getNombrePlaces();
         }
+        if ($this->salle !== null && $this->qualite === null) {
+            $this->qualite = $this->salle->getQualite();
+        }
     }
 
-    /** Validation : la salle doit appartenir au cinéma choisi */
+    /** La salle doit appartenir au cinéma choisi */
     #[Assert\Callback]
     public function validateCinemaSalle(ExecutionContextInterface $ctx): void
     {
@@ -157,9 +160,22 @@ class Seance
         }
     }
 
+    /** Cohérence: la qualité de la séance doit être celle de la salle */
+    #[Assert\Callback]
+    public function validateQualite(ExecutionContextInterface $ctx): void
+    {
+        if ($this->salle && $this->qualite) {
+            $qSalle = $this->salle->getQualite();
+            if ($qSalle && $qSalle->getId() !== $this->qualite->getId()) {
+                $ctx->buildViolation('La qualité de la séance doit correspondre à celle de la salle.')
+                    ->atPath('qualite')
+                    ->addViolation();
+            }
+        }
+    }
+
     /** @return Collection<int, Siege> */
     public function getSieges(): Collection { return $this->sieges; }
-
     public function addSiege(Siege $siege): static
     {
         if (!$this->sieges->contains($siege)) {
@@ -168,7 +184,6 @@ class Seance
         }
         return $this;
     }
-
     public function removeSiege(Siege $siege): static
     {
         if ($this->sieges->removeElement($siege) && $siege->getSeance() === $this) {

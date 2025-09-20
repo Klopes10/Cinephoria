@@ -50,10 +50,10 @@ class FilmCrudController extends AbstractCrudController
             AssociationField::new('genre', 'Genre')->setRequired(true),
 
             ImageField::new('affiche', 'Affiche')
-                ->setUploadDir('public/uploads/affiches/')
-                ->setBasePath('uploads/affiches')
-                ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
-                ->setRequired(false),
+            ->setUploadDir('public/uploads/affiches')  // sans trailing slash
+            ->setBasePath('/uploads/affiches')         // ABSOLU (important en /admin/*)
+            ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
+            ->setRequired(false),
         ];
     }
 }

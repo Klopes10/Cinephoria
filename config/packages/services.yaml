@@ -1,6 +1,7 @@
 #Ajouter pour MongoDB
 parameters:
   mongodb_db: '%env(default::MONGODB_DB)%'
+  locale: 'fr'
 
 services:
   MongoDB\Client:
@@ -11,3 +12,4 @@ services:
     arguments:
       $mongoClient: '@MongoDB\Client'
       $mongoDbName: '%mongodb_db%'
+ 

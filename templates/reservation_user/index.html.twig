@@ -59,6 +59,22 @@
 <script>
   const allData     = {{ data|raw }};        // { "Ville — Pays": { "YYYY-MM-DD": { filmId: {film, seances[]} } } }
   const filmsByCity = {{ filmsByCity|raw }}; // { "Ville — Pays": [ {id,titre}, ... ] }
+  
+  (function () {
+    const fmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' });
+    document.querySelectorAll('.day-pill').forEach(btn => {
+      const iso = btn.dataset.date;
+      if (!iso) return;
+      const d = new Date(iso + 'T00:00:00');
+      // Exemple typique: "sam. 20 sept."
+      let s = fmt.format(d);
+      // Mettre juste la 1re lettre en capitale pour ressembler à ton 2e screen: "Sam. 20 sept."
+      s = s.replace(/^(\p{L})/u, (m) => m.toUpperCase());
+      btn.textContent = s;
+    });
+  })();
+
+
 </script>
 {% endblock %}
 

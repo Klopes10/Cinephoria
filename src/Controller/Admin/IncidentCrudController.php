@@ -40,7 +40,10 @@ class IncidentCrudController extends AbstractCrudController
                 ->setLabel('Description'),
 
             DateTimeField::new('createdAt')
-                ->setLabel('Signalé le'),
+                ->setLabel('Signalé le')
+                ->setRequired(true)
+                ->setFormat('dd/MM/yyyy')        // affichage
+                ->renderAsNativeWidget(false),
 
             BooleanField::new('resolu')
                 ->setLabel('Résolu ?')

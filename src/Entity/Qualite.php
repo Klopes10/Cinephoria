@@ -1,4 +1,5 @@
 <?php
+// src/Entity/Qualite.php
 
 namespace App\Entity;
 
@@ -16,13 +17,12 @@ class Qualite
     #[ORM\Column]
     private ?int $id = null;
 
-    /** Libellé lisible  */
     #[ORM\Column(length: 255)]
     private ?string $label = null;
 
-    /** Prix TTC de cette qualité (par place) */
+    // Stockage DECIMAL: on garde string en interne
     #[ORM\Column(type: 'decimal', precision: 6, scale: 2)]
-    private ?string $prix = null; // string pour decimal Doctrine (conseillé)
+    private ?string $prix = null;
 
     /** @var Collection<int, Seance> */
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'qualite')]
@@ -38,9 +38,8 @@ class Qualite
     public function getLabel(): ?string { return $this->label; }
     public function setLabel(string $label): self { $this->label = $label; return $this; }
 
-    /** Prix retourné en float pratique (en gardant le stockage decimal) */
-    public function getPrix(): ?float { return $this->prix !== null ? (float) $this->prix : null; }
-    public function setPrix(float|string $prix): self { $this->prix = (string) $prix; return $this; }
+    public function getPrix(): ?float { return $this->prix !== null ? (float)$this->prix : null; }
+    public function setPrix(float|string $prix): self { $this->prix = (string)$prix; return $this; }
 
     /** @return Collection<int, Seance> */
     public function getSeances(): Collection { return $this->seances; }
@@ -64,10 +63,8 @@ class Qualite
         return $this;
     }
 
-    // src/Entity/Qualite.php
-        public function __toString(): string
-        {
-            return (string) $this->label ?: 'Qualité';
-        }
-
+    public function __toString(): string
+    {
+        return (string)($this->label ?? 'Qualité');
+    }
 }

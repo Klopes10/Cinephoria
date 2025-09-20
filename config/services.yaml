@@ -1,21 +1,30 @@
 # config/services.yaml
-# Entry point to configure your own services and parameters.
-
 parameters:
   # Adresse affichée (site / emails)
   app.support_email_display: 'contact@cinephoria.fr'
   # Destinataire réel (pour la livraison des mails)
   app.support_email_delivery: 'kev7@live.fr'
 
+  # Valeurs par défaut si MONGODB_DB / MONGODB_COLLECTION ne sont pas fournis
+  mongodb.db.default: 'cinephoria'
+  mongodb.collection.default: 'reservations'
+
 services:
-  # Default configuration for services in this file
   _defaults:
     autowire: true
     autoconfigure: true
 
+  # Client MongoDB basé sur l'URI d'environnement
   MongoDB\Client:
     arguments:
       $uri: '%env(resolve:MONGODB_URI)%'
+
+  # Ton logger Mongo : injection du client + noms DB/collection avec fallback
+  App\Service\MongoReservationsLogger:
+    arguments:
+      $client: '@MongoDB\Client'
+      $dbName: '%env(default:mongodb.db.default:MONGODB_DB)%'
+      $collectionName: '%env(default:mongodb.collection.default:MONGODB_COLLECTION)%'
 
   # Make classes in src/ available as services
   App\:
@@ -25,7 +34,7 @@ services:
       - '../src/Entity/'
       - '../src/Kernel.php'
 
-  # Injecte les paramètres e-mail dans ContactUserController
+  # Injection des paramètres e-mail dans le contrôleur Contact
   App\Controller\ContactUserController:
     bind:
       string $supportDisplayEmail: '%app.support_email_display%'
