@@ -17,6 +17,8 @@ RUN docker-php-ext-configure intl \
 RUN pecl install mongodb-1.16.2 \
  && docker-php-ext-enable mongodb
 
+RUN apk add --no-cache ca-certificates
+
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
