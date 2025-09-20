@@ -1,0 +1,82 @@
+{# templates/contact_user/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  {# On réutilise ton auth.css pour le look (mêmes classes) #}
+  <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
+{% endblock %}
+
+{% block title %}Contact{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <div class="auth-container">
+
+    <div class="auth-tabs">
+      <h1 class="tab active">Nous Contacter</h1>
+    </div>
+
+    <div class="auth-forms">
+      <div class="auth-form-section">
+
+        {# Messages de succès / erreur #}
+       <div id="flash-toasts" class="toast-container">
+  {% for msg in app.flashes('success') %}
+    <div class="toast toast-success" role="status" aria-live="polite">
+      <span class="toast-msg">{{ msg }}</span>
+      <button class="toast-close" aria-label="Fermer">×</button>
+    </div>
+  {% endfor %}
+  {% for msg in app.flashes('error') %}
+    <div class="toast toast-error" role="alert" aria-live="assertive">
+      <span class="toast-msg">{{ msg }}</span>
+      <button class="toast-close" aria-label="Fermer">×</button>
+    </div>
+  {% endfor %}
+</div>
+
+        {# Formulaire de contact #}
+        {{ form_start(contact_form, {'attr': {'class': 'auth-form'}}) }}
+
+          <div class="form-group">
+            {# Nom d’utilisateur (facultatif) #}
+            {{ form_label(contact_form.nomUtilisateur, 'Nom d’utilisateur (facultatif)') }}
+            {{ form_widget(contact_form.nomUtilisateur) }}
+            {{ form_errors(contact_form.nomUtilisateur) }}
+          </div>
+
+          <div class="form-group">
+            {{ form_label(contact_form.titre, 'Sujet') }}
+            {{ form_widget(contact_form.titre) }}
+            {{ form_errors(contact_form.titre) }}
+          </div>
+
+          <div class="form-group">
+            {{ form_label(contact_form.description, 'Message') }}
+            {{ form_widget(contact_form.description, {
+              attr: {
+                placeholder: 'Entrez votre message...',
+                rows: 6
+              }
+            }) }}
+            {{ form_errors(contact_form.description) }}
+          </div>
+
+          <button type="submit">Envoyer</button>
+
+
+        {{ form_end(contact_form) }}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/contact.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,86 @@
+version: "3.8"
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinephoria_php
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: dev
+      PHP_MEMORY_LIMIT: 512M
+      
+      MAILER_FROM: "Cinéphoria <ne-pas-repondre@cinephoria.fr>"
+      MAILER_DSN: "smtp://mailpit:1025?encryption=null&auth_mode=null"
+      MONGODB_URI: "mongodb://mongo:27017"  
+    depends_on:
+      - database
+      - mailpit
+      - mongo    
+    tty: true
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # UI
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+
+  nginx:
+    image: nginx:alpine
+    container_name: cinephoria_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  database:
+    image: postgres:16-alpine
+    container_name: cinephoria_db
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    
+  mongo:
+    image: mongo:6
+    container_name: cinephoria_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"        
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: cinephoria_mongo_express
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports:
+      - "8082:8081"          
+
+volumes:
+  database_data:
+  mongo_data:  

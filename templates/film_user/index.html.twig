@@ -1,0 +1,92 @@
+{# templates/film_user/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/films.css') }}">
+{% endblock %}
+
+{% block title %}Films{% endblock %}
+
+{% block body %}
+<section class="films-section">
+  <h1 class="films-title section-title"><span class="underline"></span>FILMS</h1>
+
+  <form id="film-filter-form" class="filter-bar">
+    <select id="ville" class="form-select">
+      <option value="">Choisir une ville</option>
+      <optgroup label="France">
+        {% for ville in villes.france %}
+          <option value="{{ ville }}">{{ ville }}</option>
+        {% endfor %}
+      </optgroup>
+      <optgroup label="Belgique">
+        {% for ville in villes.belgique %}
+          <option value="{{ ville }}">{{ ville }}</option>
+        {% endfor %}
+      </optgroup>
+    </select>
+
+    <select name="genre" id="genre">
+      <option value="">Choisir un genre</option>
+      {% for genre in genres %}
+        <option value="{{ genre.nom }}">{{ genre.nom }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="jour" id="jour">
+      <option value="">Jour</option>
+      {% for jour in ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'] %}
+        <option value="{{ jour }}">{{ jour }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  {# ---------- Pagination (12/page) ---------- #}
+  {% set perPage     = 12 %}
+  {% set total       = films|length %}
+  {% set totalPages  = (total / perPage)|round(0, 'ceil') %}
+  {% set pageParam   = app.request.query.get('page') ?? 1 %}
+  {% set page        = pageParam|default(1)|round(0, 'floor') %}
+  {% set page        = page < 1 ? 1 : page %}
+  {% set page        = totalPages > 0 and page > totalPages ? totalPages : page %}
+  {% set offset      = (page - 1) * perPage %}
+  {% set filmsPage   = films|slice(offset, perPage) %}
+
+  <div id="films-wrap">
+    {# IMPORTANT: pas de .film-grid ici; le partial l’inclut déjà #}
+    <div id="films-container">
+      {% include 'film_user/_films_list.html.twig' with { films: filmsPage } %}
+    </div>
+
+    {% if totalPages > 1 %}
+      <nav class="pagination" aria-label="Pagination">
+        {# précédent #}
+        {% set prev = page - 1 %}
+        <a class="chevron {{ page == 1 ? 'disabled' : '' }}"
+           href="{{ page == 1 ? '#' : path('app_films', { page: prev }) }}">‹</a>
+
+        {# numéros #}
+        {% for p in 1..totalPages %}
+          <a class="{{ p == page ? 'active' : '' }}"
+             href="{{ p == page ? '#' : path('app_films', { page: p }) }}">{{ p }}</a>
+        {% endfor %}
+
+        {# suivant #}
+        {% set next = page + 1 %}
+        <a class="chevron {{ page == totalPages ? 'disabled' : '' }}"
+           href="{{ page == totalPages ? '#' : path('app_films', { page: next }) }}">›</a>
+      </nav>
+    {% endif %}
+  </div>
+  <script id="film-availability" type="application/json">
+  {{ availability|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+</script>
+
+</section>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/film_filtre.js') }}"></script>
+{% endblock %}

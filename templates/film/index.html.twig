@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/films.css') }}">
+{% endblock %}
+
+{% block title %}Films{% endblock %}
+
+{% block body %}
+<section class="films-section">
+    <h1 class="films-title"><span class="underline"></span>FILMS</h1>
+
+    <div class="film-filters">
+        <select>
+            <option selected disabled>Choisir un cinéma</option>
+        </select>
+        <select>
+            <option selected disabled>Genre du film</option>
+        </select>
+        <select>
+            <option selected disabled>Jour</option>
+        </select>
+    </div>
+
+    <div class="film-grid">
+        {% for film in films %}
+            <div class="film-card">
+                <img src="{{ asset('images/posters/' ~ film.image) }}" alt="{{ film.title }}">
+                <div class="film-content">
+                    <h2>{{ film.title }}</h2>
+                    <p class="public">Tout public</p>
+                    <p class="desc">{{ film.description|slice(0, 160) ~ '...' }}</p>
+                    <p class="note">Note :
+                        {% for i in 1..5 %}
+                            {% if i <= film.note %}
+                                ⭐
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        <span>«</span>
+        <span class="active">1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>»</span>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+# config/packages/mailer.yaml
+framework:
+  mailer:
+    # Transport par défaut pour l’app → Mailpit (défini dans .env/.env.local via MAILER_DSN)
+    dsn: '%env(MAILER_DSN)%'
+
+    # Expéditeur par défaut (utilisé si tu ne fais pas .from() dans le code)
+    envelope:
+      sender: '%env(MAILER_FROM)%'

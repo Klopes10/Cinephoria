@@ -1,0 +1,47 @@
+{# templates/film_user/_avis_modal_content.html.twig #}
+<h3 id="reviews-title">Avis – {{ film.titre }}</h3>
+
+<ul class="reviews-list">
+  {% for a in avis %}
+    <li class="review">
+      <div class="review-header">
+        <span class="review-user">
+          {{ a.user.username ?? a.user.pseudo ?? a.user.email ?? ('Utilisateur #' ~ a.user.id) }}
+        </span>
+
+        {# --- ÉTOILES de cet AVIS (pleines / demi / vides) --- #}
+{% set raw = (a.noteSur5 ?? 0) + 0 %}
+{% if raw < 0 %}{% set raw = 0 %}{% elseif raw > 5 %}{% set raw = 5 %}{% endif %}
+{% set full  = raw|round(0, 'floor') %}
+{% set half  = (raw - full) >= 0.5 ? 1 : 0 %}
+{% set empty = 5 - full - half %}
+
+<span class="review-stars">
+  {% if full > 0 %}
+    {% for i in 1..full %}
+      <img src="{{ asset('images/icons/etoile_pleine.svg') }}" alt="★" class="star-ico">
+    {% endfor %}
+  {% endif %}
+
+  {% if half %}
+    <img src="{{ asset('images/icons/Star-Half.svg') }}" alt="☆" class="star-ico">
+  {% endif %}
+
+  {% if empty > 0 %}
+    {% for i in 1..empty %}
+      <img src="{{ asset('images/icons/etoile_vide.svg') }}" alt="☆" class="star-ico">
+    {% endfor %}
+  {% endif %}
+</span>
+
+        <span class="review-date">{{ a.createdAt|date('d/m/Y') }}</span>
+      </div>
+
+      {% if a.commentaire %}
+        <p class="review-body">{{ a.commentaire }}</p>
+      {% endif %}
+    </li>
+  {% else %}
+    <li>Aucun avis pour le moment.</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,168 @@
+:root{
+    --bg:#0d0b0a;
+    --text:#e9e3dc;
+    --muted:#9a8f86;
+    --card:#171311;
+    --line:#2a241f;
+    --accent:#EE8B1B;
+    --shadow:0 2px 8px rgba(0,0,0,.35);
+  }
+  
+  /* Wrapper & titres */
+  .reserv-wrapper{ margin:150px 177px; color:var(--text); }
+  .reserv-title{ margin:70px  0px; }
+  .reserv-title::after{ content:""; display:block; width:36px; height:3px; background:var(--accent); margin-top:8px; }
+  
+  /* Filtres */
+  .reserv-filters{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    background:#0A0602;
+    padding:8px 10px;
+    border-radius:6px;
+    box-shadow:var(--shadow);
+  
+    margin-top:256px;
+  }
+  
+  .select{ position:relative; background:#1c1816; border-radius:4px; }
+  .select select{
+    appearance:none;
+    width:100%;
+    padding:12px 40px 12px 12px;
+    font-size:14px;
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:4px;
+    outline:none;
+  }
+  .select select:disabled{ opacity:.45; cursor:not-allowed; }
+  .select .chev{ position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--muted); }
+  
+  /* Bandeau jours */
+  .reserv-days{ display:flex; gap:22px; align-items:center;  padding-left:4px; overflow-x:auto; }
+  .day-pill{
+    background:none;
+    border:none;
+    color:var(--muted);
+    padding:6px 0;
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+    font-family: "Poppins", sans-serif;
+    font-size: 16px;
+  }
+  .day-pill.active{ color:var(--text); border-color:var(--accent); }
+  
+  /* Zone résultats */
+  #sessionsArea{ min-height:80px; display:flex; margin-top:60px;}
+  #sessionsArea .hint{ color:var(--muted); }
+  
+  /* La grille et les cartes films réutilisent film.css
+     Les chips séances réutilisent film_show.css */
+  
+  .film-info{
+    margin-left:30px;
+
+  }
+     
+  /* Réutilisation du style des filtres films */
+.reserv-filters {
+  display: flex;
+  background-color: transparent;
+  border: 1px solid #EEE8E2;
+  opacity: 0.5;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 60px;
+  gap: 16px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
+}
+
+/* Styles identiques aux select de .filter-bar */
+.reserv-filters select {
+  appearance: none;
+  background-color: #0e0a07;
+  color: #EEE8E2;
+  padding: 0 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  transition: border 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  height: 100%;
+  min-width: 32%;
+
+  /* Flèche personnalisée */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+}
+
+/* Cache la flèche native */
+.reserv-filters select::-ms-expand {
+  display: none;
+}
+
+/* Optgroup & option comme avant */
+.reserv-filters optgroup {
+  color: #ee8b1b;
+  font-weight: 400;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding: 0.5rem 0;
+}
+
+.reserv-filters option {
+  color: #ffffff;
+  background-color: #0e0a07;
+  padding: 0.5rem 1rem;
+  text-transform: capitalize;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.film-horizontal-card {
+  display: flex;              /* comme avant */
+  gap: 1rem;
+  text-decoration: none;      /* empêche le soulignement hérité des <a> */
+  color: inherit;             /* garde la même couleur du texte */
+  cursor: default;            /* le curseur ne doit pas changer comme sur un lien */
+}
+  /* Responsive */
+  @media (max-width: 900px){
+    .reserv-wrapper{ margin:110px 18px; }
+    .reserv-filters{ grid-template-columns:1fr; gap:10px; }
+  }
+
+  .film-poster { position: relative; }
+  .film-poster img {width:260px; height:100%}
+.badge{
+  position:absolute;
+  top:12px;
+  right:0;
+  background:#EE8B1B;
+  color:#0A0602;
+  font-size:14px;
+  font-weight:600;
+  padding:0 10px;
+  border-radius:5px;
+  width:162px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  z-index:3; /* au-dessus de l’overlay éventuel */
+}
+.badge svg{ width:20px; height:20px; }
+
+  

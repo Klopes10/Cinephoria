@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une séance{% endblock %}
+
+{% block body %}
+    <h1>Créer une nouvelle séance</h1>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary">Valider</button>
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cinemaSelect = document.querySelector('[name="seance_form[cinema]"]');
+            const salleSelect = document.querySelector('[name="seance_form[salle]"]');
+
+            if (!cinemaSelect || !salleSelect) return;
+
+            cinemaSelect.addEventListener('change', function () {
+                const cinemaId = this.value;
+
+                fetch(`/admin/salles-by-cinema/${cinemaId}`)
+                    .then(response => response.json())
+                    .then(salles => {
+                        salleSelect.innerHTML = '';
+
+                        salles.forEach(salle => {
+                            const option = document.createElement('option');
+                            option.value = salle.id;
+                            option.textContent = salle.nom;
+                            salleSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du chargement des salles :', error);
+                    });
+            });
+        });
+    </script>
+{% endblock %}

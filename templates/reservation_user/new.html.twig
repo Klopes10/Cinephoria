@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+{% block title %}Réserver sa place{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/seat-reservation.css') }}">
+{% endblock %}
+
+{% block body %}
+
+
+<div class="layout">
+  <!-- Colonne gauche -->
+  <aside class="left">
+    <div class="poster">
+      <img src="{{ poster ?? asset('images/placeholder.jpg') }}" alt="{{ film.titre }}">
+    </div>
+
+    <div class="infos">
+      <h3 class="film-title">{{ film.titre }}</h3>
+      <p class="cinema">{{ cinema.nom ?? '' }}</p>
+      <p class="date">{{ seance.date|date('d/m/Y') }}</p>
+
+      <div class="session-card">
+        {% if seance.format %}
+          <div class="chip-top"><span class="chip-version">{{ seance.format|lower }}</span></div>
+        {% endif %}
+        <div class="chip-time">{{ seance.date|date('H:i') }}</div>
+        {% if seance.fin %}<div class="chip-end">fin à {{ seance.fin|date('H:i') }}</div>{% endif %}
+        {% if seance.salle %}<div class="chip-room">{{ seance.salle }}</div>{% endif %}
+        <div class="chip-icons">
+          <span class="icon" aria-label="Accès fauteuil">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="4" r="2" fill="currentColor"/>
+              <path fill="currentColor" d="M16.98 14.804A1 1 0 0 0 16 14h-4.133l-.429-3H16V9h-4.847l-.163-1.142A1 1 0 0 0 10 7H9a1.003 1.003 0 0 0-.99 1.142l.877 6.142A2.01 2.01 0 0 0 10.867 16h4.313l.839 4.196c.094.467.504.804.981.804h3v-2h-2.181z"/>
+              <path fill="currentColor" d="M12.51 17.5c-.739 1.476-2.25 2.5-4.01 2.5A4.505 4.505 0 0 1 4 15.5a4.5 4.5 0 0 1 2.817-4.167l-.289-2.025C3.905 10.145 2 12.604 2 15.5C2 19.084 4.916 22 8.5 22a6.5 6.5 0 0 0 5.545-3.126l-.274-1.374z"/>
+            </svg>
+          </span>
+          <span class="icon" aria-label="Accessibilité visuelle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+              <path fill="currentColor" d="m5.24 22.51l1.43-1.42A14.06 14.06 0 0 1 3.07 16C5.1 10.93 10.7 7 16 7a12.4 12.4 0 0 1 4 .72l1.55-1.56A14.7 14.7 0 0 0 16 5A16.69 16.69 0 0 0 1.06 15.66a1 1 0 0 0 0 .68a16 16 0 0 0 4.18 6.17"/>
+              <path fill="currentColor" d="M12 15.73a4 4 0 0 1 3.7-3.7l1.81-1.82a6 6 0 0 0-7.33 7.33zm18.94-.07a16.4 16.4 0 0 0-5.74-7.44L30 3.41L28.59 2L2 28.59L3.41 30l5.1-5.1A15.3 15.3 0 0 0 16 27a16.69 16.69 0 0 0 14.94-10.66a1 1 0 0 0 0-.68M20 16a4 4 0 0 1-6 3.44L19.44 14a4 4 0 0 1 .56 2m-4 9a13.05 13.05 0 0 1-6-1.58l2.54-2.54a6 6 0 0 0 8.35-8.35l2.87-2.87A14.54 14.54 0 0 1 28.93 16C26.9 21.07 21.3 25 16 25"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Contenu principal -->
+  <main class="main">
+    <div class="heading">
+      <h2 class="section-title"><span class="underline"></span>RÉSERVER SA PLACE</h2>
+      <p class="sub"><span id="leftCount">{{ seance.placesDispo ?? 0 }}</span> places disponibles</p>
+    </div>
+
+    <!-- Zone salle + sièges -->
+    {# Prix normalisé pour le JS (13.00) + limite 10 #}
+    <div id="room" data-max="10" data-price="{{ (seance.tarif ?? 9.5)|number_format(2, '.', '') }}">
+      <div class="seats">
+        {% if pmrRow is defined and pmrRow|length > 0 %}
+          <div class="row pmr-row">
+            {% for cell in pmrRow %}
+              {% set isTaken = cell.isReserved %}
+              <button
+                type="button"
+                class="seat pmr {{ isTaken ? 'taken' : '' }}"
+                data-id="{{ cell.id }}"
+                data-num="{{ cell.code }}"         {# ← affichage lisible #}
+                {{ isTaken ? 'disabled' }}
+                aria-pressed="false"
+                aria-label="Siège {{ cell.code }} PMR{{ isTaken ? ' indisponible' : '' }}"
+              >
+                <img src="{{ asset('images/icons/Handicap.svg') }}" alt="" width="28" height="28">
+              </button>
+                
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% for line in rows %}
+          <div class="row">
+            {% for cell in line %}
+              {% set isTaken = cell.isReserved %}
+              <button
+                type="button"
+                class="seat std {{ isTaken ? 'taken' : '' }}"
+                data-id="{{ cell.id }}"
+                data-num="{{ cell.code }}"         {# ← affichage lisible #}
+                {{ isTaken ? 'disabled' }}
+                aria-pressed="false"
+                aria-label="Siège {{ cell.code }}{{ isTaken ? ' indisponible' : '' }}"
+              >
+                <img src="{{ asset('images/icons/Seat.svg') }}" alt="" width="28" height="28">
+              </button>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="screen">ÉCRAN</div>
+
+      <!-- Formulaire de réservation -->
+      <form id="bookingForm" method="POST" action="{{ path('app_reservation_confirm', { id: seance.id }) }}" class="cta">
+        <p id="totalLine" class="total-line" aria-live="polite"></p>
+        <input type="hidden" name="seats" id="seatsInput" value="">
+        <button id="continueBtn" class="auth-form primary" type="submit" disabled>Acheter</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+{# Étiquette de validation (slide-in) #}
+<div id="purchaseTag" class="purchase-tag" aria-live="assertive" hidden>
+  <div class="purchase-tag__icon" aria-hidden="true">
+    <!-- petit check -->
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="purchase-tag__text">
+    <strong>Achat confirmé</strong>
+    <span id="purchaseTagText" class="purchase-tag__sub"></span>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+  (function () {
+    const room        = document.getElementById('room');
+    const form        = document.getElementById('bookingForm');
+    const seatsInput  = document.getElementById('seatsInput');
+    const continueBtn = document.getElementById('continueBtn');
+    const leftCount   = document.getElementById('leftCount');
+    const totalLine   = document.getElementById('totalLine');
+    const tag         = document.getElementById('purchaseTag');
+    const tagText     = document.getElementById('purchaseTagText');
+
+    if (!room || !form || !seatsInput || !continueBtn) return;
+
+    // Prix robuste (gère "13,00" et 1300 centimes)
+    const rawPrice = room.dataset.price ?? '9.5';
+    let PRICE = parseFloat(String(rawPrice).replace(',', '.'));
+    if (PRICE > 100) { PRICE = PRICE / 100; }
+    if (!isFinite(PRICE) || PRICE <= 0) { PRICE = 9.5; }
+
+    const MAX_SEATS     = parseInt(room.dataset.max || '10', 10);
+    const euro          = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+    const selected      = new Set();
+    let currentLeft     = parseInt(leftCount?.textContent || '0', 10);
+
+    function updateUI() {
+      seatsInput.value = Array.from(selected).join(',');
+      continueBtn.disabled = selected.size === 0;
+
+      const total = selected.size * PRICE;
+      if (selected.size > 0) {
+        totalLine.textContent = `Total de la réservation : ${euro.format(total)}`;
+        totalLine.classList.add('show');
+        totalLine.classList.remove('bump');
+        void totalLine.offsetWidth;
+        totalLine.classList.add('bump');
+      } else {
+        totalLine.textContent = '';
+        totalLine.classList.remove('show','bump');
+      }
+    }
+
+    // Sélection/Désélection avec limite
+    room.addEventListener('click', (e) => {
+      const btn = e.target.closest('.seat');
+      if (!btn || btn.classList.contains('taken') || btn.disabled) return;
+
+      const id = btn.dataset.id;
+      const willSelect = !btn.classList.contains('is-selected');
+      if (willSelect && selected.size >= MAX_SEATS) {
+        // petit feedback
+        btn.classList.add('shake');
+        setTimeout(() => btn.classList.remove('shake'), 300);
+        return;
+      }
+
+      const nowSelected = btn.classList.toggle('is-selected');
+      btn.setAttribute('aria-pressed', nowSelected ? 'true' : 'false');
+
+      if (nowSelected) selected.add(id);
+      else selected.delete(id);
+
+      if (leftCount) {
+        const newLeft = Math.max(0, currentLeft - selected.size);
+        leftCount.textContent = String(newLeft);
+      }
+      updateUI();
+    });
+
+    // Soumission AJAX
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (selected.size === 0) return;
+
+      // On capture le total avant de clear la sélection (pour l’étiquette)
+      const totalBefore = selected.size * PRICE;
+      const seatsCount  = selected.size;
+
+      const fd = new FormData(form);
+      fd.set('seats', Array.from(selected).join(','));
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: fd,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data?.ok) {
+          alert(data?.message || "Impossible de valider la réservation.");
+          return;
+        }
+
+        // Marque visuellement comme réservé
+        selected.forEach((id) => {
+          const b = room.querySelector('.seat[data-id="' + id + '"]');
+          if (!b) return;
+          b.classList.remove('is-selected');
+          b.classList.add('taken');
+          b.setAttribute('disabled', 'disabled');
+          b.setAttribute('aria-pressed', 'false');
+        });
+
+        // Décompte local
+        currentLeft = Math.max(0, currentLeft - seatsCount);
+        if (leftCount) leftCount.textContent = String(currentLeft);
+
+        // Vide la sélection + UI
+        selected.clear();
+        updateUI();
+
+        // ✨ Étiquette slide-in
+        if (tag && tagText) {
+          tagText.textContent = `${seatsCount} place${seatsCount>1?'s':''} • ${new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR' }).format(totalBefore)}`;
+          tag.hidden = false;
+          // reflow puis show
+          void tag.offsetWidth;
+          tag.classList.add('show');
+        }
+
+        // Redirection après une petite pause
+        setTimeout(() => {
+          window.location.href = data.redirect || "{{ path('app_account') }}";
+        }, 1400);
+
+      } catch (err) {
+        console.error(err);
+        alert("Erreur réseau. Merci de réessayer.");
+      }
+    });
+  })();
+  </script>
+{% endblock %}

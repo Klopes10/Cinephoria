@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé{% endblock %}
+
+{% block body %}
+<h1>⛔ Accès refusé</h1>
+<p>Vous devez être connecté pour accéder à cette page.</p>
+<a href="{{ path('app_auth') }}">Se connecter</a>
+{% endblock %}

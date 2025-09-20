@@ -1,0 +1,84 @@
+{# templates/reservation_user/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation - Cinéphoria{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/film.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/film_show.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/reservation.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="reserv-wrapper">
+
+  <div class="reserv-filters">
+    <!-- Ville -->
+    <select id="citySelect">
+      <option value="">Choisir un cinema</option>
+      {% for pays, villes in villesParPays %}
+        <optgroup label="{{ pays }}">
+          {% for ville in villes %}
+            <option value="{{ ville }} — {{ pays }}" data-pays="{{ pays }}">{{ ville }}</option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+
+    <!-- Film : rempli après choix de la ville -->
+    <select id="filmSelect" disabled>
+      <option value="">Choisir un film</option>
+    </select>
+
+    <!-- Places -->
+    <select id="placesSelect" disabled>
+      <option value="">Sélectionner le nombre de places</option>
+      {% for n in 1..10 %}
+        <option value="{{ n }}">{{ n }} place{{ n > 1 ? 's' : '' }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <h2 class="reserv-title section-title">SÉANCES DISPONIBLES</h2>
+
+  <div class="reserv-days" id="dayStrip">
+    {% for d in days %}
+      <button class="day-pill {{ loop.first ? 'active' : '' }}" data-date="{{ d.iso }}">{{ d.label }}</button>
+    {% endfor %}
+  </div>
+
+  {# Zone résultats : on affiche uniquement le hint au chargement #}
+  <div id="sessionsArea">
+    <p class="hint">Sélectionnez un cinéma pour choisir votre séance.</p>
+  </div>
+
+</div>
+
+{# Données préchargées pour filtrage instantané #}
+<script>
+  const allData     = {{ data|raw }};        // { "Ville — Pays": { "YYYY-MM-DD": { filmId: {film, seances[]} } } }
+  const filmsByCity = {{ filmsByCity|raw }}; // { "Ville — Pays": [ {id,titre}, ... ] }
+  
+  (function () {
+    const fmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' });
+    document.querySelectorAll('.day-pill').forEach(btn => {
+      const iso = btn.dataset.date;
+      if (!iso) return;
+      const d = new Date(iso + 'T00:00:00');
+      // Exemple typique: "sam. 20 sept."
+      let s = fmt.format(d);
+      // Mettre juste la 1re lettre en capitale pour ressembler à ton 2e screen: "Sam. 20 sept."
+      s = s.replace(/^(\p{L})/u, (m) => m.toUpperCase());
+      btn.textContent = s;
+    });
+  })();
+
+
+</script>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="{{ asset('js/reservation.js') }}"></script>
+{% endblock %}

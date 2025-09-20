@@ -1,0 +1,36 @@
+app = "cinephoria-web"
+primary_region = "cdg" # Paris (adapte si nécessaire)
+
+[build]
+  dockerfile = "Dockerfile.fly"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+# Commande de release: migrations Doctrine à chaque déploiement
+[deploy]
+  release_command = "php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration"
+
+# Checks HTTP
+[[services.checks]]
+  grace_period = "30s"
+  interval = "15s"
+  method = "get"
+  timeout = "2s"
+  path = "/healthz"
+
+[[mounts]]
+source = "uploads"
+destination = "/app/public/uploads"
+
+[env]
+APP_ENV = "prod"
+TZ = "Europe/Paris"
+LANG = "fr_FR.UTF-8"
+LANGUAGE = "fr_FR:fr"
+LC_ALL = "fr_FR.UTF-8"
