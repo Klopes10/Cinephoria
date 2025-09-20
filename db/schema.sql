@@ -3,11 +3,11 @@
 -- =========================================
 
 -- 1) Drop puis recrée la base
-DROP DATABASE IF EXISTS sandbox_cinephoria_test;
-CREATE DATABASE sandbox_cinephoria_test;
+DROP DATABASE IF EXISTS app;
+CREATE DATABASE app;
 
 -- 2) Connexion à la base (psql)
-\c sandbox_cinephoria_test
+\c app
 
 -- 3) Drop des tables si elles existent (ordre inverse des dépendances)
 DROP TABLE IF EXISTS reservation_siege CASCADE;
