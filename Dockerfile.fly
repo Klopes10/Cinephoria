@@ -46,6 +46,11 @@ RUN mkdir -p /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \
  && chown -R www-data:www-data /run/php /app/var \
  && chown -R root:root /var/log/nginx /var/cache/nginx /app/public /var/log/supervisor
 
+# ICU + locales + extension intl
+RUN apk add --no-cache icu-libs icu-data-full \
+ && docker-php-ext-install intl \
+ && echo "intl.default_locale=fr_FR" > /usr/local/etc/php/conf.d/99-intl.ini \
+ && echo "date.timezone=Europe/Paris" > /usr/local/etc/php/conf.d/99-timezone.ini
 
 # Nginx & Supervisor configs
 COPY ./.fly/nginx.conf /etc/nginx/nginx.conf

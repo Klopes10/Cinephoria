@@ -4,6 +4,10 @@ framework:
     trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host']
     trusted_hosts: '%env(TRUSTED_HOSTS)%'
     secret: '%env(APP_SECRET)%'
+    default_locale: fr
+    translator:
+        default_path: '%kernel.project_dir%/translations'
+        fallbacks: ['fr']
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true

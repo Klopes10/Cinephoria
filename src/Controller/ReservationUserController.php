@@ -19,29 +19,32 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ReservationUserController extends AbstractController
 {
     public function __construct(
-        private readonly MongoReservationsLogger $mongoLogger, // ⇦ injection du logger Mongo
+        private readonly MongoReservationsLogger $mongoLogger, // ⇦ logger Mongo
     ) {}
 
     #[Route('/reservation', name: 'app_reservation')]
     public function index(SeanceRepository $seanceRepo, EntityManagerInterface $em): Response
     {
-        // Ruban 7 jours
+        // --- Ruban 7 jours (FR + Europe/Paris)
+        $tz    = new \DateTimeZone('Europe/Paris');
         $days  = [];
-        $start = new \DateTimeImmutable('today');
+        $start = new \DateTimeImmutable('today', $tz);
 
         $fmt = new \IntlDateFormatter(
             'fr_FR',
             \IntlDateFormatter::NONE,
             \IntlDateFormatter::NONE,
-            $start->getTimezone()->getName(),
+            $tz->getName(),
             \IntlDateFormatter::GREGORIAN,
-            "EEE dd MMM."
+            "EEE d MMM." // ex: "sam. 20 sept."
         );
 
         for ($i = 0; $i < 7; $i++) {
             $d = $start->modify("+$i day");
-            $label = $fmt->format($d);
-            $label = mb_convert_case($label, MB_CASE_TITLE, 'UTF-8');
+
+            // Commence par une majuscule, conserve le reste tel quel (pour garder "sept.")
+            $raw   = $fmt->format($d);               // "sam. 20 sept."
+            $label = mb_strtoupper(mb_substr($raw, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr($raw, 1, null, 'UTF-8'); // "Sam. 20 sept."
 
             $days[] = [
                 'iso'   => $d->format('Y-m-d'),
@@ -49,7 +52,7 @@ class ReservationUserController extends AbstractController
             ];
         }
 
-        // Villes par pays
+        // --- Villes par pays
         $cinemaRows = $em->getRepository(Cinema::class)->createQueryBuilder('c')
             ->select('c.ville, c.pays')
             ->groupBy('c.ville, c.pays')
@@ -61,7 +64,9 @@ class ReservationUserController extends AbstractController
         foreach ($cinemaRows as $row) {
             $pays  = (string)($row['pays'] ?? '');
             $ville = (string)($row['ville'] ?? '');
-            if (!$pays || !$ville) continue;
+            if (!$pays || !$ville) {
+                continue;
+            }
             $villesParPays[$pays][] = $ville;
         }
         foreach ($villesParPays as $p => &$v) {
@@ -70,7 +75,7 @@ class ReservationUserController extends AbstractController
         }
         unset($v);
 
-        // Séances 7 jours
+        // --- Séances sur 7 jours
         $allSeances = $seanceRepo->createQueryBuilder('s')
             ->innerJoin('s.film', 'f')->addSelect('f')
             ->innerJoin('s.salle', 'sa')->addSelect('sa')
@@ -221,7 +226,7 @@ class ReservationUserController extends AbstractController
         $map = fn($s) => [
             'id'         => $s->getId(),
             'numero'     => $s->getNumero(),
-            'code'       => $s->getCode(),       // ← expose le code
+            'code'       => $s->getCode(),
             'isPMR'      => (bool)$s->isPMR(),
             'isReserved' => (bool)$s->isReserved(),
         ];

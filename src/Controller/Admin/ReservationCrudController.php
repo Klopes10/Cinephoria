@@ -84,7 +84,11 @@ class ReservationCrudController extends AbstractCrudController
                     ->where('s.isReserved = false'),
             ]);
 
-        yield DateTimeField::new('createdAt', "Réservé le : ")->hideOnForm();
+        yield DateTimeField::new('createdAt', "Réservé le : ")
+            ->hideOnForm()
+            ->setRequired(true)
+            ->setFormat('dd/MM/yyyy')        // affichage
+            ->renderAsNativeWidget(false);
 
         // Colonnes d'index
         yield TextField::new('user.email', 'Email')->onlyOnIndex();

@@ -27,3 +27,10 @@ primary_region = "cdg" # Paris (adapte si nécessaire)
 [[mounts]]
 source = "uploads"
 destination = "/app/public/uploads"
+
+[env]
+APP_ENV = "prod"
+TZ = "Europe/Paris"
+LANG = "fr_FR.UTF-8"
+LANGUAGE = "fr_FR:fr"
+LC_ALL = "fr_FR.UTF-8"

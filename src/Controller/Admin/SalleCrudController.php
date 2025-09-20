@@ -26,7 +26,11 @@ class SalleCrudController extends AbstractCrudController
             AssociationField::new('qualite', 'Qualité de projection')->autocomplete(),
 
             AssociationField::new('cinema', 'Cinéma associé')->autocomplete(),
-            DateTimeField::new('createdAt', 'Créée le')->hideOnForm(),
+            DateTimeField::new('createdAt', 'Créée le')
+            ->hideOnForm()
+            ->setRequired(true)
+            ->setFormat('dd/MM/yyyy')        // affichage
+            ->renderAsNativeWidget(false),
         ];
     }
 }
