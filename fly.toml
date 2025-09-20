@@ -23,3 +23,7 @@ primary_region = "cdg" # Paris (adapte si nécessaire)
   method = "get"
   timeout = "2s"
   path = "/healthz"
+
+[[mounts]]
+source = "uploads"
+destination = "/app/public/uploads"
