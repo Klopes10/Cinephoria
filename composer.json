@@ -29,6 +29,7 @@
         "symfony/twig-bundle": "7.2.*",
         "symfony/validator": "7.2.*",
         "symfony/yaml": "7.2.*",
+        "symfony/ux-twig-component": "^2.27",
         "twig/intl-extra": "*"
     },
     "require-dev": {
