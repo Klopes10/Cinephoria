@@ -22,8 +22,8 @@ primary_region = "cdg" # Paris
 
 # Commande exécutée à chaque déploiement (migrations + cache)
 [deploy]
-  release_command = "php bin/console -n doctrine:migrations:migrate && php bin/console -n cache:clear --env=prod && php bin/console -n cache:warmup --env=prod"
-
+  release_command = "sh -lc '.fly/release.sh'"
+  
 # Montage du volume persistant (uploads)
 [[mounts]]
   source = "uploads"
