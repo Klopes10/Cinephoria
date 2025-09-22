@@ -63,6 +63,9 @@ RUN apk add --no-cache icu-libs icu-data-full \
  && echo "intl.default_locale=fr_FR" > /usr/local/etc/php/conf.d/99-intl.ini \
  && echo "date.timezone=Europe/Paris" > /usr/local/etc/php/conf.d/99-timezone.ini
 
+ # Assure la présence d'$_ENV (et $_SERVER) avec les env vars
+RUN echo "variables_order=EGPCS" > /usr/local/etc/php/conf.d/98-vars.ini
+
 # 13) Nginx & Supervisor
 COPY ./.fly/nginx.conf /etc/nginx/nginx.conf
 COPY ./.fly/supervisord.conf /etc/supervisord.conf
