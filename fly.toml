@@ -20,9 +20,10 @@ primary_region = "cdg" # Paris
     method = "get"
     path = "/healthz"
 
-# Commande exécutée à chaque déploiement (migrations)
+# Commande exécutée à chaque déploiement (migrations + cache)
 [deploy]
-  release_command = "php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing && php bin/console cache:clear --no-interaction --env=prod && php bin/console cache:warmup --no-interaction --env=prod"
+  # Forme minimale et robuste (évite le parsing foireux des options)
+  release_command = "php bin/console doctrine:migrations:migrate -n && php bin/console cache:clear -n --env=prod && php bin/console cache:warmup -n --env=prod"
 
 # Montage du volume persistant (uploads)
 [[mounts]]

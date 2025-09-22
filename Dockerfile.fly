@@ -48,10 +48,10 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-
 
 # 10) Autoload + commandes Symfony explicites (non bloquant si DB ND)
 RUN composer dump-autoload --no-dev -o \
- && php -d variables_order=EGPCS bin/console about || true \
- && php -d variables_order=EGPCS bin/console assets:install --no-interaction || true \
- && php -d variables_order=EGPCS bin/console cache:clear --env=prod --no-warmup || true \
- && php -d variables_order=EGPCS bin/console cache:warmup --env=prod || true
+ && php bin/console about || true \
+ && php bin/console assets:install --no-interaction || true \
+ && php bin/console cache:clear --env=prod --no-warmup || true \
+ && php bin/console cache:warmup --env=prod || true
 
 # 11) Dossiers runtime & permissions
 RUN mkdir -p /app/var /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \
@@ -63,7 +63,7 @@ RUN apk add --no-cache icu-libs icu-data-full \
  && echo "intl.default_locale=fr_FR" > /usr/local/etc/php/conf.d/99-intl.ini \
  && echo "date.timezone=Europe/Paris" > /usr/local/etc/php/conf.d/99-timezone.ini
 
- # Assure la présence d'$_ENV (et $_SERVER) avec les env vars
+# Assure la présence d'$_ENV (et $_SERVER) avec les env vars
 RUN echo "variables_order=EGPCS" > /usr/local/etc/php/conf.d/98-vars.ini
 
 # 13) Nginx & Supervisor
