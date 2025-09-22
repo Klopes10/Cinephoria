@@ -1,6 +1,7 @@
+# Dockerfile.fly
 FROM php:8.2-fpm-alpine
 
-# System packages + Nginx + Supervisor + build deps
+# --- System packages + Nginx + Supervisor + build deps
 RUN apk add --no-cache \
     nginx supervisor \
     git unzip curl wget \
@@ -8,59 +9,60 @@ RUN apk add --no-cache \
     libpng-dev libjpeg-turbo-dev libwebp-dev libxml2-dev libxslt-dev \
     openssl-dev $PHPIZE_DEPS
 
-# PHP extensions
+# --- PHP extensions
 RUN docker-php-ext-configure intl \
- && docker-php-ext-install -j$(nproc) intl pdo pdo_pgsql opcache \
+ && docker-php-ext-install -j"$(nproc)" intl pdo pdo_pgsql opcache \
  && docker-php-ext-enable opcache
 
-# PECL MongoDB
+# --- PECL MongoDB
 RUN pecl install mongodb-1.16.2 \
  && docker-php-ext-enable mongodb
 
 RUN apk add --no-cache ca-certificates
 
-# Composer
+# --- Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Faster layer caching for vendors
+# --- Faster layer caching for vendors
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-progress --no-scripts --no-interaction
 
-# App code
+# --- App code
 COPY . .
 
-# Re-optimize autoload for the just-copied codebase
+# --- Ensure runtime dirs exist BEFORE chown (var/ is usually gitignored)
+RUN mkdir -p /app/var/cache /app/var/log /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \
+ && chown -R www-data:www-data /run/php /app/var \
+ && chown -R root:root /var/log/nginx /var/cache/nginx /app/public /var/log/supervisor
+
+# --- Re-optimize autoload for the just-copied codebase
 RUN composer dump-autoload --no-dev -o
 
-# (Optional) assets build
+# --- Optional assets build
 # RUN apk add --no-cache nodejs npm && npm ci && npm run build
 
-# Symfony warmup (won’t fail build if DB not reachable)
+# --- Symfony warmup (won’t fail build if DB not reachable / secrets not set yet)
 RUN php bin/console assets:install --no-interaction || true \
  && php bin/console cache:clear --env=prod --no-warmup || true \
  && php bin/console cache:warmup --env=prod || true
 
-# Runtime dirs & perms
-# Dossiers runtime
-RUN mkdir -p /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \
- && chown -R www-data:www-data /run/php /app/var \
- && chown -R root:root /var/log/nginx /var/cache/nginx /app/public /var/log/supervisor
-
-# ICU + locales + extension intl
+# --- ICU runtime + locale/timezone (no need to recompile intl again)
 RUN apk add --no-cache icu-libs icu-data-full \
- && docker-php-ext-install intl \
- && echo "intl.default_locale=fr_FR" > /usr/local/etc/php/conf.d/99-intl.ini \
- && echo "date.timezone=Europe/Paris" > /usr/local/etc/php/conf.d/99-timezone.ini
+ && printf "intl.default_locale=fr_FR\n" > /usr/local/etc/php/conf.d/99-intl.ini \
+ && printf "date.timezone=Europe/Paris\n" > /usr/local/etc/php/conf.d/99-timezone.ini
 
-# Nginx & Supervisor configs
+# --- Nginx & Supervisor configs
 COPY ./.fly/nginx.conf /etc/nginx/nginx.conf
 COPY ./.fly/supervisord.conf /etc/supervisord.conf
 # (optional) PHP prod ini
 # COPY ./.fly/php.prod.ini /usr/local/etc/php/conf.d/zz-prod.ini
 
+# --- Runtime env
 ENV APP_ENV=prod
+
+# Make sure your nginx listens on 8080 inside the container
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=5 CMD wget -qO- http://localhost:8080/healthz || exit 1
