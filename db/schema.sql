@@ -3,11 +3,11 @@
 -- =========================================
 
 -- 1) Drop puis recrée la base
-DROP DATABASE IF EXISTS app;
-CREATE DATABASE app;
+DROP DATABASE IF EXISTS app_test;
+CREATE DATABASE app_test;
 
 -- 2) Connexion à la base (psql)
-\c app
+\c app_test
 
 -- 3) Drop des tables si elles existent (ordre inverse des dépendances)
 DROP TABLE IF EXISTS reservation_siege CASCADE;
@@ -25,24 +25,20 @@ DROP TABLE IF EXISTS cinema CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 
 
--- Table: "user"
+-- Tables
 
 CREATE TABLE "user" (
   id                        BIGSERIAL PRIMARY KEY,
   email                     VARCHAR(180) NOT NULL UNIQUE,
-  roles                     JSON NOT NULL,             
+  roles                     JSON NOT NULL,
   password                  VARCHAR(255) NOT NULL,
   name                      VARCHAR(255) NOT NULL,
   forname                   VARCHAR(255) NOT NULL,
   username                  VARCHAR(255) NOT NULL,
-  create_at                 TIMESTAMP NOT NULL,        
+  create_at                 TIMESTAMP NOT NULL,
   reset_password_token      VARCHAR(100),
   reset_password_expires_at TIMESTAMP
 );
-
-
-
--- Table: cinema
 
 CREATE TABLE cinema (
   id          BIGSERIAL PRIMARY KEY,
@@ -53,10 +49,6 @@ CREATE TABLE cinema (
   code_postal VARCHAR(255) NOT NULL
 );
 
-
-
--- Table: contact
-
 CREATE TABLE contact (
   id              BIGSERIAL PRIMARY KEY,
   nom_utilisateur VARCHAR(255),
@@ -65,26 +57,16 @@ CREATE TABLE contact (
   date_envoi      TIMESTAMP NOT NULL
 );
 
--- Table: genre
-
 CREATE TABLE genre (
   id  BIGSERIAL PRIMARY KEY,
   nom VARCHAR(255) NOT NULL
 );
-
-
-
--- Table: qualite
 
 CREATE TABLE qualite (
   id    BIGSERIAL PRIMARY KEY,
   label VARCHAR(255) NOT NULL,
   prix  NUMERIC(6,2) NOT NULL
 );
-
-
-
--- Table: film
 
 CREATE TABLE film (
   id               BIGSERIAL PRIMARY KEY,
@@ -100,9 +82,6 @@ CREATE TABLE film (
 );
 CREATE INDEX genre_id_idx ON film(genre_id);
 
-
--- Table: salle
-
 CREATE TABLE salle (
   id            BIGSERIAL PRIMARY KEY,
   cinema_id     BIGINT NOT NULL,
@@ -116,9 +95,6 @@ CREATE TABLE salle (
 CREATE INDEX cinema_id_idx ON salle(cinema_id);
 CREATE INDEX qualite_id_idx ON salle(qualite_id);
 
-
--- Table: seance
-
 CREATE TABLE seance (
   id                BIGSERIAL PRIMARY KEY,
   film_id           BIGINT NOT NULL,
@@ -129,16 +105,16 @@ CREATE TABLE seance (
   heure_fin         TIME NOT NULL,
   places_disponible INTEGER NOT NULL,
   created_at        TIMESTAMP NOT NULL,
-  CONSTRAINT fk_seance_film   FOREIGN KEY (film_id)   REFERENCES film(id)   ON DELETE NO ACTION,
-  CONSTRAINT fk_seance_salle  FOREIGN KEY (salle_id)  REFERENCES salle(id)  ON DELETE NO ACTION,
-  CONSTRAINT fk_seance_cinema FOREIGN KEY (cinema_id) REFERENCES cinema(id) ON DELETE NO ACTION
+  qualite_id        BIGINT NOT NULL,
+  CONSTRAINT fk_seance_film    FOREIGN KEY (film_id)    REFERENCES film(id)   ON DELETE NO ACTION,
+  CONSTRAINT fk_seance_salle   FOREIGN KEY (salle_id)   REFERENCES salle(id)  ON DELETE NO ACTION,
+  CONSTRAINT fk_seance_cinema  FOREIGN KEY (cinema_id)  REFERENCES cinema(id) ON DELETE NO ACTION,
+  CONSTRAINT fk_seance_qualite FOREIGN KEY (qualite_id) REFERENCES qualite(id) ON DELETE NO ACTION
 );
-CREATE INDEX film_id_idx  ON seance(film_id);
-CREATE INDEX salle_id_idx ON seance(salle_id);
-CREATE INDEX cinema_id_idx ON seance(cinema_id);
-
-
--- Table: siege
+CREATE INDEX film_id_idx   ON seance(film_id);
+CREATE INDEX salle_id_idx  ON seance(salle_id);
+CREATE INDEX seance_qualite_idx ON seance(qualite_id);
+CREATE INDEX seance_cinema_idx  ON seance(cinema_id);
 
 CREATE TABLE siege (
   id          BIGSERIAL PRIMARY KEY,
@@ -151,7 +127,6 @@ CREATE TABLE siege (
 );
 CREATE INDEX seance_id_idx ON siege(seance_id);
 
--- Table: incident
 CREATE TABLE incident (
   id               BIGSERIAL PRIMARY KEY,
   salle_id         BIGINT NOT NULL,
@@ -162,13 +137,7 @@ CREATE TABLE incident (
   titre            VARCHAR(255) NOT NULL,
   CONSTRAINT fk_incident_salle FOREIGN KEY (salle_id) REFERENCES salle(id) ON DELETE NO ACTION
 );
-
--- Index (nom unique pour éviter les collisions)
 CREATE INDEX idx_incident_salle_id ON incident(salle_id);
-
-
-
--- Table: reservation
 
 CREATE TABLE reservation (
   id             BIGSERIAL PRIMARY KEY,
@@ -177,14 +146,11 @@ CREATE TABLE reservation (
   nombre_places  INTEGER NOT NULL,
   created_at     TIMESTAMP NOT NULL,
   prix_total     DOUBLE PRECISION NOT NULL,
-  CONSTRAINT fk_resa_user  FOREIGN KEY (user_id)  REFERENCES "user"(id) ON DELETE NO ACTION,
+  CONSTRAINT fk_resa_user   FOREIGN KEY (user_id)   REFERENCES "user"(id) ON DELETE NO ACTION,
   CONSTRAINT fk_resa_seance FOREIGN KEY (seance_id) REFERENCES seance(id) ON DELETE NO ACTION
 );
 CREATE INDEX user_id_idx   ON reservation(user_id);
-CREATE INDEX seance_id_idx ON reservation(seance_id);
-
-
--- Table: reservation_siege (pivot)
+CREATE INDEX resa_seance_id_idx ON reservation(seance_id);
 
 CREATE TABLE reservation_siege (
   reservation_id BIGINT NOT NULL,
@@ -195,9 +161,6 @@ CREATE TABLE reservation_siege (
 );
 CREATE INDEX reservation_id_idx ON reservation_siege(reservation_id);
 CREATE INDEX siege_id_idx       ON reservation_siege(siege_id);
-
-
--- Table: avis
 
 CREATE TABLE avis (
   id          BIGSERIAL PRIMARY KEY,
@@ -210,5 +173,5 @@ CREATE TABLE avis (
   CONSTRAINT fk_avis_user FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE NO ACTION,
   CONSTRAINT fk_avis_film FOREIGN KEY (film_id) REFERENCES film(id) ON DELETE NO ACTION
 );
-CREATE INDEX user_id_idx ON avis(user_id);
-CREATE INDEX film_id_idx ON avis(film_id);
+CREATE INDEX avis_user_id_idx ON avis(user_id);
+CREATE INDEX avis_film_id_idx ON avis(film_id);

@@ -1,26 +1,40 @@
--- transaction_reservation.sql (version qui marche avec data.sql)
+-- =========================================
+-- transaction_reservation.sql — réservation atomique
+-- Compatible avec le schéma où seance.qualite_id existe
+-- Variables psql à définir avant exécution :
+--   \set seance_id 2
+--   \set user_id   1
+--   \set qty       3
+-- =========================================
+
 BEGIN;
 
--- Verrouille la séance #2
-SELECT id FROM seance WHERE id = 2 FOR UPDATE;
+-- Verrouille la ligne de séance
+SELECT id FROM seance WHERE id = :seance_id FOR UPDATE;
 
 WITH libres AS (
   SELECT id
   FROM siege
-  WHERE seance_id = 2
+  WHERE seance_id = :seance_id
     AND is_reserved = FALSE
     AND is_pmr = FALSE
   ORDER BY numero
-  LIMIT 3
+  LIMIT :qty
 ),
 check_count AS (
   SELECT COUNT(*) AS c FROM libres
 ),
+prix_unitaire AS (
+  SELECT q.prix
+  FROM qualite q
+  JOIN seance s ON s.qualite_id = q.id
+  WHERE s.id = :seance_id
+),
 ins_resa AS (
-  INSERT INTO reservation (user_id, seance_id, nombre_places, prix_total, created_at)
-  SELECT 1, 2, 3, 27.00, NOW()
+  INSERT INTO reservation (user_id, seance_id, nombre_places, created_at, prix_total)
+  SELECT :user_id, :seance_id, :qty, NOW(), (SELECT prix FROM prix_unitaire) * :qty
   FROM check_count
-  WHERE c = 3
+  WHERE c = :qty
   RETURNING id
 ),
 link AS (
