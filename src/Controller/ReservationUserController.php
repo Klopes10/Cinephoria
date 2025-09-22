@@ -80,6 +80,8 @@ class ReservationUserController extends AbstractController
             ->innerJoin('s.film', 'f')->addSelect('f')
             ->innerJoin('s.salle', 'sa')->addSelect('sa')
             ->innerJoin('sa.cinema', 'c')->addSelect('c')
+            // ⬇️ on joint la qualité via la salle (et on la sélectionne) pour éviter les N+1
+            ->leftJoin('sa.qualite', 'q')->addSelect('q')
             ->andWhere('s.date BETWEEN :d1 AND :d2')
             ->setParameter('d1', $start)
             ->setParameter('d2', $start->modify('+6 day'))
@@ -123,7 +125,8 @@ class ReservationUserController extends AbstractController
                 'id'     => $s->getId(),
                 'heure'  => $s->getHeureDebut()->format('H:i'),
                 'fin'    => $s->getHeureFin() ? $s->getHeureFin()->format('H:i') : null,
-                'format' => $s->getQualite()?->getLabel(),
+                // ⬇️ qualité via la salle (et non plus s->getQualite())
+                'format' => $s->getSalle()?->getQualite()?->getLabel(),
                 'salle'  => $s->getSalle()?->getNom(),
                 'places' => (int)$s->getPlacesDisponible(),
             ];
@@ -184,7 +187,8 @@ class ReservationUserController extends AbstractController
                 'id'           => $seance->getId(),
                 'date'         => $debut,
                 'fin'          => $fin,
-                'format'       => $seance->getQualite()?->getLabel(),
+                // ⬇️ qualité via la salle
+                'format'       => $seance->getSalle()?->getQualite()?->getLabel(),
                 'salle'        => $salle?->getNom() ?? $salle?->getNumero(),
                 'placesDispo'  => (int)$seance->getPlacesDisponible(),
                 'tarif'        => method_exists($seance, 'getTarif') ? $seance->getTarif() : (method_exists($seance, 'getPrix') ? $seance->getPrix() : 9.5),

@@ -2,7 +2,7 @@
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-    bootstrap="tests/bootstrap.php"
+    bootstrap="vendor/autoload.php"
     colors="true"
     failOnWarning="true"
     failOnRisky="true"
@@ -17,13 +17,8 @@
   </testsuites>
 
   <php>
-    <!-- Forcer l'env test au runtime ($_SERVER), plus fiable avec PHPUnit 10/11 -->
-    <server name="APP_ENV" value="test"/>
-    <server name="APP_DEBUG" value="1"/>
-    <server name="KERNEL_CLASS" value="App\Kernel"/>
-
-    <!-- Vars lues par framework.yaml -->
-    <server name="TRUSTED_HOSTS" value="^.*$"/>
-    <server name="TRUSTED_PROXIES" value="127.0.0.1,REMOTE_ADDR"/>
+    <env name="APP_ENV" value="test"/>
+    <env name="KERNEL_CLASS" value="App\Kernel"/>
+    <env name="DATABASE_URL" value="postgresql://app:admin@cinephoria_db:5432/sandbox_cinephoria?serverVersion=16&amp;charset=utf8"/>
   </php>
 </phpunit>
