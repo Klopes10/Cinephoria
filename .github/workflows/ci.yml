@@ -35,24 +35,17 @@ jobs:
           --health-retries=30
 
     env:
-      
       APP_ENV: test
       APP_DEBUG: 1
       KERNEL_CLASS: App\Kernel
       TRUSTED_HOSTS: ^.*$
       TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
-
-      
       DATABASE_URL: postgresql://app:admin@127.0.0.1:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
-
-      
       MONGODB_URI: mongodb://127.0.0.1:27017
       MONGODB_DB: cinephoria
       MONGODB_COLLECTION: reservations
-
       MAILER_DSN: smtp://localhost:1025?encryption=null&auth_mode=null
       MAILER_FROM: "Cinephoria <no-reply@cinephoria.test>"
-
       APP_SECRET: 00000000000000000000000000000000
 
     steps:
@@ -63,30 +56,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-        
           extensions: intl, mbstring, pdo_pgsql, pgsql, json, zip
           coverage: none
           tools: composer:v2, pecl
 
       - name: Force MongoDB extension 1.15.0 (matches composer.lock)
         run: |
-          php -v
-          php -m | grep -i mongodb || true
-
-          # Désactive toute ini mongodb préinstallée
           sudo rm -f /etc/php/8.2/cli/conf.d/*mongodb*.ini || true
-
-          # Désinstalle une éventuelle version PECL plus récente
           (printf "yes\n" | sudo pecl uninstall mongodb) || true
-
-          # Installe la version requise par ton lock
           printf "\n" | sudo pecl install mongodb-1.15.0
-
-          # Active l’extension
           echo "extension=mongodb.so" | sudo tee /etc/php/8.2/cli/conf.d/20-mongodb.ini
-
-          # Vérif
-          php -m | grep -i mongodb
           php -r "echo 'mongodb ext version: ', phpversion('mongodb'), PHP_EOL;"
 
       - name: Composer cache
@@ -114,8 +93,6 @@ jobs:
           php bin/console doctrine:database:create --env=test || true
           php bin/console doctrine:schema:create --env=test
 
-
-
       - name: Run PHPUnit (Unit + Functional)
         run: |
           rm -rf var/cache/test
@@ -125,8 +102,8 @@ jobs:
     name: Deploy to Fly.io
     runs-on: ubuntu-latest
     needs: [ test ]
-    # Auto-deploy : develop => staging ; main => production
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # 👉 Déploiement auto UNIQUEMENT quand on pousse sur main
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -134,14 +111,9 @@ jobs:
       - name: Install flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Deploy
+      - name: Deploy (production)
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            echo "🚀 Deploying PRODUCTION"
-            flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
-          else
-            echo "🚀 Deploying STAGING"
-            flyctl deploy --app cinephoria-staging --remote-only --build-arg BUILD_ENV=dev
-          fi
+          echo "🚀 Deploying PRODUCTION"
+          flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
