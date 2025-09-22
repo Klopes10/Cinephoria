@@ -88,21 +88,52 @@ jobs:
             sleep 1
           done
 
-      - name: Prepare test database (Doctrine schema)
+      - name: Wait for Mongo (port check)
+        run: |
+          for i in {1..60}; do
+            nc -z 127.0.0.1 27017 && echo "Mongo is up" && break
+            echo "Waiting Mongo..."
+            sleep 1
+          done
+
+      - name: Prepare test database (Doctrine migrations)
         run: |
           php bin/console doctrine:database:create --env=test || true
-          php bin/console doctrine:schema:create --env=test
+          php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
       - name: Run PHPUnit (Unit + Functional)
         run: |
           rm -rf var/cache/test
           php -d variables_order=EGPCS bin/phpunit
 
-  deploy:
-    name: Deploy to Fly.io
+  deploy_staging:
+    name: Deploy to Fly.io (staging)
     runs-on: ubuntu-latest
     needs: [ test ]
-    # 👉 Déploiement auto UNIQUEMENT quand on pousse sur main
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy (staging)
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          echo "🚀 Deploying STAGING"
+          flyctl deploy --app cinephoria-web-staging --remote-only --build-arg BUILD_ENV=staging
+
+      - name: Smoke test (staging)
+        run: |
+          # Remplace /health par une route légère qui renvoie 200
+          curl -fsS https://cinephoria-web-staging.fly.dev/health || exit 1
+
+  deploy:
+    name: Deploy to Fly.io (production)
+    runs-on: ubuntu-latest
+    needs: [ test ]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
@@ -117,3 +148,8 @@ jobs:
         run: |
           echo "🚀 Deploying PRODUCTION"
           flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
+
+      - name: Smoke test (production)
+        run: |
+          # Remplace /health par une route légère qui renvoie 200
+          curl -fsS https://cinephoria-web.fly.dev/health || exit 1
