@@ -1,0 +1,9 @@
+security:
+  firewalls:
+    main:
+      form_login:
+        login_path: app_auth
+        check_path: app_auth
+        enable_csrf: false
+        username_parameter: email
+        password_parameter: password

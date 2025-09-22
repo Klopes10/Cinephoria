@@ -3,11 +3,11 @@
 -- =========================================
 
 -- 1) Drop puis recrée la base
-DROP DATABASE IF EXISTS app;
-CREATE DATABASE app;
+DROP DATABASE IF EXISTS app_test;
+CREATE DATABASE app_test;
 
 -- 2) Connexion à la base (psql)
-\c app
+\c app_test
 
 -- 3) Drop des tables si elles existent (ordre inverse des dépendances)
 DROP TABLE IF EXISTS reservation_siege CASCADE;
