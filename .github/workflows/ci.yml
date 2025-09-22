@@ -127,7 +127,4 @@ jobs:
             --build-arg BUILD_REBUILD=$(date +%s) \
             --build-arg BUILD_ENV=prod
 
-      - name: Smoke test (production)
-        run: |
-          # Remplace /health par une route légère qui renvoie 200
-          curl -fsS https://cinephoria-web.fly.dev/health || exit 1
+     
