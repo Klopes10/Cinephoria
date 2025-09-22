@@ -1,5 +1,8 @@
-# Dockerfile.fly (corrigé)
+# Dockerfile.fly (fix no-scripts + APP_ENV en amont + cache-bust)
 FROM php:8.2-fpm-alpine
+
+# 0) Cache-bust optionnel (on le pilotera depuis la CI)
+ARG BUILD_REBUILD=0
 
 # 1) Paquets système + Nginx + Supervisor + deps de build
 RUN apk add --no-cache \
@@ -23,48 +26,48 @@ RUN apk add --no-cache ca-certificates
 
 # 5) Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# 6) ENV *avant* composer install
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_NO_INTERACTION=1 \
+    APP_ENV=prod \
+    APP_DEBUG=0 \
+    SYMFONY_DEPRECATIONS_HELPER=disabled
 
 WORKDIR /app
 
-# 6) Pré-chauffer le cache Composer (vendors) SANS scripts (bin/console pas encore là)
+# 7) Pré-chauffer vendors SANS scripts (bin/console pas encore là)
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
 
-# 7) Code applicatif
+# 8) Code applicatif
 COPY . .
 
-# 8) Assurer vendors + scripts maintenant que bin/console existe
-#    (rapide car cache déjà chaud à l’étape 6)
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction
+# 9) Assurer vendors *toujours SANS scripts* (rapide, cache déjà chaud)
+RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
 
-# 9) Autoload optimisé + prépa cache (non bloquant si DB non dispo au build)
+# 10) Autoload + commandes Symfony explicites (non bloquant si DB ND)
 RUN composer dump-autoload --no-dev -o \
  && php -d variables_order=EGPCS bin/console about || true \
  && php -d variables_order=EGPCS bin/console assets:install --no-interaction || true \
  && php -d variables_order=EGPCS bin/console cache:clear --env=prod --no-warmup || true \
  && php -d variables_order=EGPCS bin/console cache:warmup --env=prod || true
 
-# 10) Dossiers runtime & permissions
+# 11) Dossiers runtime & permissions
 RUN mkdir -p /app/var /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \
  && chown -R www-data:www-data /app/var /run/php \
  && chown -R root:root /var/log/nginx /var/cache/nginx /app/public /var/log/supervisor
 
-# 11) Intl & timezone
+# 12) Intl & timezone
 RUN apk add --no-cache icu-libs icu-data-full \
  && echo "intl.default_locale=fr_FR" > /usr/local/etc/php/conf.d/99-intl.ini \
  && echo "date.timezone=Europe/Paris" > /usr/local/etc/php/conf.d/99-timezone.ini
 
-# 12) Nginx & Supervisor
+# 13) Nginx & Supervisor
 COPY ./.fly/nginx.conf /etc/nginx/nginx.conf
 COPY ./.fly/supervisord.conf /etc/supervisord.conf
 
-# 13) ENV & réseau
-ENV APP_ENV=prod
 EXPOSE 8080
-
-# 14) Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --retries=5 CMD wget -qO- http://localhost:8080/healthz || exit 1
 
-# 15) Entrypoint
 CMD ["/usr/bin/supervisord","-c","/etc/supervisord.conf"]
