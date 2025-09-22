@@ -1,0 +1,114 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: PHPUnit (Symfony)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports: [ "5432:5432" ]
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: sandbox_cinephoria_test
+        options: >-
+          --health-cmd="pg_isready -U app -d sandbox_cinephoria_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+      mongo:
+        image: mongo:6
+        ports: [ "27017:27017" ]
+        options: >-
+          --health-cmd="mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      # Symfony test env
+      APP_ENV: test
+      APP_DEBUG: 1
+      KERNEL_CLASS: App\Kernel
+      TRUSTED_HOSTS: ^.*$
+      TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
+
+      # DB (service hostname = "postgres")
+      DATABASE_URL: postgresql://app:admin@postgres:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
+
+      # Mongo (si ton code lit ces env)
+      MONGODB_URI: mongodb://localhost:27017
+      MONGODB_DB: cinephoria
+      MONGODB_COLLECTION: reservations
+
+      # Mailer (dummy)
+      MAILER_DSN: smtp://localhost:1025?encryption=null&auth_mode=null
+      MAILER_FROM: "Cinephoria <no-reply@cinephoria.test>"
+
+      # Secret (dummy)
+      APP_SECRET: 00000000000000000000000000000000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: intl, mbstring, pdo_pgsql, pgsql, json, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/composer/files
+            vendor
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Option 1 : on crée le schéma Doctrine
+      - name: Prepare test database (Doctrine schema)
+        run: |
+          php bin/console doctrine:database:create --env=test || true
+          php bin/console doctrine:schema:create --env=test
+
+      - name: Show routes (debug)
+        run: php bin/console debug:router --env=test
+
+      - name: Run PHPUnit (Unit + Functional)
+        run: |
+          rm -rf var/cache/test
+          php -d variables_order=EGPCS bin/phpunit
+
+  deploy:
+    name: Deploy to Fly.io
+    if: github.ref == 'refs/heads/main'
+    needs: [ test ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          # Déploie ton app web (ajuste le nom si nécessaire)
+          flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
