@@ -5,7 +5,6 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-  workflow_dispatch: {}   
 
 jobs:
   test:
@@ -36,26 +35,17 @@ jobs:
           --health-retries=20
 
     env:
-      
       APP_ENV: test
       APP_DEBUG: 1
       KERNEL_CLASS: App\Kernel
       TRUSTED_HOSTS: ^.*$
       TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
-
-     
-      DATABASE_URL: postgresql://app:admin@127.0.0.1:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
-
-      # Mongo 
-      MONGODB_URI: mongodb://127.0.0.1:27017
+      DATABASE_URL: postgresql://app:admin@postgres:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
+      MONGODB_URI: mongodb://localhost:27017
       MONGODB_DB: cinephoria
       MONGODB_COLLECTION: reservations
-
-      # Mailer (dummy)
       MAILER_DSN: smtp://localhost:1025?encryption=null&auth_mode=null
       MAILER_FROM: "Cinephoria <no-reply@cinephoria.test>"
-
-      # Secret (dummy)
       APP_SECRET: 00000000000000000000000000000000
 
     steps:
@@ -66,10 +56,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-         
-          extensions: >
-            intl, mbstring, pdo_pgsql, pgsql, json, zip,
-            mongodb-1.15.0
+          extensions: intl, mbstring, pdo_pgsql, pgsql, json, zip
           coverage: none
           tools: composer:v2
 
@@ -85,37 +72,21 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Wait for Postgres (port check)
-        run: |
-          for i in {1..30}; do
-            nc -z 127.0.0.1 5432 && echo "Postgres is up" && break
-            echo "Waiting Postgres..."
-            sleep 1
-          done
-
-     
       - name: Prepare test database (Doctrine schema)
         run: |
           php bin/console doctrine:database:create --env=test || true
           php bin/console doctrine:schema:create --env=test
 
-
-      - name: Show routes (debug)
-        run: php bin/console debug:router --env=test
-
-      - name: Run PHPUnit (Unit + Functional)
+      - name: Run PHPUnit
         run: |
           rm -rf var/cache/test
           php -d variables_order=EGPCS bin/phpunit
 
   deploy:
     name: Deploy to Fly.io
-    
-    if: github.event_name == 'workflow_dispatch'
-    needs: [ test ]
     runs-on: ubuntu-latest
-    environment:
-      name: production
+    needs: [ test ]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -127,4 +98,10 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
+          if [ "${GITHUB_REF}" == "refs/heads/main" ]; then
+            echo "🚀 Déploiement en production"
+            flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
+          else
+            echo "🚀 Déploiement en staging"
+            flyctl deploy --app cinephoria-staging --remote-only --build-arg BUILD_ENV=dev
+          fi
