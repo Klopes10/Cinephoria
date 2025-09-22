@@ -23,7 +23,7 @@ jobs:
           --health-cmd="pg_isready -U app -d sandbox_cinephoria_test"
           --health-interval=5s
           --health-timeout=5s
-          --health-retries=20
+          --health-retries=30
 
       mongo:
         image: mongo:6
@@ -32,20 +32,27 @@ jobs:
           --health-cmd="mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
           --health-interval=5s
           --health-timeout=5s
-          --health-retries=20
+          --health-retries=30
 
     env:
+      
       APP_ENV: test
       APP_DEBUG: 1
       KERNEL_CLASS: App\Kernel
       TRUSTED_HOSTS: ^.*$
       TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
-      DATABASE_URL: postgresql://app:admin@postgres:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
-      MONGODB_URI: mongodb://localhost:27017
+
+      
+      DATABASE_URL: postgresql://app:admin@127.0.0.1:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
+
+      
+      MONGODB_URI: mongodb://127.0.0.1:27017
       MONGODB_DB: cinephoria
       MONGODB_COLLECTION: reservations
+
       MAILER_DSN: smtp://localhost:1025?encryption=null&auth_mode=null
       MAILER_FROM: "Cinephoria <no-reply@cinephoria.test>"
+
       APP_SECRET: 00000000000000000000000000000000
 
     steps:
@@ -56,9 +63,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+        
           extensions: intl, mbstring, pdo_pgsql, pgsql, json, zip
           coverage: none
-          tools: composer:v2
+          tools: composer:v2, pecl
+
+      - name: Force MongoDB extension 1.15.0 (matches composer.lock)
+        run: |
+          php -v
+          php -m | grep -i mongodb || true
+
+          # Désactive toute ini mongodb préinstallée
+          sudo rm -f /etc/php/8.2/cli/conf.d/*mongodb*.ini || true
+
+          # Désinstalle une éventuelle version PECL plus récente
+          (printf "yes\n" | sudo pecl uninstall mongodb) || true
+
+          # Installe la version requise par ton lock
+          printf "\n" | sudo pecl install mongodb-1.15.0
+
+          # Active l’extension
+          echo "extension=mongodb.so" | sudo tee /etc/php/8.2/cli/conf.d/20-mongodb.ini
+
+          # Vérif
+          php -m | grep -i mongodb
+          php -r "echo 'mongodb ext version: ', phpversion('mongodb'), PHP_EOL;"
 
       - name: Composer cache
         uses: actions/cache@v4
@@ -72,12 +101,22 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Wait for Postgres (port check)
+        run: |
+          for i in {1..60}; do
+            nc -z 127.0.0.1 5432 && echo "Postgres is up" && break
+            echo "Waiting Postgres..."
+            sleep 1
+          done
+
       - name: Prepare test database (Doctrine schema)
         run: |
           php bin/console doctrine:database:create --env=test || true
           php bin/console doctrine:schema:create --env=test
 
-      - name: Run PHPUnit
+
+
+      - name: Run PHPUnit (Unit + Functional)
         run: |
           rm -rf var/cache/test
           php -d variables_order=EGPCS bin/phpunit
@@ -86,6 +125,7 @@ jobs:
     name: Deploy to Fly.io
     runs-on: ubuntu-latest
     needs: [ test ]
+    # Auto-deploy : develop => staging ; main => production
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     steps:
       - name: Checkout
@@ -98,10 +138,10 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          if [ "${GITHUB_REF}" == "refs/heads/main" ]; then
-            echo "🚀 Déploiement en production"
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "🚀 Deploying PRODUCTION"
             flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
           else
-            echo "🚀 Déploiement en staging"
+            echo "🚀 Deploying STAGING"
             flyctl deploy --app cinephoria-staging --remote-only --build-arg BUILD_ENV=dev
           fi
