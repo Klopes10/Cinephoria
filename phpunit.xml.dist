@@ -17,18 +17,13 @@
   </testsuites>
 
   <php>
-    <!-- Force l'environnement test -->
+    <!-- Forcer l'env test au runtime ($_SERVER), plus fiable avec PHPUnit 10/11 -->
     <server name="APP_ENV" value="test"/>
     <server name="APP_DEBUG" value="1"/>
-
-    <!-- Indique le Kernel -->
     <server name="KERNEL_CLASS" value="App\Kernel"/>
 
-    <!-- Requis par framework.yaml -->
+    <!-- Vars lues par framework.yaml -->
     <server name="TRUSTED_HOSTS" value="^.*$"/>
     <server name="TRUSTED_PROXIES" value="127.0.0.1,REMOTE_ADDR"/>
-
-    <!-- URL de la base de TEST (adapte si ton service s'appelle autrement) -->
-    <server name="DATABASE_URL" value="postgresql://app:admin@database:5432/app_test?serverVersion=16&amp;charset=utf8"/>
   </php>
 </phpunit>

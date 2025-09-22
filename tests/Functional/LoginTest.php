@@ -94,7 +94,6 @@ final class LoginTest extends WebTestCase
 
         $this->assertTrue($this->client->getResponse()->isRedirect(), 'Échec login => redirection attendue');
         $this->client->followRedirect();
-        // Optionnel : assert de message d'erreur si tu en affiches un
-        // $this->assertSelectorExists('.alert-danger');
+        
     }
 }
