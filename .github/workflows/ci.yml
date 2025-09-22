@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch: {}   # ⇠ déclencheur manuel (pour le déploiement)
 
 jobs:
   test:
@@ -24,6 +25,7 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
+
       mongo:
         image: mongo:6
         ports: [ "27017:27017" ]
@@ -41,10 +43,10 @@ jobs:
       TRUSTED_HOSTS: ^.*$
       TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
 
-      # DB (service hostname = "postgres")
+      # DB (hostname = "postgres" = nom du service ci-dessus)
       DATABASE_URL: postgresql://app:admin@postgres:5432/sandbox_cinephoria_test?serverVersion=16&charset=utf8
 
-      # Mongo (si ton code lit ces env)
+      # Mongo (si ton code s'en sert)
       MONGODB_URI: mongodb://localhost:27017
       MONGODB_DB: cinephoria
       MONGODB_COLLECTION: reservations
@@ -64,7 +66,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: intl, mbstring, pdo_pgsql, pgsql, json, zip
+          # mongodb version alignée avec ton composer.lock (mongodb/mongodb 1.15.x)
+          extensions: >
+            intl, mbstring, pdo_pgsql, pgsql, json, zip,
+            mongodb-1.15.0
           coverage: none
           tools: composer:v2
 
@@ -80,11 +85,17 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      # Option 1 : on crée le schéma Doctrine
+      # Option A : schéma via Doctrine (simple et rapide)
       - name: Prepare test database (Doctrine schema)
         run: |
           php bin/console doctrine:database:create --env=test || true
           php bin/console doctrine:schema:create --env=test
+
+      # Option B : via tes scripts SQL (si tu préfères)
+      # - name: Load schema.sql
+      #   run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/schema.sql
+      # - name: Load data.sql
+      #   run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/data.sql
 
       - name: Show routes (debug)
         run: php bin/console debug:router --env=test
@@ -96,9 +107,12 @@ jobs:
 
   deploy:
     name: Deploy to Fly.io
-    if: github.ref == 'refs/heads/main'
+    # ⇣ déploiement MANUEL uniquement (clique sur "Run workflow")
+    if: github.event_name == 'workflow_dispatch'
     needs: [ test ]
     runs-on: ubuntu-latest
+    environment:
+      name: production   # ajoute des reviewers depuis Settings > Environments
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -110,5 +124,5 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          # Déploie ton app web (ajuste le nom si nécessaire)
+          # adapte le nom de l'app si besoin (doit matcher ton fly.toml)
           flyctl deploy --app cinephoria-web --remote-only --build-arg BUILD_ENV=prod
