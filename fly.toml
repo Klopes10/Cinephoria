@@ -22,7 +22,8 @@ primary_region = "cdg" # Paris
 
 # Commande exécutée à chaque déploiement (migrations)
 [deploy]
-  release_command = "php bin/console --no-interaction doctrine:migrations:migrate --allow-no-migration --all-or-nothing=1 && php bin/console --no-interaction cache:clear --env=prod && php bin/console --no-interaction cache:warmup --env=prod"
+  # Forme simple et robuste
+  release_command = "php -d variables_order=EGPCS bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing && php -d variables_order=EGPCS bin/console cache:clear --no-interaction --env=prod && php -d variables_order=EGPCS bin/console cache:warmup --no-interaction --env=prod"
 
 # Montage du volume persistant (uploads)
 [[mounts]]
