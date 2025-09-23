@@ -31,5 +31,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . .
 
+ARG TRUSTED_HOSTS="^.*$"
+ENV TRUSTED_HOSTS=${TRUSTED_HOSTS}
 # Installe les dépendances PHP (ajoute --no-dev --optimize-autoloader en prod)
-RUN composer install
+RUN composer install --no-scripts

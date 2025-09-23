@@ -2,7 +2,7 @@
 framework:
     trusted_proxies: '%env(TRUSTED_PROXIES)%'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host']
-    trusted_hosts: '%env(TRUSTED_HOSTS)%'
+    trusted_hosts: '%env(default::TRUSTED_HOSTS)%'
     secret: '%env(APP_SECRET)%'
     default_locale: fr
     translator:

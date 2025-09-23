@@ -9,6 +9,7 @@ services:
     volumes:
       - .:/var/www/html
     environment:
+      TRUSTED_HOSTS: '^.*$'
       APP_ENV: dev
       PHP_MEMORY_LIMIT: 512M
       
