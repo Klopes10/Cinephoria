@@ -57,7 +57,7 @@
   .day-pill.active{ color:var(--text); border-color:var(--accent); }
   
   /* Zone résultats */
-  #sessionsArea{ min-height:80px; display:flex; margin-top:60px;}
+  #sessionsArea{ min-height:80px;  margin-top:60px;}
   #sessionsArea .hint{ color:var(--muted); }
   
   /* La grille et les cartes films réutilisent film.css
@@ -131,11 +131,12 @@
 }
 
 .film-horizontal-card {
-  display: flex;              /* comme avant */
+  display: flex;              
   gap: 1rem;
-  text-decoration: none;      /* empêche le soulignement hérité des <a> */
-  color: inherit;             /* garde la même couleur du texte */
-  cursor: default;            /* le curseur ne doit pas changer comme sur un lien */
+  text-decoration: none;      
+  color: inherit;             
+  cursor: default;            
+  margin:60px 0;
 }
   /* Responsive */
   @media (max-width: 900px){
@@ -144,7 +145,7 @@
   }
 
   .film-poster { position: relative; }
-  .film-poster img {width:260px; height:100%}
+  .film-poster img {width:260px; height:481px}
 .badge{
   position:absolute;
   top:12px;
