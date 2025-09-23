@@ -1,10 +1,5 @@
 -- =========================================
 -- transaction_reservation.sql — réservation atomique
--- Compatible avec le schéma où seance.qualite_id existe
--- Variables psql à définir avant exécution :
---   \set seance_id 2
---   \set user_id   1
---   \set qty       3
 -- =========================================
 
 BEGIN;

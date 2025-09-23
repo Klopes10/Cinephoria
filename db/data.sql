@@ -1,6 +1,5 @@
 -- =========================================
 -- data.sql — Cinéphoria (jeu de données minimal)
--- Compatible avec schema.sql ci-dessus
 -- =========================================
 
 -- Users
