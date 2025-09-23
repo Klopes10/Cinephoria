@@ -1,0 +1,8 @@
+framework:
+  assets:
+    # désactive toute forme de versioning global
+    version: null
+    version_strategy: null
+    # format par défaut (query string) si un jour tu remets `version`
+    version_format: '%%s?%%s'
+
