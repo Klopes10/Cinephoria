@@ -141,7 +141,7 @@ class AdminDashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
 
         // Lien vers la page stats mongo
-        yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats');
+        yield MenuItem::linkToRoute('Statistiques MongoDB', 'fas fa-chart-bar', 'admin_mongo_stats')->setPermission('ROLE_SUPER_ADMIN');
 
         yield MenuItem::section('Gestion du contenu');
         yield MenuItem::linkToCrud('Films', 'fas fa-film', Film::class);
