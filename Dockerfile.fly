@@ -22,7 +22,7 @@ RUN pecl install mongodb-1.16.2 \
  && docker-php-ext-enable mongodb
 
 # 4) Certifs
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates c-ares
 
 # 5) Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -50,6 +50,14 @@ RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-
 RUN composer dump-autoload --no-dev -o \
  && php bin/console about || true \
  && php bin/console assets:install --no-interaction || true \
+ && sh -lc 'EA=public/bundles/easyadmin; \
+    if [ -d "$EA" ]; then \
+      for f in "$EA"/*.*.css "$EA"/*.*.js; do \
+        [ -f "$f" ] || continue; \
+        b="$(basename "$f")"; n="${b%%.*}"; rest="${b#*.}"; h="${rest%%.*}"; e="${b##*.}"; \
+        cp -f "$f" "$EA/${n}_${h}.$e"; \
+      done; \
+    fi' \
  && php bin/console cache:clear --env=prod --no-warmup || true \
  && php bin/console cache:warmup --env=prod || true
 
