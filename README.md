@@ -42,6 +42,7 @@ Cette commande lance :
 
 ## 🌍 Accéder aux services
 
+docker compose ps : 
 - Application Symfony : [http://localhost:8080](http://localhost:8080)  
 - Adminer (PostgreSQL) : [http://localhost:8081](http://localhost:8081)  
 - Mongo Express (MongoDB) : [http://localhost:8082](http://localhost:8082)  
@@ -52,3 +53,42 @@ Cette commande lance :
     . Interface principale : http://localhost:8080
     . Accès à Adminer: http://localhost:8081
     . Accès MongoDB Compass : Connexion à mongodb://localhost:27017
+
+# Ajout de données semblable au site à un temps T
+
+docker compose exec -T database psql -U app -d app < app.sql
+
+# Tests et Verifications
+docker compose exec php bash -lc 'php bin/phpunit tests/Functional'
+docker compose exec php bash -lc 'php bin/phpunit tests/Unit'
+
+# SQL
+Lancement d'un fichier de création de base de données
+- docker compose exec -T database psql -U app -d app_test < db/schema.sql
+Ajout de data minimal
+- docker compose exec -T database psql -U app -d app_test < db/data.sql
+Transaction effectuée sur l'user à l'ID n°1 pour 2 places
+- docker compose exec -T database \
+  psql -U app -d app_test \
+  -v seance_id=1 -v user_id=1 -v qty=2 \
+  < db/transaction_reservation.sql
+
+# Page d'accueil
+La page d'accueil recense les films sortis récemment. La liste est réinitialisée chaque mercredi.
+
+# Mise à jour du contenu
+La mise à jour de contenu se réalise via l'espace Administration (pour l'administrateur) ou Intranet (pour l'employé), tous deux accessibles en se connectant :
+- L'employé peut ajouter, modifier ou supprimer des films, séances et cinémas.
+- L'administrateur peut ajouter, modifier ou supprimer des films, séances, cinémas, genres, qualités et ajouter des comptes utilisateurs.
+- Les sièges sont créés automatiquement à la création d'une séance.
+
+Compte utilisable : 
+
+Rôle / Identifiant / Mot de passe 
+
+1. Client  / user@cinephoria.com / *UserTest1! 
+
+2. Employé /employe@cinephoria.com /*EmployeTest1! 
+
+3.Administrateur /admin@cinephoria.com /*AdminTest1! 
+
