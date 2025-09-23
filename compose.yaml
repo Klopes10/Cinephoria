@@ -8,8 +8,11 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - var:/var/www/html/var
     environment:
       TRUSTED_HOSTS: '^.*$'
+      TRUSTED_PROXIES: '127.0.0.1,REMOTE_ADDR'
       APP_ENV: dev
       PHP_MEMORY_LIMIT: 512M
       
@@ -85,3 +88,5 @@ services:
 volumes:
   database_data:
   mongo_data:  
+  vendor:
+  var:
