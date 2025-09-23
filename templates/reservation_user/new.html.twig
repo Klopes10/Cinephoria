@@ -110,10 +110,10 @@
   </main>
 </div>
 
-{# Étiquette de validation (slide-in) #}
+{# Étiquette de validation  #}
 <div id="purchaseTag" class="purchase-tag" aria-live="assertive" hidden>
   <div class="purchase-tag__icon" aria-hidden="true">
-    <!-- petit check -->
+    
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
       <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
@@ -176,7 +176,7 @@
       const id = btn.dataset.id;
       const willSelect = !btn.classList.contains('is-selected');
       if (willSelect && selected.size >= MAX_SEATS) {
-        // petit feedback
+       
         btn.classList.add('shake');
         setTimeout(() => btn.classList.remove('shake'), 300);
         return;
@@ -238,7 +238,7 @@
         selected.clear();
         updateUI();
 
-        // ✨ Étiquette slide-in
+        
         if (tag && tagText) {
           tagText.textContent = `${seatsCount} place${seatsCount>1?'s':''} • ${new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR' }).format(totalBefore)}`;
           tag.hidden = false;

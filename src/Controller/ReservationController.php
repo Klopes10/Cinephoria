@@ -1,5 +1,5 @@
 <?php
-// A POTENTIELLEMENT SUPPRIMER
+// A SUPPRIMER
 namespace App\Controller;
 
 use App\Entity\Reservation;

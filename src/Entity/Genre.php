@@ -65,7 +65,7 @@ class Genre
     public function removeFilm(Film $film): static
     {
         if ($this->films->removeElement($film)) {
-            // set the owning side to null (unless already changed)
+            
             if ($film->getGenre() === $this) {
                 $film->setGenre(null);
             }

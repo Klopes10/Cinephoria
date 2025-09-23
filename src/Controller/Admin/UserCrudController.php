@@ -52,7 +52,7 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('forname', 'Prénom');
         yield EmailField::new('email', 'Email');
 
-        // Sélection d’un seul rôle "propre"
+       
         yield ChoiceField::new('singleRole', 'Rôle')
             ->setChoices([
                 'Client'         => 'ROLE_USER',
@@ -63,9 +63,7 @@ class UserCrudController extends AbstractCrudController
             ->renderExpanded(false)
             ->renderAsNativeWidget();
 
-        // Champ mot de passe (non mappé), avec contraintes
-        // - Obligatoire en création
-        // - Optionnel en édition (si rempli, doit respecter la regex)
+        
         $passwordConstraints = [
             new Length([
                 'min' => 8,
@@ -85,7 +83,7 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('plainPassword', 'Mot de passe')
             ->setFormType(PasswordType::class)
             ->setFormTypeOptions([
-                'mapped'      => false, // très important : on ne mappe pas sur "password"
+                'mapped'      => false, 
                 'required'    => $pageName === Crud::PAGE_NEW,
                 'attr'        => ['autocomplete' => 'new-password'],
                 'help'        => "8 caractères min., dont 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.",

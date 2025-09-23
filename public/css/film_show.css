@@ -124,7 +124,7 @@ span.star{ height:20px; width:19px; display:contents}
 
 .session-chip:hover {
   border-color: #ee8b1b;
-  background: #0A0602; /* on garde le même fond, juste le contour devient orange */
+  background: #0A0602; 
 }
 
 /* Format (ex: vostfr / imax) — trait orange UNIQUEMENT au hover de la carte */

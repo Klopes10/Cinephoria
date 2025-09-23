@@ -82,7 +82,6 @@ class FilmUserController extends AbstractController
     /**
      * Normalise récursivement un tableau pour JSON/Twig:
      * - convertit toute instance de DateTimeInterface en string
-     * - convertit les clés non-scalaires en string
      */
     private function normalizeArrayForJson(mixed $data): mixed
     {
@@ -227,7 +226,7 @@ class FilmUserController extends AbstractController
             $grouped[$activeVille][$activeDate] = $sessions;
         }
 
-        // ⚠️ LÉGENDE TOUTES QUALITÉS/PRIX : on se base sur TOUTES les séances à 8 jours, toutes villes
+        //  LÉGENDE TOUTES QUALITÉS/PRIX : on se base sur TOUTES les séances à 8 jours, toutes villes
         $allUpcoming = $seanceRepository->createQueryBuilder('s')
             ->andWhere('s.film = :film')
             ->andWhere('s.date BETWEEN :d1 AND :d2')

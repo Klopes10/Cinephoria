@@ -138,8 +138,7 @@ body { background-color: #0A0602; }
     padding: 12px 2px;
   }
   
-  /* bloc étoiles */
-/* étoiles vides dans la liste (déjà envoyé, rappel) */
+  
 .rating-stars {
     display: flex;
     gap: 6px;
@@ -161,7 +160,7 @@ body { background-color: #0A0602; }
     position: fixed;
     inset: 0;
     z-index: 1000;
-    display: grid;           /* centre horizontal + vertical */
+    display: grid;           
     place-items: center;
   }
   .modal-backdrop{
@@ -171,14 +170,14 @@ body { background-color: #0A0602; }
   .modal-panel{
     position: relative;
     width: 44.27vw;
-    max-height: 41.94vh;        /* évite de dépasser l’écran */
-    overflow: auto;          /* scroll interne si besoin */
+    max-height: 41.94vh;        
+    overflow: auto;          
     background:#0e0a06;
     border:1px solid #A19D9A;
     border-radius:10px;
     padding:28px 26px 26px;
     color:#e9e3dc;
-    margin: 0;               /* plus de marge verticale */
+    margin: 0;               
     z-index: 1;
   }
   .modal-close{
@@ -219,12 +218,11 @@ body { background-color: #0A0602; }
 .rating-stars.is-locked .star-btn::before { background-image: var(--star-empty); }
 .rating-stars.is-locked .star-btn.on::before { background-image: var(--star-full); }
 
-/* (si tu as déjà les règles de hover/preview, elles ne doivent pas s’appliquer quand is-locked est présent) */
-/* Quand on survole le groupe, tout est plein… */
+
 .rating-stars:hover .star-btn{
   background-image: var(--star-full);
 }
-/* …puis on vide seulement les étoiles à DROITE de celle survolée */
+
 .rating-stars .star-btn:hover ~ .star-btn{
   background-image: var(--star-empty);
 }

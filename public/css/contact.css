@@ -16,7 +16,7 @@
     align-items: flex-start;
     gap: 10px;
     padding: 12px 14px;
-    background: #12100e;         /* proche de ton thème (#0A0602) */
+    background: #12100e;         
     color: #e9e3dc;
     border: 1px solid #423a33;
     border-radius: 10px;
@@ -28,7 +28,7 @@
   
   .toast-success{ border-left: 3px solid #2ecc71; } /* vert succès */
   .toast-error  { border-left: 3px solid #e74c3c; } /* rouge erreur  */
-  /* Si tu veux tout en orange, utilise plutôt: border-left: 3px solid #ee8b1b; */
+  
   
   .toast-msg{ line-height: 1.35; }
   

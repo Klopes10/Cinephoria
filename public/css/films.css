@@ -34,7 +34,7 @@ body{
     position:relative;
   }
   
-  /* ====== Image + Overlay (corrigé pour ne pas dépasser) ====== */
+  /* ====== Image + Overlay ====== */
   .film-poster{
     position:relative;
     width:176px; flex-shrink:0; border-radius:6px; overflow:hidden;
@@ -137,7 +137,7 @@ body{
   #genre{ width:320px; }
   #jour{  width:105px; }
   
-  /* ========== Petites adaptations responsives (facultatif) ========== */
+  
   @media (max-width:1200px){
     .film-horizontal-card{ flex:0 0 calc((100% - 60px) / 2); }
   }

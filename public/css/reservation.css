@@ -60,15 +60,14 @@
   #sessionsArea{ min-height:80px;  margin-top:60px;}
   #sessionsArea .hint{ color:var(--muted); }
   
-  /* La grille et les cartes films réutilisent film.css
-     Les chips séances réutilisent film_show.css */
+  
   
   .film-info{
     margin-left:30px;
 
   }
      
-  /* Réutilisation du style des filtres films */
+
 .reserv-filters {
   display: flex;
   background-color: transparent;

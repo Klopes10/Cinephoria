@@ -55,8 +55,7 @@ class MongoReservationsLogger
 
             $col->updateOne($filter, $update, ['upsert' => true]);
         } catch (\Throwable $e) {
-            // on avale l’erreur Mongo pour ne pas casser le tunnel de réservation
-            // (tu peux logger si besoin)
+            
         }
     }
 }

@@ -34,7 +34,7 @@ class Film
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $noteMoyenne = null;
 
-    // ⬇️ Remplace createdAt par datePublication
+    
     #[ORM\Column]
     private ?\DateTimeImmutable $datePublication = null;
 
@@ -56,7 +56,7 @@ class Film
 
     public function __construct()
     {
-        // Valeur par défaut : aujourd’hui (tu peux l’enlever si tu veux forcer la saisie manuelle dans l’admin)
+        
         $this->datePublication = new \DateTimeImmutable();
         $this->seances = new ArrayCollection();
         $this->avis = new ArrayCollection();
@@ -88,7 +88,7 @@ class Film
     public function getNoteMoyenne(): ?float { return $this->noteMoyenne; }
     public function setNoteMoyenne(?float $noteMoyenne): static { $this->noteMoyenne = $noteMoyenne; return $this; }
 
-    // ⬇️ Nouveaux getters/setters
+   
     public function getDatePublication(): ?\DateTimeImmutable { return $this->datePublication; }
     public function setDatePublication(\DateTimeImmutable $datePublication): static { $this->datePublication = $datePublication; return $this; }
 

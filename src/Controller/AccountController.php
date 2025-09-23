@@ -47,7 +47,7 @@ final class AccountController extends AbstractController
 
             if (method_exists($r, 'getSieges')) {
                 $sieges = $r->getSieges();
-                // Doctrine Collection ou array
+                
                 if (\is_countable($sieges)) {
                     $nbPlaces = \count($sieges);
                 }

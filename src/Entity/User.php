@@ -25,13 +25,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     /**
-     * @var list<string> The user roles
+     * @var list<string> 
      */
     #[ORM\Column(type: 'json', nullable: false)]
     private array $roles = [];
 
     /**
-     * @var string The hashed password
+     * @var string 
      */
     #[ORM\Column]
     private ?string $password = null;
@@ -243,7 +243,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return 'Client';
     }
 
-    // --- Reset password ---
+    // --- reset mdp ---
     public function getResetPasswordToken(): ?string
     {
         return $this->resetPasswordToken;

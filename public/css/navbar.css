@@ -90,7 +90,7 @@
 /* État normal */
 .dropdown-content li a {
     position: relative;          /* pour positionner ::after */
-    display: inline-block;       /* évite des bizarreries de ligne */
+    display: inline-block;       
     text-decoration: none;
     color: #EEE8E2;
   }

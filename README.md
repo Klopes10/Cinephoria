@@ -90,5 +90,7 @@ Rôle / Identifiant / Mot de passe
 
 2. Employé /employe@cinephoria.com /*EmployeTest1! 
 
-3.Administrateur /admin@cinephoria.com /*AdminTest1! 
+3. Administrateur /admin@cinephoria.com /*AdminTest1! 
+
+
 

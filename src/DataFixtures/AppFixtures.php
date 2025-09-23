@@ -1,5 +1,5 @@
 <?php
-
+// A supprimer
 namespace App\DataFixtures;
 
 use App\Entity\Cinema;

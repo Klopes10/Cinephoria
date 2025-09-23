@@ -51,7 +51,7 @@ class AdminDashboardController extends AbstractDashboardController
     public function mongoStats(): Response
     {
         $totaux = [];
-        $lignes = []; // pour le détail film/date si tu veux lister
+        $lignes = []; 
 
         try {
             $uri = $_ENV['MONGODB_URI'] ?? 'mongodb://mongo:27017';
@@ -98,7 +98,7 @@ class AdminDashboardController extends AbstractDashboardController
             $this->addFlash('danger', 'Erreur MongoDB : ' . $e->getMessage());
         }
 
-        // Tu peux avoir une page dédiée EasyAdmin ou une page Twig simple
+        
         return $this->render('admin/mongo_stats.html.twig', [
             'totaux' => $totaux,
             'lignes' => $lignes,

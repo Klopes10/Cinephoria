@@ -37,7 +37,7 @@ class FilmCrudController extends AbstractCrudController
             DateField::new('datePublication', 'Date de publication')
                 ->setRequired(true)
                 ->setFormat('dd/MM/yyyy')        // affichage
-                ->renderAsNativeWidget(false),   // joli widget (ou true pour natif)
+                ->renderAsNativeWidget(false),   
 
             TextareaField::new('synopsis', 'Synopsis')->hideOnIndex(),
 
@@ -50,8 +50,8 @@ class FilmCrudController extends AbstractCrudController
             AssociationField::new('genre', 'Genre')->setRequired(true),
 
             ImageField::new('affiche', 'Affiche')
-            ->setUploadDir('public/uploads/affiches')  // sans trailing slash
-            ->setBasePath('/uploads/affiches')         // ABSOLU (important en /admin/*)
+            ->setUploadDir('public/uploads/affiches')  
+            ->setBasePath('/uploads/affiches')         
             ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
             ->setRequired(false),
         ];

@@ -40,7 +40,7 @@ class ContactUserController extends AbstractController
             $from = $_ENV['MAILER_FROM'] ?? 'Cinéphoria <no-reply@cinephoria.test>';
 
             $email = (new TemplatedEmail())
-                ->from(Address::create($from))                  // ✅ Option A
+                ->from(Address::create($from))                  
                 ->to($this->supportDisplayEmail)               // destinataire interne
                 ->replyTo($this->supportDisplayEmail)           // adresse publique de contact
                 ->subject('Contact – '.$contact->getTitre())

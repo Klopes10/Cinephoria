@@ -90,11 +90,11 @@ class Seance
     {
         $this->salle = $salle;
 
-        // Init places si vide
+     
         if ($salle && $this->placesDisponible === null) {
             $this->placesDisponible = $salle->getNombrePlaces();
         }
-        // Hériter la qualité de la salle si non définie
+      
         if ($salle && $this->qualite === null) {
             $this->qualite = $salle->getQualite();
         }

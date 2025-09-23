@@ -1,4 +1,4 @@
-/* ===== Layout ===== */
+
 .layout{
   display:grid;
   grid-template-columns: 320px 1fr;
@@ -10,7 +10,7 @@
   .layout{ grid-template-columns: 1fr; }
 }
 
-/* ===== Left column (poster + résumé) ===== */
+
 .left{
   position:sticky;
   top:0;
@@ -43,17 +43,17 @@
 .chip-icons{ display:flex; gap:10px; color:#A19D9A; margin-top:6px; }
 .icon svg{ display:block; width:18px; height:18px; }
 
-/* ===== Main ===== */
+
 .main{ color:#EEE8E2; margin:auto; margin-top:110px; margin-bottom:110px;}
 .sub{ color:#9b938c; margin:0 0 40px; }
 
-/* ===== Room / seats ===== */
+
 #room{ max-width:620px; }
 .seats{ display:flex; flex-direction:column; padding:10px 0 18px; overflow:visible; }
 .row{ display:flex; gap:0; justify-content:center; overflow:visible; }
 .row.pmr-row{ justify-content:center; gap:10px; }
 
-/* ----- Seat button (modifieurs: .pmr, .std, .is-selected, .taken) ----- */
+
 .seat{
   position:relative;
   background:#0A0602;
@@ -178,31 +178,31 @@
   color: #EE8B1B;
 }
 
-/* Cas particulier : désactivé + hover -> NE PAS appliquer les effets */
+
 .auth-form:disabled:hover,
 .auth-form:disabled:hover::before {
   background-color: white !important;
   color: black !important;
   border: none !important;
-  height: 0% !important; /* annule l’animation du ::before */
+  height: 0% !important; 
 }
 
 .auth-form:hover:disabled{ opacity:.5; cursor:not-allowed; background-color: white; color:black}
-/* Ligne Total : démarre cachée sous le bouton, remonte au-dessus */
+
 .total-line{
   position:absolute; left:0; right:0;
-  bottom:8px;                  /* point d’ancrage commun */
+  bottom:8px;                  
   text-align:center;
   font-size:16px;
   font-weight:400;
   color:#ee8b1b;
   opacity:0;
-  transform: translateY(115%); /* cachée sous le bouton */
+  transform: translateY(115%); 
   transition: opacity .25s ease, transform .25s ease;
 }
 .total-line.show{
   opacity:1;
-  transform: translateY(-48px); /* remonte au-dessus du bouton (~48px) */
+  transform: translateY(-48px); 
 }
 .total-line.bump{ animation: total-bump .25s ease; }
 @keyframes total-bump{
@@ -273,7 +273,7 @@
 }
 
 
-/* Étiquette de validation (slide-in depuis la droite) */
+
 .purchase-tag{
   position: fixed;
   top: 110px;
@@ -321,7 +321,7 @@
   color: #D6CEC6;
 }
 
-/* Petit feedback si on dépasse la limite de sélection */
+
 @keyframes shake-x {
   10%, 90% { transform: translateX(-1px); }
   20%, 80% { transform: translateX(2px); }

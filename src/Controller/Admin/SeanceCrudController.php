@@ -51,7 +51,7 @@ final class SeanceCrudController extends AbstractCrudController
 
     public function configureAssets(Assets $assets): Assets
     {
-        // Assure-toi d’avoir le fichier public/js/admin-seance.js
+        
         return $assets->addJsFile('js/admin-seance.js');
     }
 
@@ -61,27 +61,27 @@ final class SeanceCrudController extends AbstractCrudController
         yield TimeField::new('heureDebut', '🕒 Début')->setFormat('HH:mm');
         yield TimeField::new('heureFin', '🕕 Fin')->setFormat('HH:mm');
 
-        // Pour simplifier le dépendant, on évite l'autocomplete ici
+        
         yield AssociationField::new('cinema', '🎦 Cinéma')
             ->setFormTypeOption('placeholder', '— Choisir un cinéma —');
 
-        // Salle dépendante : on force EntityType pour contrôler les choices côté serveur
+        
         yield AssociationField::new('salle', '🏛️ Salle')
             ->setFormType(EntityType::class)
             ->setFormTypeOptions([
                 'class' => Salle::class,
-                'choices' => [], // rempli dynamiquement (PRE_SET_DATA / PRE_SUBMIT et JS)
+                'choices' => [], 
                 'placeholder' => '— D’abord choisir un cinéma —',
                 'required' => true,
                 'choice_label' => fn (?Salle $s) => $s ? (string)$s : '',
                 'attr' => [
-                    // utilisé par le JS pour charger via AJAX au changement de cinéma
+                    
                     'data-endpoint' => '/admin/ajax/salles-by-cinema',
                 ],
             ])
             ->setHelp('La liste est limitée aux salles du cinéma sélectionné.');
 
-        // Film : tu peux laisser en autocomplete si tu veux, ça n’impacte pas la logique salle/cinéma
+        
         yield AssociationField::new('film', '🎬 Film')->setFormTypeOption('placeholder', '— Choisir un film —');
 
         yield TextField::new('qualite', '🎞️ Qualité')
@@ -142,7 +142,7 @@ final class SeanceCrudController extends AbstractCrudController
             $this->replaceSalleChoices($form, $cinema, $selectedSalle);
         });
 
-        // 3) Anti-triche/cohérence: salle ∈ cinéma
+        
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             /** @var Seance $seance */
             $seance = $event->getData();

@@ -134,7 +134,7 @@ class Cinema
     public function removeSalle(Salle $salle): static
     {
         if ($this->salles->removeElement($salle)) {
-            // set the owning side to null (unless already changed)
+            
             if ($salle->getCinema() === $this) {
                 $salle->setCinema(null);
             }
@@ -169,7 +169,7 @@ class Cinema
     public function removeSeance(Seance $seance): static
     {
         if ($this->seances->removeElement($seance)) {
-            // set the owning side to null (unless already changed)
+           
             if ($seance->getCinema() === $this) {
                 $seance->setCinema(null);
             }

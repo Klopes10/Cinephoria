@@ -7,7 +7,7 @@ use App\Form\RequestPasswordResetFormType;
 use App\Form\ResetPasswordFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail; // <- plus utilisé mais je laisse l'use si tu veux revenir
+use Symfony\Bridge\Twig\Mime\TemplatedEmail; 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
@@ -53,7 +53,7 @@ class PasswordResetController extends AbstractController
                 $em->flush();
 
                 try {
-                    // ---- Transport Gmail (envoyé pour de vrai) ----
+                    // ---- Transport Gmail  ----
                     $gmailDsn  = $_ENV['MAILER_DSN_GMAIL']  ?? '';
                     $gmailFrom = $_ENV['MAILER_FROM_GMAIL'] ?? 'Cinéphoria <kev671007@gmail.com>';
                     $replyTo   = $_ENV['MAILER_REPLY_TO_RESET'] ?? null;

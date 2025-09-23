@@ -19,8 +19,7 @@ RUN set -eux; \
     # Nettoyage
     rm -rf /var/lib/apt/lists/*
 
-# (optionnel mais recommandé en prod)
-# RUN docker-php-ext-install opcache
+
 
 # Corrige Git (contexte Docker)
 RUN git config --global --add safe.directory /var/www/html

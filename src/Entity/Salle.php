@@ -36,7 +36,7 @@ class Salle
     #[ORM\JoinColumn(nullable: false)]
     private ?Cinema $cinema = null;
 
-    /** Nouvelle relation : chaque salle a une qualité (qui porte le prix) */
+    
     #[ORM\ManyToOne(targetEntity: Qualite::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Qualite $qualite = null;
