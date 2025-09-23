@@ -46,20 +46,21 @@ COPY . .
 # 9) Assurer vendors *toujours SANS scripts* (rapide, cache déjà chaud)
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
 
-# 10) Autoload + commandes Symfony explicites (non bloquant si DB ND)
-RUN composer dump-autoload --no-dev -o \
- && php bin/console about || true \
- && php bin/console assets:install --no-interaction || true \
- && sh -lc 'EA=public/bundles/easyadmin; \
-    if [ -d "$EA" ]; then \
-      for f in "$EA"/*.*.css "$EA"/*.*.js; do \
-        [ -f "$f" ] || continue; \
-        b="$(basename "$f")"; n="${b%%.*}"; rest="${b#*.}"; h="${rest%%.*}"; e="${b##*.}"; \
-        cp -f "$f" "$EA/${n}_${h}.$e"; \
-      done; \
-    fi' \
- && php bin/console cache:clear --env=prod --no-warmup || true \
- && php bin/console cache:warmup --env=prod || true
+# 10) Autoload + commandes Symfony explicites
+RUN set -e; \
+    composer dump-autoload --no-dev -o; \
+    php -d variables_order=EGPCS bin/console about || true; \
+    php -d variables_order=EGPCS bin/console assets:install --no-interaction; \
+    sh -lc 'EA=public/bundles/easyadmin; \
+      if [ -d "$EA" ]; then \
+        for f in "$EA"/*.*.css "$EA"/*.*.js; do \
+          [ -f "$f" ] || continue; \
+          b="$(basename "$f")"; n="${b%%.*}"; rest="${b#*.}"; h="${rest%%.*}"; e="${b##*.}"; \
+          cp -f "$f" "$EA/${n}_${h}.$e"; \
+        done; \
+      fi'; \
+    php -d variables_order=EGPCS bin/console cache:clear --env=prod --no-warmup || true; \
+    php -d variables_order=EGPCS bin/console cache:warmup --env=prod || true
 
 # 11) Dossiers runtime & permissions
 RUN mkdir -p /app/var /run/php /var/log/nginx /var/cache/nginx /var/log/supervisor \

@@ -1,0 +1,3 @@
+.fly/nginx.conf text eol=lf
+.fly/release.sh text eol=lf
+*.sh text eol=lf
