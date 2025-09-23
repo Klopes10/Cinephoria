@@ -145,7 +145,7 @@
   }
 
   .film-poster { position: relative; }
-  .film-poster img {width:260px; height:481px}
+  .film-poster img {width:260px; height:auto}
 .badge{
   position:absolute;
   top:12px;
