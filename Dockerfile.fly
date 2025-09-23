@@ -1,7 +1,7 @@
 # Dockerfile.fly (fix no-scripts + APP_ENV en amont + cache-bust)
 FROM php:8.2-fpm-alpine
 
-# 0) Cache-bust optionnel (on le pilotera depuis la CI)
+# 0) Cache-bust optionnel (piloté depuis la CI)
 ARG BUILD_REBUILD=0
 
 # 1) Paquets système + Nginx + Supervisor + deps de build
@@ -21,7 +21,7 @@ RUN docker-php-ext-configure intl \
 RUN pecl install mongodb-1.16.2 \
  && docker-php-ext-enable mongodb
 
-# 4) Certifs
+# 4) Certifs (+ c-ares pour SRV DNS MongoDB)
 RUN apk add --no-cache ca-certificates c-ares
 
 # 5) Composer
@@ -33,6 +33,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     APP_ENV=prod \
     APP_DEBUG=0 \
     SYMFONY_DEPRECATIONS_HELPER=disabled
+
+# >>> Vars nécessaires AU BUILD pour que Symfony boote (écrasées en runtime par Fly)
+ENV TRUSTED_HOSTS="^.*$" \
+    TRUSTED_PROXIES="127.0.0.1,REMOTE_ADDR" \
+    APP_SECRET="build-only-not-secret"
+# <<<
 
 WORKDIR /app
 
