@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -exu  # log + exit on error + variables non définies interdites
 
 # 1) Publier les assets des bundles (EasyAdmin -> /public/bundles/easyadmin)
 php bin/console -n assets:install

@@ -23,6 +23,7 @@ primary_region = "cdg" # Paris
 # Commande exécutée à chaque déploiement (migrations + cache)
 [deploy]
   release_command = "sh -lc '.fly/release.sh'"
+
   
 # Montage du volume persistant (uploads)
 [[mounts]]
