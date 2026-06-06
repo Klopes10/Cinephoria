@@ -1,72 +1,38 @@
-:root{
-    --bg:#0d0b0a;
-    --text:#e9e3dc;
-    --muted:#9a8f86;
-    --card:#171311;
-    --line:#2a241f;
-    --accent:#EE8B1B;
-    --shadow:0 2px 8px rgba(0,0,0,.35);
-  }
-  
-  /* Wrapper & titres */
-  .reserv-wrapper{ margin:150px 177px; color:var(--text); }
-  .reserv-title{ margin:70px  0px; }
-  .reserv-title::after{ content:""; display:block; width:36px; height:3px; background:var(--accent); margin-top:8px; }
-  
-  /* Filtres */
-  .reserv-filters{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:12px;
-    background:#0A0602;
-    padding:8px 10px;
-    border-radius:6px;
-    box-shadow:var(--shadow);
-  
-    margin-top:256px;
-  }
-  
-  .select{ position:relative; background:#1c1816; border-radius:4px; }
-  .select select{
-    appearance:none;
-    width:100%;
-    padding:12px 40px 12px 12px;
-    font-size:14px;
-    background:transparent;
-    color:var(--text);
-    border:1px solid var(--line);
-    border-radius:4px;
-    outline:none;
-  }
-  .select select:disabled{ opacity:.45; cursor:not-allowed; }
-  .select .chev{ position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--muted); }
-  
-  /* Bandeau jours */
-  .reserv-days{ display:flex; gap:22px; align-items:center;  padding-left:4px; overflow-x:auto; }
-  .day-pill{
-    background:none;
-    border:none;
-    color:var(--muted);
-    padding:6px 0;
-    border-bottom:2px solid transparent;
-    cursor:pointer;
-    white-space:nowrap;
-    font-family: "Poppins", sans-serif;
-    font-size: 16px;
-  }
-  .day-pill.active{ color:var(--text); border-color:var(--accent); }
-  
-  /* Zone résultats */
-  #sessionsArea{ min-height:80px;  margin-top:60px;}
-  #sessionsArea .hint{ color:var(--muted); }
-  
-  
-  
-  .film-info{
-    margin-left:30px;
+:root {
+  --bg: #0A0602;
+  --text: #EEE8E2;
+  --muted: #9a8f86;
+  --card: #171311;
+  --line: #2a241f;
+  --accent: #EE8B1B;
+  --shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
 
-  }
-     
+/* ============================= */
+/* BASE                          */
+/* ============================= */
+
+.reserv-wrapper {
+  margin: 150px 177px;
+  color: var(--text);
+}
+
+.reserv-title {
+  margin: 70px 0;
+}
+
+.reserv-title::after {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 3px;
+  background: var(--accent);
+  margin-top: 8px;
+}
+
+/* ============================= */
+/* FILTRES                       */
+/* ============================= */
 
 .reserv-filters {
   display: flex;
@@ -77,12 +43,12 @@
   overflow: hidden;
   height: 60px;
   gap: 16px;
+  margin-top: 256px;
   margin-bottom: 30px;
   flex-wrap: wrap;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
 }
 
-/* Styles identiques aux select de .filter-bar */
 .reserv-filters select {
   appearance: none;
   background-color: #0e0a07;
@@ -98,20 +64,23 @@
   position: relative;
   height: 100%;
   min-width: 32%;
+  flex: 1;
 
-  /* Flèche personnalisée */
   background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 15px center;
   background-size: 12px;
 }
 
-/* Cache la flèche native */
 .reserv-filters select::-ms-expand {
   display: none;
 }
 
-/* Optgroup & option comme avant */
+.reserv-filters select:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
 .reserv-filters optgroup {
   color: #ee8b1b;
   font-weight: 400;
@@ -129,40 +98,318 @@
   font-weight: 400;
 }
 
-.film-horizontal-card {
-  display: flex;              
-  gap: 1rem;
-  text-decoration: none;      
-  color: inherit;             
-  cursor: default;            
-  margin:60px 0;
+/* ============================= */
+/* JOURS                         */
+/* ============================= */
+
+.reserv-days {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  padding-left: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-  /* Responsive */
-  @media (max-width: 900px){
-    .reserv-wrapper{ margin:110px 18px; }
-    .reserv-filters{ grid-template-columns:1fr; gap:10px; }
+
+.reserv-days::-webkit-scrollbar {
+  display: none;
+}
+
+.day-pill {
+  background: none;
+  border: none;
+  color: var(--muted);
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+
+.day-pill.active {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* ============================= */
+/* ZONE RÉSULTATS                */
+/* ============================= */
+
+#sessionsArea {
+  min-height: 80px;
+  margin-top: 60px;
+}
+
+#sessionsArea .hint {
+  color: var(--muted);
+}
+
+.film-horizontal-card {
+  display: flex;
+  gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: default;
+  margin: 60px 0;
+}
+
+.film-poster {
+  position: relative;
+}
+
+.film-poster img {
+  width: 260px;
+  height: auto;
+  display: block;
+}
+
+.film-info {
+  margin-left: 30px;
+}
+
+.film-info .desc {
+  color: #CCC;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 14px 0 22px;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  background: #EE8B1B;
+  color: #0A0602;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 10px;
+  border-radius: 5px;
+  width: 162px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+}
+
+.badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================= */
+/* RESPONSIVE TABLETTE           */
+/* ============================= */
+
+@media (max-width: 1024px) {
+  .reserv-wrapper {
+    margin: 130px 60px;
   }
 
-  .film-poster { position: relative; }
-  .film-poster img {width:260px; height:auto}
-.badge{
-  position:absolute;
-  top:12px;
-  right:0;
-  background:#EE8B1B;
-  color:#0A0602;
-  font-size:14px;
-  font-weight:600;
-  padding:0 10px;
-  border-radius:5px;
-  width:162px;
-  height:34px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  z-index:3; /* au-dessus de l’overlay éventuel */
-}
-.badge svg{ width:20px; height:20px; }
+  .reserv-filters {
+    margin-top: 180px;
+    width: 100%;
+    height: auto;
+    min-height: 60px;
+  }
 
-  
+  .reserv-filters select {
+    min-width: 220px;
+    height: 56px;
+  }
+
+  .film-horizontal-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .film-info {
+    margin-left: 0;
+  }
+
+  #sessionsArea .sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  #sessionsArea .session-chip {
+    width: auto;
+  }
+}
+
+/* ============================= */
+/* RESPONSIVE MOBILE             */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .reserv-wrapper {
+    margin: 0;
+    padding: 120px 33px 75px;
+  }
+
+  .reserv-filters {
+    margin-top: 0;
+    margin-bottom: 45px;
+    width: 100%;
+    height: 56px;
+    min-height: 56px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .reserv-filters select {
+    width: 100%;
+    min-width: 100%;
+    height: 56px;
+    flex: 0 0 100%;
+    box-sizing: border-box;
+  }
+
+  .reserv-title {
+    margin: 0 0 55px;
+    font-size: 24px;
+    line-height: 1.35;
+  }
+
+  .reserv-days {
+    width: 100%;
+    gap: 18px;
+    margin-bottom: 55px;
+    padding-bottom: 18px;
+    overflow-x: auto;
+  }
+
+  #sessionsArea {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  #sessionsArea .film-grid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 55px;
+  }
+
+  #sessionsArea .film-horizontal-card {
+    width: 100%;
+    max-width: none;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 0;
+    margin: 0;
+  }
+
+  #sessionsArea .film-poster {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  #sessionsArea .film-poster img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  #sessionsArea .film-info {
+    width: 100%;
+    max-width: 320px;
+    margin-left: 0;
+  }
+
+  #sessionsArea .film-info h3 {
+    font-size: 22px;
+    margin: 0 0 10px;
+  }
+
+  #sessionsArea .film-info .public {
+    font-size: 16px;
+    margin: 0 0 14px;
+    padding: 0;
+  }
+
+  #sessionsArea .film-info .desc {
+    display: -webkit-box;
+    color: #CCC;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 12px 0 24px;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #sessionsArea .sessions-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 28px;
+  }
+
+  #sessionsArea .session-chip {
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+    padding: 16px 14px;
+  }
+
+  #sessionsArea .chip-version {
+    font-size: 12px;
+  }
+
+  #sessionsArea .chip-time {
+    font-size: 40px;
+  }
+
+  #sessionsArea .chip-end {
+    font-size: 14px;
+  }
+
+  #sessionsArea .chip-room {
+    font-size: 13px;
+  }
+
+  #sessionsArea .chip-icons {
+    gap: 8px;
+  }
+
+  #sessionsArea .icon svg {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* ============================= */
+/* PETITS MOBILES                */
+/* ============================= */
+
+@media (max-width: 390px) {
+  .reserv-wrapper {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .reserv-filters {
+    margin-top: 180px;
+  }
+
+  #sessionsArea .film-poster,
+  #sessionsArea .film-info,
+  #sessionsArea .session-chip {
+    max-width: 100%;
+  }
+
+  #sessionsArea .film-info .desc {
+    -webkit-line-clamp: 4;
+  }
+}

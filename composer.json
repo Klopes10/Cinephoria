@@ -12,7 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "easycorp/easyadmin-bundle": "^4.24",
-        "lexik/jwt-authentication-bundle": "^3.1",
+        "lexik/jwt-authentication-bundle": "^3.2",
         "mongodb/mongodb": "^1.15",
         "nelmio/cors-bundle": "^2.5",
         "symfony/asset": "7.2.*",
@@ -27,9 +27,9 @@
         "symfony/security-bundle": "7.2.*",
         "symfony/twig-bridge": "7.2.*",
         "symfony/twig-bundle": "7.2.*",
+        "symfony/ux-twig-component": "^2.27",
         "symfony/validator": "7.2.*",
         "symfony/yaml": "7.2.*",
-        "symfony/ux-twig-component": "^2.27",
         "twig/intl-extra": "*"
     },
     "require-dev": {

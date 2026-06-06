@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Welcome!{% endblock %}</title>
 
     <!-- Google Fonts -->
@@ -14,8 +15,6 @@
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
 
-
-
     {% block stylesheets %}{% endblock %}
 </head>
 
@@ -25,11 +24,21 @@
             <div class="logo">
                 <a href="{{ path('app_home') }}">Cinéphoria</a>
             </div>
+
+            <input type="checkbox" id="mobile-menu-toggle" class="mobile-menu-toggle">
+
+            <label for="mobile-menu-toggle" class="mobile-menu-btn" aria-label="Ouvrir le menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
             <nav class="nav-links">
                 <a href="{{ path('app_reservation') }}">Réservation</a>
                 <a href="{{ path('app_films') }}">Films</a>
                 <a href="{{ path('app_contact') }}">Contact</a>
             </nav>
+
             <div class="user-section">
                 {% if app.user %}
                     <div class="dropdown" id="userDropdown">
@@ -67,6 +76,7 @@
                 </div>
                 <p>Lundi - Vendredi : 9h - 23h<br>Samedi - Dimanche : 10h - 22h</p>
             </div>
+
             <div class="footer-section">
                 <div class="footer-icon-title">
                     <img src="{{ asset('images/icons/coordonnees.svg') }}" width="22" height="30" alt="Coordonnées" />
@@ -74,12 +84,14 @@
                 </div>
                 <p>10 rue de la paix, 33000 Bordeaux<br>04 01 02 03 05</p>
             </div>
+
             <div class="footer-links">
                 <a href="{{ path('app_reservation') }}">Réservations</a>
                 <a href="{{ path('app_films') }}">Films</a>
                 <a href="{{ path('app_contact') }}">Contact</a>
             </div>
         </div>
+
         <div class="footer-bottom">
             <a href="#">Mentions légales</a>
             <p>© 2025 Cinéphoria</p>
@@ -87,7 +99,6 @@
     </footer>
 
     <script src="{{ asset('js/scripts.js') }}"></script>
-
     <script src="{{ asset('js/film_filtre.js') }}"></script>
 
     {% block javascripts %}{% endblock %}

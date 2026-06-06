@@ -143,7 +143,11 @@ body{
   }
   @media (max-width:768px){
     .films-section{ padding:120px 24px; }
-    .film-horizontal-card{ flex:0 0 100%; gap:20px; }
+    .film-horizontal-card {
+      flex: 0 0 100%;
+      gap: 18px;
+      align-items: flex-start;
+    }
     .filter-bar{ width:100%; height:auto; padding:10px; }
     #ville,#genre,#jour{ width:auto; flex:1; min-width:160px; }
   }
@@ -169,4 +173,136 @@ body{
 }
 .badge svg{ width:20px; height:20px; }
 
-  
+  @media (max-width: 1024px) {
+  .films-section {
+    padding: 130px 60px;
+  }
+
+  .filter-bar {
+    width: 100%;
+  }
+
+  .film-horizontal-card {
+    flex: 0 0 calc((100% - 40px) / 2);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .films-section {
+    padding: 120px 24px 80px;
+  }
+
+  .filter-bar {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    opacity: 1;
+    border: none;
+    gap: 12px;
+  }
+
+  .filter-bar select,
+  #ville,
+  #genre,
+  #jour {
+    width: 100%;
+    min-width: 100%;
+    height: 48px;
+  }
+
+  .film-grid {
+    gap: 35px;
+  }
+
+  .film-horizontal-card {
+    flex: 0 0 100%;
+    gap: 18px;
+  }
+
+  .film-poster {
+    width: 135px;
+  }
+
+  .film-poster img {
+    height: 240px;
+    object-fit: cover;
+  }
+
+  .film-info h2 {
+    font-size: 17px;
+  }
+
+  .film-info .desc {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .film-horizontal-card {
+    flex-direction: column;
+  }
+
+  .film-poster {
+    width: 100%;
+  }
+
+  .film-poster img {
+    width: 100%;
+    height: 430px;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .film-horizontal-card {
+    flex-direction: row;
+  }
+
+  .film-poster {
+    width: 120px;
+  }
+
+  .film-poster img {
+    height: 215px;
+    object-fit: cover;
+  }
+
+  .film-info h2 {
+    font-size: 16px;
+  }
+
+  .film-info .public {
+    font-size: 13px;
+    padding-top: 4px;
+  }
+
+  .film-info .desc {
+    display: none;
+  }
+
+  .film-info .note {
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+
+  .star img {
+    width: 16px;
+  }
+
+  .badge {
+    width: 120px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .badge svg {
+    width: 15px;
+    height: 15px;
+  }
+}

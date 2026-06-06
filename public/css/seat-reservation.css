@@ -329,3 +329,282 @@
   40%, 60% { transform: translateX(4px); }
 }
 .seat.shake { animation: shake-x .3s ease; }
+
+
+/* ============================= */
+/* RESPONSIVE TABLETTE / MOBILE  */
+/* ============================= */
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 280px 1fr;
+    gap: 34px;
+  }
+
+  .left {
+    padding: 40px 0 0 35px;
+  }
+
+  .main {
+    margin-top: 95px;
+  }
+
+  #room {
+    max-width: 560px;
+  }
+
+  .seat img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .seat.pmr img {
+    width: 39px;
+    height: 39px;
+  }
+}
+
+@media (max-width: 980px) {
+  .layout {
+    display: block;
+    margin-top: 110px;
+  }
+
+  .left {
+    position: relative;
+    top: auto;
+    height: auto;
+    padding: 35px 40px;
+    background: linear-gradient(to bottom, #272C30, #0A0602);
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .poster img {
+    width: 160px;
+  }
+
+  .infos {
+    margin-top: 0;
+  }
+
+  .film-title {
+    margin-bottom: 14px;
+  }
+
+  .session-card {
+    width: 180px;
+  }
+
+  .main {
+    margin: 70px auto 90px;
+    padding: 0 40px;
+  }
+
+  #room {
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .seats {
+    min-width: 560px;
+  }
+
+  .screen {
+    min-width: 560px;
+  }
+
+  .cta {
+    min-width: 560px;
+  }
+
+  .purchase-tag {
+    top: 90px;
+    right: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    margin-top: 95px;
+  }
+
+  .left {
+    padding: 32px 28px;
+    grid-template-columns: 130px 1fr;
+    gap: 20px;
+  }
+
+  .poster img {
+    width: 130px;
+  }
+
+  .film-title {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+
+  .cinema,
+  .date {
+    font-size: 14px;
+  }
+
+  .session-card {
+    width: 160px;
+    padding: 10px 12px;
+  }
+
+  .chip-time {
+    font-size: 32px;
+  }
+
+  .chip-end,
+  .chip-room {
+    font-size: 13px;
+  }
+
+  .main {
+    margin: 55px auto 80px;
+    padding: 0 28px;
+  }
+
+  .heading .section-title {
+    font-size: 24px;
+    line-height: 1.35;
+  }
+
+  .sub {
+    margin-bottom: 35px;
+  }
+
+  #room {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .seats,
+  .screen,
+  .cta {
+    min-width: 520px;
+  }
+
+  .seat img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .seat.pmr img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .seat::before {
+    width: 38px;
+    height: 34px;
+    top: -45px;
+    font-size: 15px;
+  }
+
+  .auth-form {
+    font-size: 17px;
+  }
+
+  .purchase-tag {
+    top: 85px;
+    left: 18px;
+    right: 18px;
+    transform: translateY(-140%);
+  }
+
+  .purchase-tag.show {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 520px) {
+  .layout {
+    margin-top: 85px;
+  }
+
+  .left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 22px 40px;
+    text-align: center;
+  }
+
+  .poster img {
+    width: 190px;
+  }
+
+  .infos {
+    width: 100%;
+  }
+
+  .session-card {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .main {
+    margin: 50px auto 70px;
+    padding: 0 18px;
+  }
+
+  .heading {
+    text-align: left;
+  }
+
+  #room {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 14px;
+  }
+
+  .seats,
+  .screen,
+  .cta {
+    min-width: 480px;
+  }
+
+  .row {
+    justify-content: flex-start;
+  }
+
+  .row.pmr-row {
+    justify-content: flex-start;
+  }
+
+  .seat {
+    margin: 8px 0;
+  }
+
+  .seat img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .seat.pmr img {
+    width: 33px;
+    height: 33px;
+  }
+
+  .screen {
+    margin-top: 12px;
+  }
+
+  .total-line {
+    font-size: 14px;
+  }
+
+  .auth-form {
+    font-size: 16px;
+    padding: 12px 18px;
+  }
+}

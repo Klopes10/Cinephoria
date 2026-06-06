@@ -305,3 +305,161 @@ a.review-link:hover{
   font-weight: normal;
 }
 
+@media (max-width: 1024px) {
+  #film-show,
+  .show-section {
+    margin: 130px 60px 0;
+  }
+
+  .film-block {
+    grid-template-columns: 230px 1fr;
+  }
+
+  .poster img {
+    width: 230px;
+  }
+}
+
+@media (max-width: 768px) {
+  #film-show,
+  .show-section {
+    margin: 120px 24px 0;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .tabs.cities {
+    margin: 45px 0 25px;
+  }
+
+  .tabs.days {
+    margin-bottom: 40px;
+  }
+
+  .film-block {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .poster img {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .poster {
+    display: flex;
+    justify-content: center;
+  }
+
+  .meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .synopsis {
+    font-size: 14px;
+  }
+
+  .sessions-grid {
+    gap: 10px;
+  }
+
+  .session-chip {
+    width: calc(50% - 6px);
+  }
+
+  .chip-time {
+    font-size: 34px;
+  }
+
+  .legend {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 50px;
+  }
+
+  .modal-panel {
+    margin: 10vh auto;
+  }
+}
+
+@media (max-width: 480px) {
+  #film-show,
+  .show-section {
+    margin: 110px 18px 0;
+  }
+
+  .session-chip {
+    width: 100%;
+  }
+
+  .chip-time {
+    font-size: 38px;
+  }
+
+  .rating-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  span.stars {
+    margin-left: 0;
+  }
+
+  .reviews-link {
+    margin-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .session-chip {
+    width: auto;
+    min-width: 0;
+  }
+
+  .chip-time {
+    font-size: 34px;
+  }
+
+  .chip-end {
+    font-size: 14px;
+  }
+
+  .chip-bottom {
+    gap: 10px;
+  }
+
+  .chip-icons {
+    gap: 6px;
+  }
+
+  .icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .chip-room {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sessions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .session-chip {
+    width: 100%;
+  }
+}

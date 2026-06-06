@@ -190,3 +190,103 @@ body {
     color: red;
     margin-bottom: 10px;
 }
+/* ===================== */
+/* Responsive Auth       */
+/* ===================== */
+
+@media (max-width: 1024px) {
+    .auth-wrapper {
+        padding: 70px 50px;
+    }
+
+    .auth-tabs {
+        margin-top: 130px;
+        margin-bottom: 60px;
+    }
+
+    .auth-container {
+        max-width: 850px;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-wrapper {
+        padding: 90px 24px 70px;
+        min-height: auto;
+    }
+
+    .auth-tabs {
+        margin-top: 70px;
+        margin-bottom: 45px;
+        gap: 25px;
+    }
+
+    .auth-tabs .tab {
+        font-size: 24px;
+    }
+
+    .auth-forms {
+        display: block;
+    }
+
+    .auth-form-section {
+        width: 100%;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .form-row .form-group:first-child,
+    .form-row .form-group:last-child {
+        width: 100%;
+    }
+
+    .auth-form {
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .auth-form button {
+        width: 100%;
+        font-size: 17px;
+        padding: 13px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-wrapper {
+        padding: 80px 18px 60px;
+    }
+
+    .auth-tabs {
+        margin-top: 55px;
+        margin-bottom: 35px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .auth-tabs .tab {
+        font-size: 22px;
+    }
+
+    .auth-form label {
+        font-size: 14px;
+    }
+
+    .auth-form input[type="text"],
+    .auth-form input[type="password"],
+    .auth-form input[type="email"] {
+        font-size: 15px;
+        padding: 13px 0;
+    }
+
+    .forgot-password a {
+        font-size: 14px;
+    }
+}
