@@ -197,34 +197,8 @@
     height: 20px;
 }
 
-/* ===================== */
-/* TABLETTE              */
-/* ===================== */
-
+/* TABLETTE */
 @media (max-width: 1024px) {
-    .banner-overlay {
-        padding-left: 100px;
-    }
-
-    .banner-content h1 {
-        font-size: 78px;
-    }
-
-    .banner-btn {
-        font-size: 24px;
-        padding: 10px 70px;
-    }
-
-    .new-release {
-        padding: 110px 70px;
-    }
-}
-
-/* ===================== */
-/* MOBILE                */
-/* ===================== */
-
-@media (max-width: 768px) {
     .banner {
         height: 100svh;
         min-height: 560px;
@@ -251,9 +225,14 @@
         margin-bottom: 16px;
     }
 
+    .title-banner {
+        margin-bottom: 16px;
+    }
+
     .banner-btn {
         font-size: 15px;
         padding: 10px 38px;
+        border-radius: 4px;
     }
 
     .banner-btn svg {
@@ -279,8 +258,9 @@
     }
 
     .movie-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px 12px;
+        justify-items: stretch;
     }
 
     .movie-card {
@@ -288,8 +268,10 @@
     }
 
     .movie-card img {
+        width: 100%;
         height: auto;
         aspect-ratio: 2 / 3;
+        object-fit: cover;
     }
 
     .movie-card p {
@@ -298,6 +280,7 @@
     }
 }
 
+/* PETITS MOBILES */
 @media (max-width: 480px) {
     .banner {
         min-height: 720px;
