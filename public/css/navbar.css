@@ -276,3 +276,24 @@ body {
                 contrast(100%);
     }
 }
+
+@media screen and (max-width: 1080px) {
+  .main-navbar {
+    padding: 22px 18px !important;
+    background: transparent !important;
+  }
+
+  .logo a {
+    font-size: 9px !important;
+  }
+
+  .nav-links,
+  .user-section,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  .mobile-tabbar {
+    display: grid !important;
+  }
+}
