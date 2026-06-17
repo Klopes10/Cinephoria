@@ -210,8 +210,15 @@
 
 @media (max-width: 768px) {
     body {
-        padding-bottom: 78px;
+       
+        padding-bottom: calc(78px + env(safe-area-inset-bottom));
     }
+
+    .mobile-tabbar {
+        height: calc(78px + env(safe-area-inset-bottom));
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
 
     .mobile-tabbar {
         position: fixed;

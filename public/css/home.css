@@ -226,8 +226,8 @@
 
 @media (max-width: 768px) {
     .banner {
-        height: 100vh;
-        min-height: 720px;
+        height: 100svh;
+        min-height: 560px;
         background-position: center;
     }
 
@@ -235,12 +235,9 @@
         justify-content: flex-end;
         align-items: center;
         flex-direction: column;
-        padding: 0 28px 58px;
+        padding: 0 28px 42px;
         text-align: center;
-        background: linear-gradient(
-            rgba(10, 6, 2, 0.12),
-            rgba(10, 6, 2, 0.12)
-        );
+        background: rgba(10, 6, 2, 0.12);
     }
 
     .banner-content {
@@ -249,20 +246,14 @@
     }
 
     .banner-content h1 {
-        font-size: 80px;
+        font-size: 46px;
         line-height: 0.95;
-        margin-bottom: 18px;
-    }
-
-    .title-banner {
-        margin-top: 0;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
 
     .banner-btn {
         font-size: 15px;
         padding: 10px 38px;
-        border-radius: 4px;
     }
 
     .banner-btn svg {
@@ -273,7 +264,7 @@
 
     .new-release {
         display: block;
-        padding: 45px 12px 35px;
+        padding: 38px 12px 35px;
     }
 
     .section-title {
@@ -290,7 +281,6 @@
     .movie-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 14px 12px;
-        justify-items: stretch;
     }
 
     .movie-card {
@@ -303,7 +293,7 @@
     }
 
     .movie-card p {
-        font-size: 7px;
+        font-size: 8px;
         margin-top: 5px;
     }
 }
