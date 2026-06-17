@@ -197,19 +197,22 @@
     height: 20px;
 }
 
-/* TABLETTE */
+/* ===================== */
+/* TABLETTE              */
+/* ===================== */
+
 @media (max-width: 1024px) {
     .banner {
         height: 100svh;
-        min-height: 560px;
+        min-height: 650px;
         background-position: center;
     }
 
     .banner-overlay {
-        justify-content: flex-end;
+        justify-content: center;
         align-items: center;
         flex-direction: column;
-        padding: 0 28px 42px;
+        padding: 0 28px;
         text-align: center;
         background: rgba(10, 6, 2, 0.12);
     }
@@ -217,21 +220,24 @@
     .banner-content {
         color: #EEE8E2;
         width: 100%;
+        position: relative;
+        top: 105px;
     }
 
     .banner-content h1 {
-        font-size: 46px;
-        line-height: 0.95;
-        margin-bottom: 16px;
+        color: #EEE8E2;
+        font-size: 62px;
+        line-height: 0.9;
+        margin: 0 0 20px;
     }
 
     .title-banner {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
     .banner-btn {
         font-size: 15px;
-        padding: 10px 38px;
+        padding: 10px 42px;
         border-radius: 4px;
     }
 
@@ -259,12 +265,13 @@
 
     .movie-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px 12px;
+        gap: 18px 12px;
         justify-items: stretch;
     }
 
     .movie-card {
         width: 100%;
+        max-width: none;
     }
 
     .movie-card img {
@@ -280,77 +287,86 @@
     }
 }
 
-/* PETITS MOBILES */
+/* ===================== */
+/* SAMSUNG / VRAI MOBILE */
+/* ===================== */
+
+@media screen and (max-width: 1080px) {
+    .banner {
+        height: 100svh !important;
+        min-height: 650px !important;
+        background-position: center !important;
+    }
+
+    .banner-overlay {
+        padding: 0 24px !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        background: rgba(10, 6, 2, 0.12) !important;
+    }
+
+    .banner-content {
+        color: #EEE8E2 !important;
+        width: 100% !important;
+        position: relative !important;
+        top: 105px !important;
+    }
+
+    .banner-content h1 {
+        color: #EEE8E2 !important;
+        font-size: 62px !important;
+        line-height: 0.9 !important;
+        margin: 0 0 20px !important;
+    }
+
+    .banner-btn {
+        font-size: 15px !important;
+        padding: 10px 42px !important;
+    }
+
+    .new-release {
+        display: block !important;
+        padding: 38px 12px 35px !important;
+    }
+
+    .movie-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 18px 12px !important;
+    }
+
+    .movie-card {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .movie-card img {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 2 / 3 !important;
+        object-fit: cover !important;
+    }
+}
+
+/* ===================== */
+/* PETITS MOBILES        */
+/* ===================== */
+
 @media (max-width: 480px) {
     .banner {
         min-height: 720px;
     }
 
-    .banner-overlay {
-        padding: 0 28px 58px;
+    .banner-content {
+        top: 95px !important;
     }
 
     .banner-content h1 {
-        font-size: 80px;
+        font-size: 78px !important;
     }
 
     .banner-btn {
         font-size: 15px;
         padding: 10px 38px;
     }
-}
-
-@media screen and (max-width: 1080px) {
-  .banner {
-    height: 100svh !important;
-    min-height: 650px !important;
-    background-position: center !important;
-  }
-
-  .banner-overlay {
-    padding: 0 24px 55px !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-    text-align: center !important;
-    background: rgba(10, 6, 2, 0.12) !important;
-  }
-
-  .banner-content {
-    color: #EEE8E2 !important;
-    width: 100% !important;
-  }
-
-  .banner-content h1 {
-    color: #EEE8E2 !important;
-    font-size: 62px !important;
-    line-height: 0.9 !important;
-    margin: 0 0 20px !important;
-  }
-
-  .banner-btn {
-    font-size: 15px !important;
-    padding: 10px 42px !important;
-  }
-
-  .new-release {
-    display: block !important;
-    padding: 38px 12px 35px !important;
-  }
-
-  .movie-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 18px 12px !important;
-  }
-
-  .movie-card {
-    width: 100% !important;
-    max-width: none !important;
-  }
-
-  .movie-card img {
-    width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 2 / 3 !important;
-    object-fit: cover !important;
-  }
 }
