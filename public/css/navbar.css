@@ -261,3 +261,85 @@
         text-align: center;
     }
 }
+
+.mobile-tabbar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    body {
+        padding-bottom: 80px;
+    }
+
+    .mobile-menu-btn{display:none;}
+
+    .mobile-tabbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 78px;
+
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+
+       background: linear-gradient(
+    to bottom,
+    rgba(10, 6, 2, 0.75) 0%,
+    #0A0602 100%
+);
+
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+
+        z-index: 9999;
+    }
+
+    .tabbar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        gap: 4px;
+
+        text-decoration: none;
+        color: #EEE8E2;
+
+        transition: all .2s ease;
+    }
+
+    .tabbar-item span {
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 400;
+    }
+
+    .tabbar-icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+
+        opacity: .85;
+        transition: all .2s ease;
+    }
+
+    .tabbar-item:hover,
+    .tabbar-item.active {
+        color: #EE8B1B;
+    }
+
+    .tabbar-item:hover .tabbar-icon,
+    .tabbar-item.active .tabbar-icon {
+        filter: brightness(0)
+                saturate(100%)
+                invert(60%)
+                sepia(68%)
+                saturate(388%)
+                hue-rotate(2deg)
+                brightness(102%)
+                contrast(100%);
+    }
+}

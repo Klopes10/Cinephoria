@@ -101,6 +101,42 @@
     <script src="{{ asset('js/scripts.js') }}"></script>
     <script src="{{ asset('js/film_filtre.js') }}"></script>
 
+   <nav class="mobile-tabbar">
+
+    <a href="{{ path('app_home') }}" class="tabbar-item">
+        <img src="{{ asset('images/icons/accueil-icon.svg') }}" alt="Accueil" class="tabbar-icon">
+        <span>Accueil</span>
+    </a>
+
+    <a href="{{ path('app_films') }}" class="tabbar-item">
+        <img src="{{ asset('images/icons/film-icon.svg') }}" alt="Films" class="tabbar-icon">
+        <span>Films</span>
+    </a>
+
+    <a href="{{ path('app_reservation') }}" class="tabbar-item">
+        <img src="{{ asset('images/icons/reservation-icon.svg') }}" alt="Réservation" class="tabbar-icon">
+        <span>Réservation</span>
+    </a>
+
+    <a href="{{ path('app_contact') }}" class="tabbar-item">
+        <img src="{{ asset('images/icons/contact-icon.svg') }}" alt="Contact" class="tabbar-icon">
+        <span>Contact</span>
+    </a>
+
+    {% if app.user %}
+        <a href="{{ path('app_account') }}" class="tabbar-item">
+            <img src="{{ asset('images/icons/compte-icon.svg') }}" alt="Mon compte" class="tabbar-icon">
+            <span>Mon compte</span>
+        </a>
+    {% else %}
+        <a href="{{ path('app_auth') }}" class="tabbar-item">
+            <img src="{{ asset('images/icons/compte-icon.svg') }}" alt="Mon compte" class="tabbar-icon">
+            <span>Mon compte</span>
+        </a>
+    {% endif %}
+
+</nav>
+
     {% block javascripts %}{% endblock %}
 </body>
 </html>
