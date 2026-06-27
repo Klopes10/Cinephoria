@@ -5,8 +5,8 @@ set -exu  # log + exit on error + variables non définies interdites
 # Recréer les clés JWT depuis les secrets Fly
 # ===========================
 mkdir -p config/jwt
-printf "%s" "$JWT_SECRET_KEY_CONTENT" > config/jwt/private.pem
-printf "%s" "$JWT_PUBLIC_KEY_CONTENT" > config/jwt/public.pem
+printf "%s" "$JWT_SECRET_KEY_B64" | base64 -d > config/jwt/private.pem
+printf "%s" "$JWT_PUBLIC_KEY_B64" | base64 -d > config/jwt/public.pem
 
 chmod 600 config/jwt/private.pem
 chmod 644 config/jwt/public.pem
