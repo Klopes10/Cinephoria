@@ -1,29 +1,47 @@
 #!/bin/sh
 set -exu  # log + exit on error + variables non définies interdites
 
-# 1) Publier les assets des bundles (EasyAdmin -> /public/bundles/easyadmin)
+# ===========================
+# Recréer les clés JWT depuis les secrets Fly
+# ===========================
+mkdir -p config/jwt
+printf "%s" "$JWT_SECRET_KEY_CONTENT" > config/jwt/private.pem
+printf "%s" "$JWT_PUBLIC_KEY_CONTENT" > config/jwt/public.pem
+
+chmod 600 config/jwt/private.pem
+chmod 644 config/jwt/public.pem
+
+# ===========================
+# Publier les assets des bundles
+# ===========================
 php bin/console -n assets:install
 
-# 2) Créer des alias "underscore" pour les fichiers fingerprintés EasyAdmin
+# ===========================
+# Alias EasyAdmin
+# ===========================
 EA_DIR="public/bundles/easyadmin"
 if [ -d "$EA_DIR" ]; then
   for f in "$EA_DIR"/*.*.css "$EA_DIR"/*.*.js; do
     [ -f "$f" ] || continue
     b="$(basename "$f")"
-    n="${b%%.*}"           # name
-    rest="${b#*.}"         # hash.ext
-    h="${rest%%.*}"        # hash
-    e="${b##*.}"           # ext
+    n="${b%%.*}"
+    rest="${b#*.}"
+    h="${rest%%.*}"
+    e="${b##*.}"
     cp -f "$f" "$EA_DIR/${n}_${h}.$e"
   done
 fi
 
-# 3) (si AssetMapper existe)
+# ===========================
+# Asset Mapper
+# ===========================
 if php bin/console -q help asset-map:compile >/dev/null 2>&1; then
   php bin/console -n asset-map:compile
 fi
 
-# 4) DB & cache
+# ===========================
+# Base de données + cache
+# ===========================
 php bin/console -n doctrine:migrations:migrate --allow-no-migration --all-or-nothing
 php bin/console -n cache:clear --env=prod
 php bin/console -n cache:warmup --env=prod
